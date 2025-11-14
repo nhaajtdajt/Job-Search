@@ -1,12 +1,14 @@
-export default function SearchBar({ onSearch, className = '' }) {
+import { Link } from "react-router-dom";
+
+export default function SearchBar({ onSearch, className = "" }) {
   function handleSubmit(e) {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     const query = {
-      keyword: formData.get('keyword')?.toString() || '',
-      location: formData.get('location')?.toString() || '',
-    }
-    onSearch?.(query)
+      keyword: formData.get("keyword")?.toString() || "",
+      location: formData.get("location")?.toString() || "",
+    };
+    onSearch?.(query);
   }
 
   return (
@@ -18,8 +20,18 @@ export default function SearchBar({ onSearch, className = '' }) {
         <label className="flex flex-col gap-1 text-sm font-medium text-gray-500">
           Công việc, kỹ năng
           <div className="flex items-center gap-3 rounded-xl border border-gray-200 px-3 py-3 focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100 transition">
-            <svg className="h-5 w-5 text-brand-500" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h11M6 10h7m-7 4h4m5-2.5 4 4m0 0 1.5-1.5m-1.5 1.5L18 21" />
+            <svg
+              className="h-5 w-5 text-brand-500"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 6h11M6 10h7m-7 4h4m5-2.5 4 4m0 0 1.5-1.5m-1.5 1.5L18 21"
+              />
             </svg>
             <input
               name="keyword"
@@ -31,8 +43,18 @@ export default function SearchBar({ onSearch, className = '' }) {
         <label className="flex flex-col gap-1 text-sm font-medium text-gray-500 lg:max-w-sm">
           Địa điểm
           <div className="flex items-center gap-3 rounded-xl border border-gray-200 px-3 py-3 focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100 transition">
-            <svg className="h-5 w-5 text-brand-500" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s6-4.686 6-10a6 6 0 1 0-12 0c0 5.314 6 10 6 10z" />
+            <svg
+              className="h-5 w-5 text-brand-500"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 21s6-4.686 6-10a6 6 0 1 0-12 0c0 5.314 6 10 6 10z"
+              />
               <circle cx="12" cy="11" r="2.5" />
             </svg>
             <input
@@ -51,17 +73,23 @@ export default function SearchBar({ onSearch, className = '' }) {
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-gray-500">
         <span className="font-semibold text-gray-900">Từ khóa hot:</span>
-        {['Data Analyst', 'UI/UX Designer', 'Thực tập sinh', 'Backend NodeJS', 'Product Owner'].map((item) => (
-          <button
+        {[
+          "Data Analyst",
+          "UI/UX Designer",
+          "Thực tập sinh",
+          "Backend NodeJS",
+          "Product Owner",
+        ].map((item) => (
+          <Link
+            to="#"
             key={item}
             type="button"
-            className="rounded-full border border-brand-100 bg-brand-50/80 px-3 py-1.5 text-sm font-medium text-brand-700 transition hover:border-brand-200 hover:bg-white"
+            className="rounded-full border border-brand-100 bg-brand-50/80 px-3 py-1.5 text-sm font-medium text-brand-700 transition hover:border-brand-200 hover:bg-[#ccc]"
           >
             {item}
-          </button>
+          </Link>
         ))}
       </div>
     </form>
-  )
+  );
 }
-

@@ -1,20 +1,20 @@
-import { Outlet, Link } from 'react-router-dom'
-import './App.css'
+import { Outlet, Link } from "react-router-dom";
+import "./App.css";
 
 function Header() {
   const primaryLinks = [
-    { label: 'Trang chủ', to: '/' },
-    { label: 'Việc làm', to: '/jobs' },
-    { label: 'Công ty', to: '/companies' },
-    { label: 'Kỹ năng', to: '#' },
-    { label: 'Nhà tuyển dụng', to: '#' },
-  ]
+    { label: "Trang chủ", to: "/" },
+    { label: "Việc làm", to: "/jobs" },
+    { label: "Công ty", to: "/companies" },
+    { label: "Kỹ năng", to: "#" },
+    { label: "Nhà tuyển dụng", to: "#" },
+  ];
 
   const supportLinks = [
-    { label: 'Hướng dẫn sử dụng', href: '#' },
-    { label: 'Liên hệ hỗ trợ', href: '#' },
-    { label: 'Hotline: 1900 1234', href: '#' },
-  ]
+    { label: "Hướng dẫn sử dụng", href: "#" },
+    { label: "Liên hệ hỗ trợ", href: "#" },
+    { label: "Hotline: 1900 1234", href: "#" },
+  ];
 
   return (
     <header className="sticky top-0 z-50">
@@ -23,11 +23,18 @@ function Header() {
           <span className="font-semibold">Empower your growth</span>
           <div className="flex items-center gap-4">
             {supportLinks.map((item) => (
-              <a key={item.label} href={item.href} className="hidden text-gray-700 transition hover:text-gray-900 sm:inline">
+              <a
+                key={item.label}
+                href={item.href}
+                className="hidden text-gray-700 transition hover:text-gray-900 sm:inline"
+              >
                 {item.label}
               </a>
             ))}
-            <a href="#" className="text-gray-700 transition hover:text-gray-900 sm:hidden">
+            <a
+              href="#"
+              className="text-gray-700 transition hover:text-gray-900 sm:hidden"
+            >
               Hỗ trợ
             </a>
           </div>
@@ -40,7 +47,7 @@ function Header() {
               <p className="text-4xl font-bold tracking-tight text-red-600 drop-shadow">
                 viec69
               </p>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-500/100">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-500">
                 Nâng tầm sự nghiệp
               </p>
             </div>
@@ -57,71 +64,120 @@ function Header() {
                 </Link>
               ))}
             </nav>
-            <div className="flex items-center gap-3">
-              <button className="hidden gap-2 px-4 py-2 text-sm font-semibold text-brand-50 transition hover:text-white sm:inline-flex">
-                <span className="inline-flex h-2 w-2 rounded-full bg-accent-400" />
+            <div className="flex items-center gap-8">
+              <button className="gap-2 text-sm font-semibold text-brand-50 transition hover:text-white">
+                <span className="rounded-full bg-accent-400" />
                 Thông báo
               </button>
-              <button className="inline-flex h-10 w-10 text-brand-50 font-semibold transition hover:text-white">
-                <a href='#'>
-                  Đăng nhâp
-                </a>
+              <button className="text-brand-50 font-semibold transition hover:text-white">
+                <a href="#">Đăng nhập</a>
               </button>
-              <button className="inline-flex gap-2 px-4 py-2 text-sm font-semibold text-brand-50 transition hover:text-white">
-                <a href='#'>
-                  Đăng ký
-                </a>
+              <button className="text-sm font-semibold text-brand-50 transition hover:text-white">
+                <a href="#">Đăng ký</a>
               </button>
             </div>
           </div>
         </div>
       </div>
     </header>
-  )
+  );
 }
 
 function Footer() {
   return (
-    <footer className="mt-24 bg-gradient-to-b from-brand-950 via-brand-900 to-brand-900 text-brand-100">
+    <footer className="mt-10 bg-[#ffe9d9]">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 text-sm sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <p className="text-2xl font-bold text-white">viec69</p>
+            <p className="text-2xl font-bold text-black">viec69</p>
             <p className="mt-4 text-xs sm:text-sm text-brand-200/85">
-              Kết nối nhân tài và doanh nghiệp tại Việt Nam với nền tảng việc làm trực quan, thông minh và cá nhân hóa.
+              Kết nối nhân tài và doanh nghiệp tại Việt Nam với nền tảng việc
+              làm trực quan, thông minh và cá nhân hóa.
             </p>
           </div>
           <div>
-            <p className="text-base font-semibold uppercase tracking-wide text-white">Viec69 Platform</p>
+            <p className="text-base font-semibold uppercase tracking-wide text-black">
+              Viec69 Platform
+            </p>
             <ul className="mt-4 space-y-2">
-              <li><a href="#" className="transition hover:text-white">Về viec69</a></li>
-              <li><a href="#" className="transition hover:text-white">Tin tức &amp; sự kiện</a></li>
-              <li><a href="#" className="transition hover:text-white">Trung tâm trợ giúp</a></li>
+              <li>
+                <a href="#" className="transition hover:text-[#ccc]">
+                  Về viec69
+                </a>
+              </li>
+              <li>
+                <a href="#" className="transition hover:text-[#ccc]">
+                  Tin tức &amp; sự kiện
+                </a>
+              </li>
+              <li>
+                <a href="#" className="transition hover:text-[#ccc]">
+                  Trung tâm trợ giúp
+                </a>
+              </li>
             </ul>
           </div>
           <div>
-            <p className="text-base font-semibold uppercase tracking-wide text-white">Dành cho ứng viên</p>
+            <p className="text-base font-semibold uppercase tracking-wide text-black">
+              Dành cho ứng viên
+            </p>
             <ul className="mt-4 space-y-2">
-              <li><a href="#" className="transition hover:text-white">Tạo CV Wow</a></li>
-              <li><a href="#" className="transition hover:text-white">Lộ trình sự nghiệp</a></li>
-              <li><a href="#" className="transition hover:text-white">Cẩm nang nghề nghiệp</a></li>
+              <li>
+                <a href="#" className="transition hover:text-[#ccc]">
+                  Tạo CV Wow
+                </a>
+              </li>
+              <li>
+                <a href="#" className="transition hover:text-[#ccc]">
+                  Lộ trình sự nghiệp
+                </a>
+              </li>
+              <li>
+                <a href="#" className="transition hover:text-[#ccc]">
+                  Cẩm nang nghề nghiệp
+                </a>
+              </li>
             </ul>
           </div>
           <div>
-            <p className="text-base font-semibold uppercase tracking-wide text-white">Kết nối</p>
+            <p className="text-base font-semibold uppercase tracking-wide text-black">
+              Kết nối
+            </p>
             <ul className="mt-4 space-y-2">
-              <li><a href="https://www.facebook.com" className="transition hover:text-white">Facebook</a></li>
-              <li><a href="#" className="transition hover:text-white">LinkedIn</a></li>
-              <li><a href="#" className="transition hover:text-white">Zalo</a></li>
+              <li>
+                <a
+                  href="https://www.facebook.com"
+                  className="transition hover:text-[#ccc]"
+                >
+                  Facebook
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.linkedin.com/"
+                  className="transition hover:text-[#ccc]"
+                >
+                  LinkedIn
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://chat.zalo.me/"
+                  className="transition hover:text-[#ccc]"
+                >
+                  Zalo
+                </a>
+              </li>
             </ul>
           </div>
         </div>
         <div className="mt-10 border-t border-white/10 pt-6 text-xs text-brand-200/75">
-          © {new Date().getFullYear()} viec69. Đã đăng ký bản quyền. Một sản phẩm bởi đội ngũ viec69.
+          © {new Date().getFullYear()} viec69. Đã đăng ký bản quyền. Một sản
+          phẩm bởi đội ngũ viec69.
         </div>
       </div>
     </footer>
-  )
+  );
 }
 
 function App() {
@@ -133,7 +189,7 @@ function App() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
