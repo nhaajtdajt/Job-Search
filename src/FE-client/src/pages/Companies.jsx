@@ -13,8 +13,8 @@ export default function CompanyPage() {
     {
       name: "Pizza 4P's Corporation",
       follows: 779,
-      logo: "/images/4ps_logo.png",
-      image: "/images/4ps_banner.jpg",
+      logo: "https://images.vietnamworks.com/pictureofcompany/5e/10843127.png",
+      image: "https://images02.vietnamworks.com/companyprofile/Pizza4ps/en/coverfinal.jpg",
       jobs: [
         { position: "[HCM] HSE Engineer", salary: "Thương lượng", location: "Hồ Chí Minh" },
         { position: "[VN] Record-To-Report Lead", salary: "Thương lượng", location: "Hồ Chí Minh" },
@@ -23,11 +23,56 @@ export default function CompanyPage() {
     {
       name: "Shinhan Vietnam Finance",
       follows: 1151,
-      logo: "/images/shinhan.png",
-      image: "/images/shinhan_banner.jpg",
+      logo: "https://images02.vietnamworks.com/companyprofile/null/en/logo_vu%C3%B4ng_ch%E1%BB%AF_xanh_kh%C3%B4ng_n%E1%BB%81n.png",
+      image: "https://images02.vietnamworks.com/companyprofile/null/en/MicrosoftTeams-image_94_.png",
       jobs: [
         { position: "Accounting Admin Associate", salary: "Thương lượng", location: "Hồ Chí Minh" },
         { position: "Team Head (Early Collection)", salary: "Thương lượng", location: "Hồ Chí Minh" },
+      ],
+    },
+
+    {
+      name: "SHINETSU MAGNETICS MATERIALS VIET NAM CO.,LTD",
+      follows: 128,
+      logo: "https://images02.vietnamworks.com//companyprofile/shinetsu-magnetics-materials-viet-nam-coltd/en/Logo.jpg",
+      image: "https://images02.vietnamworks.com//companyprofile/shinetsu-magnetics-materials-viet-nam-coltd/en/cong_ty_1_1920x510-S2.jpg",
+      jobs: [
+        { position: "Kỹ Sư Quản Lí Môi Trường", salary: "10tr-13tr ₫/tháng", location: "Quảng Ninh" },
+        { position: "Kỹ Sư Bảo Trì Bảo Dưỡng", salary: "10tr-12tr ₫/tháng", location: "Hải Phòng" },
+      ],
+    },
+
+
+      {
+      name: "MK Group",
+      follows: 120,
+      logo: "https://images.vietnamworks.com/pictureofcompany/fa/11259301.png",
+      image: "https://images02.vietnamworks.com/companyprofile/mk-group/en/%E1%BA%A3nh_1._b%C3%ACa_final.jpg?v=1749441199",
+      jobs: [
+        { position: "Chuyên Viên Kiểm Toán Nội Bộ - Ethiopia", salary: "Tới $ 2,000 /tháng", location: "Quốc Tế" },
+        { position: "NPI Engineer", salary: "$ 900-1,300 /tháng ", location: "Phú Thọ" },
+      ],
+    },
+
+        {
+      name: "Công ty Language Link Việt Nam",
+      follows: 201,
+      logo: "https://images.vietnamworks.com/pictureofcompany/b4/11234379.png",
+      image: "https://images02.vietnamworks.com/companyprofile/language-link-vietnam/en/%E1%BA%A3nh_b%C3%ACa.jpg",
+      jobs: [
+        { position: "Sales B2B Manager (South Provinces)", salary: "$ 1,000-1,500 /tháng", location: "Hồ Chí Minh" },
+        { position: "Brand Communication Team Leader", salary: "Thương Lượng", location: "Hà Nội" },
+      ],
+    },
+
+            {
+      name: "Công ty Cổ phần Chứng khoán SSI",
+      follows: 1045,
+      logo: "https://images02.vietnamworks.com/companyprofile/cong-ty-co-phan-chung-khoan-ssi/vi/logossi-01.jpg",
+      image: "https://images02.vietnamworks.com/companyprofile/cong-ty-co-phan-chung-khoan-ssi/vi/SSI_anh_bia_dau_trang.jpg",
+      jobs: [
+        { position: "Chuyên Viên Hỗ Trợ Ứng Dụng", salary: "Thương Lượng", location: "Hồ Chí Minh" },
+        { position: "Chuyên Viên Phát Triển Phần Mềm (.Net)", salary: "Thương Lượng", location: "Hà Nội" },
       ],
     },
   ];
@@ -69,7 +114,7 @@ export default function CompanyPage() {
 
           <button
             onClick={() => setSearch(searchInput)}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-400 cursor-pointer transition"
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-400 cursor-pointer transition duration-300"
           >
             Search
           </button>
@@ -87,7 +132,7 @@ export default function CompanyPage() {
           <div className="relative">
                     <button
                       onClick={() => setOpen(!open)}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg flex items-center gap-2"
+                      className="px-4 py-2 border hover:border-blue-500 text-gray-700 rounded-lg flex items-center gap-2 cursor-pointer transition duration-300"
                     >
                       Lĩnh vực công ty
                       <span>{"▼"}</span>
