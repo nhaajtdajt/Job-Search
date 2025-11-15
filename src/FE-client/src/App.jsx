@@ -7,7 +7,7 @@ function Header() {
     { label: "Việc làm", to: "/jobs" },
     { label: "Công ty", to: "/companies" },
     { label: "Kỹ năng", to: "#" },
-    { label: "Nhà tuyển dụng", to: "#" },
+    { label: "Nhà tuyển dụng", to: "/employer" },
   ];
 
   const supportLinks = [
@@ -31,6 +31,12 @@ function Header() {
                 {item.label}
               </a>
             ))}
+            <Link
+              to="/employer/contact"
+              className="hidden sm:inline rounded-full bg-orange-500 px-4 py-2 text-white font-semibold text-xs uppercase tracking-wider hover:bg-orange-600 transition"
+            >
+              Liên hệ tư vấn
+            </Link>
             <a
               href="#"
               className="text-gray-700 transition hover:text-gray-900 sm:hidden"
@@ -69,12 +75,12 @@ function Header() {
                 <span className="rounded-full bg-accent-400" />
                 Thông báo
               </button>
-              <button className="text-brand-50 font-semibold transition hover:text-white">
-                <a href="#">Đăng nhập</a>
-              </button>
-              <button className="text-sm font-semibold text-brand-50 transition hover:text-white">
-                <a href="#">Đăng ký</a>
-              </button>
+              <Link to="/employer/login" className="text-brand-50 font-semibold transition hover:text-white">
+                Đăng nhập
+              </Link>
+              <Link to="/employer/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
+                Đăng ký
+              </Link>
             </div>
           </div>
         </div>
