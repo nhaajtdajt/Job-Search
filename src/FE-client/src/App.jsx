@@ -1,7 +1,10 @@
 import { Outlet, Link } from "react-router-dom";
+import { useState } from "react";
 import "./App.css";
+import LoginModal from "./components/LoginModal.jsx";
+import RegistrationModal from "./components/RegistrationModal.jsx";
 
-function Header() {
+function Header({ onOpenLogin, onOpenRegister }) {
   const primaryLinks = [
     { label: "Trang chủ", to: "/" },
     { label: "Việc làm", to: "/jobs" },
@@ -69,11 +72,17 @@ function Header() {
                 <span className="rounded-full bg-accent-400" />
                 Thông báo
               </button>
-              <button className="text-brand-50 font-semibold transition hover:text-white">
-                <a href="#">Đăng nhập</a>
+              <button
+                onClick={() => onOpenLogin?.()}
+                className="text-brand-50 font-semibold transition hover:text-white"
+              >
+                Đăng nhập
               </button>
-              <button className="text-sm font-semibold text-brand-50 transition hover:text-white">
-                <a href="#">Đăng ký</a>
+              <button
+                onClick={() => onOpenRegister?.()}
+                className="text-sm font-semibold text-brand-50 transition hover:text-white"
+              >
+                Đăng ký
               </button>
             </div>
           </div>
@@ -181,9 +190,20 @@ function Footer() {
 }
 
 function App() {
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
   return (
     <div className="min-h-dvh flex flex-col bg-white text-slate-900">
-      <Header />
+      <Header
+        onOpenLogin={() => setLoginOpen(true)}
+        onOpenRegister={() => setRegisterOpen(true)}
+      />
+      {loginOpen && (
+        <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      )}
+      {registerOpen && (
+        <RegistrationModal open={registerOpen} onClose={() => setRegisterOpen(false)} />
+      )}
       <main className="flex-1">
         <Outlet />
       </main>
