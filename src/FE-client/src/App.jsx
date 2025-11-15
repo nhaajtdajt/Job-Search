@@ -85,7 +85,7 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="mt-10 bg-[#ffe9d9]">
+    <footer className="bg-[#ffe9d9]">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 text-sm sm:grid-cols-2 md:grid-cols-4">
           <div>
