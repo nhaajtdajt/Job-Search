@@ -137,21 +137,21 @@ const testimonials = [
     company: "Ngân hàng TMCP Kỹ thương Việt Nam",
     logo: "https://images.vietnamworks.com/logo/techcombank_95929_210811173811.png",
     quote:
-      "Rất ấn tượng vì sự tận tâm và phục vụ khách hàng của viec69, chúng tôi đã thu hút được rất nhiều nhân tài từ đây!",
+      "Rất ấn tượng vì sự tận tâm và phục vụ khách hàng của viec24h, chúng tôi đã thu hút được rất nhiều nhân tài từ đây!",
     author: "Phòng Nhân sự",
   },
   {
     company: "Công ty TNHH Nước Giải Khát Suntory Pepsico Việt Nam",
     logo: "https://images.vietnamworks.com/logo/suntory-pepsico-vietnam-beverage-company-limited-suntory-pepsico-vietnam-beverage-e3508027.png",
     quote:
-      "viec69 tư vấn nhiệt tình, hỗ trợ tận tâm, đồng hành cùng doanh nghiệp.",
+      "viec24h tư vấn nhiệt tình, hỗ trợ tận tâm, đồng hành cùng doanh nghiệp.",
     author: "HR Manager",
   },
   {
     company: "Công ty TNHH BHNT Prudential Việt Nam",
     logo: "https://images.vietnamworks.com/logo/prudential-vietnam-assurance-private-limited-branch-in-ho-chi-minh-city-e5077532.png",
     quote:
-      "Nhân viên tư vấn viec69 hỗ trợ tốt, bất kỳ yêu cầu qua mail hay qua call đều được hỗ trợ nhanh chóng.",
+      "Nhân viên tư vấn viec24h hỗ trợ tốt, bất kỳ yêu cầu qua mail hay qua call đều được hỗ trợ nhanh chóng.",
     author: "Trưởng phòng Tuyển dụng",
   },
 ];
@@ -347,7 +347,7 @@ export default function EmployerLanding() {
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Tại sao chọn viec69?
+            Tại sao chọn viec24h?
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Nền tảng tuyển dụng hàng đầu với công nghệ tiên tiến và dịch vụ
@@ -452,7 +452,7 @@ export default function EmployerLanding() {
         title="Quảng bá thương hiệu"
         price="23,200,000"
         features={[
-          "Trang chủ viec69 nhận được hơn 7 triệu lượt truy cập mỗi tháng từ các ứng viên và chuyên gia giỏi nhất tại Việt Nam",
+          "Trang chủ viec24h nhận được hơn 7 triệu lượt truy cập mỗi tháng từ các ứng viên và chuyên gia giỏi nhất tại Việt Nam",
           "Đặt Logo và Banner tại trang chủ sẽ là vị trí chiến lược để thu hút nhân tài",
         ]}
         buttonText="Liên Hệ"
@@ -507,7 +507,7 @@ export default function EmployerLanding() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              CÁC DOANH NGHIỆP HÀNG ĐẦU LỰA CHỌN VIEC69
+              CÁC DOANH NGHIỆP HÀNG ĐẦU LỰA CHỌN VIEC24H
             </h2>
             <p className="text-lg text-gray-600">
               Được tin dùng bởi hàng nghìn doanh nghiệp lớn tại Việt Nam
@@ -564,10 +564,10 @@ export default function EmployerLanding() {
               </p>
               <p className="text-gray-600 text-sm">
                 <a
-                  href="mailto:employer@viec69.com"
+                  href="mailto:employer@viec24h.com"
                   className="hover:text-orange-600"
                 >
-                  employer@viec69.com
+                  employer@viec24h.com
                 </a>
               </p>
             </div>

@@ -74,7 +74,7 @@ export default function EmployerLogin() {
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-500 to-red-600 p-12 flex-col justify-between text-white">
           <div>
             <Link to="/" className="inline-block">
-              <h1 className="text-4xl font-bold mb-2">viec69</h1>
+              <h1 className="text-4xl font-bold mb-2">viec24h</h1>
               <p className="text-orange-100 text-sm uppercase tracking-widest">
                 Nhà tuyển dụng
               </p>
@@ -108,7 +108,7 @@ export default function EmployerLogin() {
           </div>
 
           <div className="text-sm text-orange-100">
-            © 2025 viec69. All rights reserved.
+            © 2025 viec24h. All rights reserved.
           </div>
         </div>
 
@@ -118,7 +118,7 @@ export default function EmployerLogin() {
             {/* Mobile Logo */}
             <div className="lg:hidden mb-8 text-center">
               <Link to="/">
-                <h1 className="text-3xl font-bold text-orange-600">viec69</h1>
+                <h1 className="text-3xl font-bold text-orange-600">viec24h</h1>
                 <p className="text-gray-600 text-sm">Nhà tuyển dụng</p>
               </Link>
             </div>
