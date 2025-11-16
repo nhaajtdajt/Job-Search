@@ -51,7 +51,7 @@ function Header() {
           <Link to="/" className="flex items-center gap-4 group">
             <div>
               <p className="text-4xl font-bold tracking-tight text-red-600 drop-shadow">
-                viec69
+                viec24h
               </p>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-500">
                 Nâng tầm sự nghiệp
@@ -95,7 +95,7 @@ function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 text-sm sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <p className="text-2xl font-bold text-black">viec69</p>
+            <p className="text-2xl font-bold text-black">viec24h</p>
             <p className="mt-4 text-xs sm:text-sm text-brand-200/85">
               Kết nối nhân tài và doanh nghiệp tại Việt Nam với nền tảng việc
               làm trực quan, thông minh và cá nhân hóa.
@@ -103,12 +103,12 @@ function Footer() {
           </div>
           <div>
             <p className="text-base font-semibold uppercase tracking-wide text-black">
-              Viec69 Platform
+              Viec24h Platform
             </p>
             <ul className="mt-4 space-y-2">
               <li>
                 <a href="#" className="transition hover:text-[#ccc]">
-                  Về viec69
+                  Về viec24h
                 </a>
               </li>
               <li>
