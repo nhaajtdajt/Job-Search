@@ -10,7 +10,7 @@ function Header({ onOpenLogin, onOpenRegister }) {
     { label: "Việc làm", to: "/jobs" },
     { label: "Công ty", to: "/companies" },
     { label: "Kỹ năng", to: "#" },
-    { label: "Nhà tuyển dụng", to: "#" },
+    { label: "Nhà tuyển dụng", to: "/employer" },
   ];
 
   const supportLinks = [
@@ -34,6 +34,12 @@ function Header({ onOpenLogin, onOpenRegister }) {
                 {item.label}
               </a>
             ))}
+            <Link
+              to="/employer/contact"
+              className="hidden sm:inline rounded-full bg-orange-500 px-4 py-2 text-white font-semibold text-xs uppercase tracking-wider hover:bg-orange-600 transition"
+            >
+              Liên hệ tư vấn
+            </Link>
             <a
               href="#"
               className="text-gray-700 transition hover:text-gray-900 sm:hidden"
@@ -72,18 +78,14 @@ function Header({ onOpenLogin, onOpenRegister }) {
                 <span className="rounded-full bg-accent-400" />
                 Thông báo
               </button>
-              <button
-                onClick={() => onOpenLogin?.()}
-                className="text-brand-50 font-semibold transition hover:text-white"
-              >
+
+              <Link to="/employer/login" className="text-brand-50 font-semibold transition hover:text-white">
                 Đăng nhập
-              </button>
-              <button
-                onClick={() => onOpenRegister?.()}
-                className="text-sm font-semibold text-brand-50 transition hover:text-white"
-              >
+              </Link>
+              <Link to="/employer/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
                 Đăng ký
-              </button>
+              </Link>
+
             </div>
           </div>
         </div>
@@ -94,7 +96,7 @@ function Header({ onOpenLogin, onOpenRegister }) {
 
 function Footer() {
   return (
-    <footer className="mt-10 bg-[#ffe9d9]">
+    <footer className="bg-[#ffe9d9]">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 text-sm sm:grid-cols-2 md:grid-cols-4">
           <div>
