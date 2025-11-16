@@ -114,7 +114,7 @@ export default function EmployerRegister() {
           <div className="bg-gradient-to-r from-orange-500 to-red-600 px-8 py-6 text-white">
             <div className="flex items-center justify-between mb-4">
               <Link to="/" className="text-2xl font-bold">
-                viec69
+                viec24h
               </Link>
               <Link
                 to="/employer/login"
@@ -450,7 +450,7 @@ export default function EmployerRegister() {
                     >
                       Chính sách bảo mật
                     </Link>{" "}
-                    của viec69
+                    của viec24h
                   </label>
                 </div>
                 {errors.agreeTerms && (

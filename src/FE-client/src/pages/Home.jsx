@@ -9,7 +9,7 @@ import Card from "../components/Card.jsx";
 import SimpleJobCard from "../components/SimpleJobCard";
 import EmployerCard from "../components/EmployerCard";
 import vinhome from "../assets/logocompanies/vinhomes.png";
-import viec69 from "../assets/logocompanies/logoviec69.png";
+import viec24h from "../assets/logocompanies/logoviec69.png";
 import vinfast from "../assets/logocompanies/vinfast.jpg";
 import vinsmart from "../assets/logocompanies/vinsmart.png";
 import vincomretail from "../assets/logocompanies/vincomretail.png";
@@ -61,11 +61,11 @@ const topJobs = [
   },
   {
     title: "Trưởng Ban Nhân Sự",
-    company: "viec69 Client",
+    company: "viec24h Client",
     tags: ["Thỏa thuận"],
     locations: ["Hà Nội"],
     hot: true,
-    image: viec69,
+    image: viec24h,
   },
   {
     title: "Quality Engineering Expert",
@@ -339,7 +339,7 @@ const financeJobs = [
 
 const careerTools = [
   {
-    title: "Tạo CV Wow với viec69",
+    title: "Tạo CV Wow với viec24h",
     description: "Mẫu CV ấn tượng, miễn phí để bạn nổi bật ngay từ vòng hồ sơ.",
     action: "Tạo CV ngay",
     badge: "WowCV",
@@ -378,10 +378,10 @@ export default function Home() {
             <div className="space-y-6">
               <span className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest">
                 <span className="inline-block h-2 w-2" />
-                Viec69 Talent Launch • 2025
+                Viec24h Talent Launch • 2025
               </span>
               <h1 className="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-                Phát triển thanh niên triển vọng cùng viec69
+                Phát triển thanh niên triển vọng cùng viec24h
               </h1>
               <p className="text-base text-brand-50/85 sm:text-lg">
                 Khám phá cơ hội nghề nghiệp nổi bật và chương trình tuyển dụng

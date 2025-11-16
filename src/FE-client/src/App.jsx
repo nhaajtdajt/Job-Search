@@ -178,8 +178,8 @@ function Footer() {
           </div>
         </div>
         <div className="mt-10 border-t border-white/10 pt-6 text-xs text-brand-200/75">
-          © {new Date().getFullYear()} viec69. Đã đăng ký bản quyền. Một sản
-          phẩm bởi đội ngũ viec69.
+          © {new Date().getFullYear()} viec24h. Đã đăng ký bản quyền. Một sản
+          phẩm bởi đội ngũ viec24h.
         </div>
       </div>
     </footer>
