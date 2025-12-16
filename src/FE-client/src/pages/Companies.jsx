@@ -200,7 +200,7 @@ export default function CompanyPage() {
               </p>
             )}
           </div>
-        </div>
+        </div>  
 
     </section>
     </div>

@@ -367,11 +367,7 @@ export default function Home() {
     <div className="pb-24">
       <section className="relative overflow-hidden bg-linear-to-br from-brand-950 via-brand-900 to-brand-700 text-black">
         <div
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at top right, rgba(255, 0, 0, 0.77), transparent 100%)",
-          }}
+          className="absolute inset-0 opacity-20 bg-blue-200"
         />
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">

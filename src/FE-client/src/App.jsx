@@ -7,7 +7,6 @@ function Header() {
     { label: "Việc làm", to: "/jobs" },
     { label: "Công ty", to: "/companies" },
     { label: "Kỹ năng", to: "#" },
-    { label: "Nhà tuyển dụng", to: "/employer" },
   ];
 
   const supportLinks = [
@@ -18,7 +17,7 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="bg-orange-200 text-gray-800">
+      <div className="bg-blue-200 text-gray-800">
         <div className="max-w-7xl mx-auto flex h-10 items-center justify-between px-4 text-[11px] uppercase tracking-widest sm:px-6 lg:px-8">
           <span className="font-semibold">Empower your growth</span>
           <div className="flex items-center gap-4">
@@ -32,10 +31,10 @@ function Header() {
               </a>
             ))}
             <Link
-              to="/employer/contact"
-              className="hidden sm:inline rounded-full bg-orange-500 px-4 py-2 text-white font-semibold text-xs uppercase tracking-wider hover:bg-orange-600 transition"
+              to="/contact"
+              className="hidden sm:inline rounded-full bg-blue-500 px-4 py-2 text-white font-semibold text-xs uppercase tracking-wider hover:bg-blue-600 transition"
             >
-              Liên hệ tư vấn
+              Liên hệ hỗ trợ
             </Link>
             <a
               href="#"
@@ -46,7 +45,7 @@ function Header() {
           </div>
         </div>
       </div>
-      <div className="backdrop-blur bg-orange-500/15 shadow-md shadow-brand-950/40">
+      <div className="backdrop-blur bg-blue-500/15 shadow-md shadow-brand-950/40">
         <div className="max-w-7xl mx-auto flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <Link to="/" className="flex items-center gap-4 group">
             <div>
@@ -69,18 +68,25 @@ function Header() {
                   {item.label}
                 </Link>
               ))}
-            </nav>
-            <div className="flex items-center gap-8">
-              <button className="gap-2 text-sm font-semibold text-brand-50 transition hover:text-white">
-                <span className="rounded-full bg-accent-400" />
+              <button className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition hover:bg-white/15 hover:text-white">
                 Thông báo
               </button>
-              <Link to="/employer/login" className="text-brand-50 font-semibold transition hover:text-white">
-                Đăng nhập
+            </nav>
+            <div className="flex items-center gap-4">
+              <Link 
+                to="/employer" 
+                className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 shadow-lg"
+              >
+                Nhà tuyển dụng
               </Link>
-              <Link to="/employer/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
-                Đăng ký
-              </Link>
+              <div className="flex items-center gap-8">
+                <Link to="/login" className="text-brand-50 font-semibold transition hover:text-white">
+                  Đăng nhập
+                </Link>
+                <Link to="/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
+                  Đăng ký
+                </Link>
+              </div>
             </div>
           </div>
         </div>

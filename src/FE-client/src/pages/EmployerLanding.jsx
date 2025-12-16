@@ -324,22 +324,6 @@ function CompanyLogoGrid({ companies }) {
 export default function EmployerLanding() {
   return (
     <div className="bg-gradient-to-b from-orange-50 to-white">
-      {/* Quick Access Bar - Employer Dashboard Link */}
-      <div className="bg-gradient-to-r from-orange-600 to-red-600 text-white py-3">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <p className="text-sm md:text-base">
-            Đã có tài khoản nhà tuyển dụng?
-          </p>
-          <Link
-            to="/employer/dashboard"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-orange-600 rounded-full text-sm font-semibold hover:bg-orange-50 transition shadow-md"
-          >
-            <Building2 className="w-4 h-4" />
-            Vào Dashboard
-          </Link>
-        </div>
-      </div>
-
       {/* Banner Slider - Hero Section */}
       <BannerSlider />
 
@@ -528,17 +512,17 @@ export default function EmployerLanding() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/employer/dashboard"
+              to="/employer/login"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-orange-600 rounded-full text-lg font-semibold hover:bg-orange-50 transition shadow-xl"
             >
               <Building2 className="w-6 h-6" />
-              Vào Dashboard
+              Đăng nhập ngay
             </Link>
             <Link
               to="/employer/post-job"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/20 text-white border-2 border-white rounded-full text-lg font-semibold hover:bg-white hover:text-orange-600 transition shadow-xl"
             >
-              Đăng tuyển ngay
+              Đăng tin tuyển dụng
             </Link>
           </div>
         </div>

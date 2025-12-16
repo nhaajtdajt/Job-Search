@@ -5,12 +5,12 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Building2,
+  User,
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
 
-export default function EmployerLogin() {
+export default function JobSeekerLogin() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -50,8 +50,8 @@ export default function EmployerLogin() {
     setTimeout(() => {
       console.log("Login data:", formData);
       setIsLoading(false);
-      // Redirect to dashboard after successful login
-      window.location.href = "/employer/dashboard";
+      // Redirect to home page or user dashboard after successful login
+      window.location.href = "/";
     }, 1500);
   };
 
@@ -68,72 +68,76 @@ export default function EmployerLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl w-full flex rounded-2xl shadow-2xl overflow-hidden bg-white">
         {/* Left Side - Branding */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-500 to-red-600 p-12 flex-col justify-between text-white">
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-500 to-indigo-600 p-12 flex-col justify-between text-white">
           <div>
             <Link to="/" className="inline-block">
               <h1 className="text-4xl font-bold mb-2">viec24h</h1>
-              <p className="text-orange-100 text-sm uppercase tracking-widest">
-                Nhà tuyển dụng
+              <p className="text-blue-100 text-sm uppercase tracking-widest">
+                Người tìm việc
               </p>
             </Link>
-          </div>
 
-          <div className="space-y-8">
-            <div>
+            <div className="mt-8">
               <h2 className="text-3xl font-bold mb-4">
-                Kết nối với hàng triệu ứng viên tiềm năng
+                Tìm công việc mơ ước của bạn
               </h2>
-              <p className="text-orange-100 text-lg">
-                Tìm kiếm nhân tài phù hợp cho doanh nghiệp của bạn một cách
-                nhanh chóng và hiệu quả
+              <p className="text-blue-100 text-lg">
+                Khám phá hàng nghìn cơ hội việc làm từ các công ty hàng đầu
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 mt-8">
               {[
-                "Đăng tin tuyển dụng không giới hạn",
-                "Tiếp cận 7 triệu+ ứng viên mỗi tháng",
-                "Công nghệ AI gợi ý ứng viên phù hợp",
-                "Quản lý tuyển dụng chuyên nghiệp",
-              ].map((benefit, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-300 flex-shrink-0" />
-                  <span className="text-orange-50">{benefit}</span>
+                "Hàng nghìn việc làm mới mỗi ngày",
+                "Ứng tuyển nhanh chóng và dễ dàng",
+                "Nhận gợi ý việc làm phù hợp",
+                "Quản lý hồ sơ ứng tuyển hiệu quả",
+              ].map((benefit, index) => (
+                <div key={index} className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 flex-shrink-0 mt-0.5" />
+                  <span className="text-blue-50">{benefit}</span>
                 </div>
               ))}
             </div>
+
+            <div className="pt-8 border-t border-blue-400/30">
+              <p className="text-blue-100 text-sm mb-2">
+                Bạn là nhà tuyển dụng?
+              </p>
+              <Link
+                to="/employer/login"
+                className="inline-flex items-center space-x-2 text-white hover:text-blue-100 transition-colors"
+              >
+                <span className="font-semibold">Đăng nhập dành cho nhà tuyển dụng</span>
+                <span>→</span>
+              </Link>
+            </div>
           </div>
 
-          <div className="text-sm text-orange-100">
-            © 2025 viec24h. All rights reserved.
+          <div>
+            <div className="grid grid-cols-3 gap-4 opacity-50">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-2 bg-white/30 rounded-full" />
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Right Side - Login Form */}
         <div className="w-full lg:w-1/2 p-8 sm:p-12">
           <div className="max-w-md mx-auto">
-            {/* Mobile Logo */}
-            <div className="lg:hidden mb-8 text-center">
-              <Link to="/">
-                <h1 className="text-3xl font-bold text-orange-600">viec24h</h1>
-                <p className="text-gray-600 text-sm">Nhà tuyển dụng</p>
-              </Link>
-            </div>
-
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Building2 className="w-6 h-6 text-orange-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Đăng nhập
-                </h2>
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                <User className="w-8 h-8 text-blue-600" />
               </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Đăng nhập
+              </h2>
               <p className="text-gray-600">
-                Chào mừng trở lại! Đăng nhập để quản lý tuyển dụng
+                Đăng nhập để khám phá cơ hội việc làm tốt nhất
               </p>
             </div>
 
@@ -144,12 +148,10 @@ export default function EmployerLogin() {
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Email doanh nghiệp
+                  Email
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     id="email"
                     name="email"
@@ -157,18 +159,16 @@ export default function EmployerLogin() {
                     autoComplete="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-3 border ${
-                      errors.email
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-orange-500 focus:border-orange-500"
-                    } rounded-lg focus:outline-none focus:ring-2 transition`}
-                    placeholder="company@example.com"
+                    className={`w-full pl-10 pr-4 py-3 border ${
+                      errors.email ? "border-red-300" : "border-gray-300"
+                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition`}
+                    placeholder="example@email.com"
                   />
                 </div>
                 {errors.email && (
-                  <div className="mt-2 flex items-center gap-1 text-sm text-red-600">
+                  <div className="mt-1 flex items-center space-x-1 text-red-600 text-sm">
                     <AlertCircle className="w-4 h-4" />
-                    {errors.email}
+                    <span>{errors.email}</span>
                   </div>
                 )}
               </div>
@@ -182,9 +182,7 @@ export default function EmployerLogin() {
                   Mật khẩu
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     id="password"
                     name="password"
@@ -192,54 +190,48 @@ export default function EmployerLogin() {
                     autoComplete="current-password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-12 py-3 border ${
-                      errors.password
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-orange-500 focus:border-orange-500"
-                    } rounded-lg focus:outline-none focus:ring-2 transition`}
+                    className={`w-full pl-10 pr-12 py-3 border ${
+                      errors.password ? "border-red-300" : "border-gray-300"
+                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition`}
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <EyeOff className="w-5 h-5" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <Eye className="w-5 h-5" />
                     )}
                   </button>
                 </div>
                 {errors.password && (
-                  <div className="mt-2 flex items-center gap-1 text-sm text-red-600">
+                  <div className="mt-1 flex items-center space-x-1 text-red-600 text-sm">
                     <AlertCircle className="w-4 h-4" />
-                    {errors.password}
+                    <span>{errors.password}</span>
                   </div>
                 )}
               </div>
 
               {/* Remember Me & Forgot Password */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center">
+                <label className="flex items-center">
                   <input
-                    id="rememberMe"
-                    name="rememberMe"
                     type="checkbox"
+                    name="rememberMe"
                     checked={formData.rememberMe}
                     onChange={handleChange}
-                    className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded cursor-pointer"
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <label
-                    htmlFor="rememberMe"
-                    className="ml-2 block text-sm text-gray-700 cursor-pointer"
-                  >
+                  <span className="ml-2 text-sm text-gray-600">
                     Ghi nhớ đăng nhập
-                  </label>
-                </div>
+                  </span>
+                </label>
                 <Link
-                  to="/employer/forgot-password"
-                  className="text-sm font-medium text-orange-600 hover:text-orange-500"
+                  to="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Quên mật khẩu?
                 </Link>
@@ -249,12 +241,12 @@ export default function EmployerLogin() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
-                  <>
+                  <span className="flex items-center justify-center">
                     <svg
-                      className="animate-spin h-5 w-5 text-white"
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -274,7 +266,7 @@ export default function EmployerLogin() {
                       ></path>
                     </svg>
                     Đang xử lý...
-                  </>
+                  </span>
                 ) : (
                   "Đăng nhập"
                 )}
@@ -337,31 +329,14 @@ export default function EmployerLogin() {
                 <p className="text-sm text-gray-600">
                   Chưa có tài khoản?{" "}
                   <Link
-                    to="/employer/register"
-                    className="text-orange-600 hover:text-orange-700 font-semibold"
+                    to="/register"
+                    className="text-blue-600 hover:text-blue-700 font-semibold"
                   >
                     Đăng ký ngay
                   </Link>
                 </p>
               </div>
             </form>
-
-            {/* Divider */}
-            <div className="mt-8 relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-            </div>
-
-            {/* Back to Home */}
-            <div className="mt-6 text-center">
-              <Link
-                to="/"
-                className="text-sm text-gray-600 hover:text-gray-900 transition"
-              >
-                ← Quay về trang chủ
-              </Link>
-            </div>
           </div>
         </div>
       </div>
