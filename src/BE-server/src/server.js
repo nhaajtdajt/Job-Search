@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require("express");
 const cors = require("./config/cors");
 const environment = require("./config/environment");
@@ -8,7 +9,6 @@ const {
 } = require("./middlewares/middleware");
 
 const app = express();
-
 const hostname = environment.HOSTNAME;
 const port = environment.PORT;
 
@@ -19,7 +19,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger); // Log requests
 
 // Routes
-const testRoutes = require("./routes/testRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 
 app.get("/", (req, res) => {
@@ -34,8 +33,7 @@ app.get("/", (req, res) => {
 });
 
 // API Routes
-app.use("/api/test", testRoutes);
-app.use("/api/jobs", jobRoutes);
+//app.use("/api/jobs", jobRoutes);
 
 // Error handling middleware (phải đặt sau tất cả routes)
 app.use(notFoundHandler); // 404 handler
