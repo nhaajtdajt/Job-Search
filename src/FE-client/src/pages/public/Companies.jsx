@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CompanyCard from "../components/CompanyCard.jsx";
+import CompanyCard from "../../components/job/CompanyCard.jsx";
 
 
 export default function CompanyPage() {

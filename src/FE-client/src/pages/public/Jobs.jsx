@@ -1,5 +1,5 @@
-import Filters from '../components/Filters.jsx'
-import JobCard from '../components/JobCard.jsx'
+import Filters from '../../components/common/Filters.jsx'
+import JobCard from '../../components/job/JobCard.jsx'
 
 export default function Jobs() {
   return (
@@ -24,4 +24,3 @@ export default function Jobs() {
     </section>
   )
 }
-

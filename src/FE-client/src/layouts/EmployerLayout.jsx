@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import EmployerHeader from "../components/EmployerHeader";
+import EmployerHeader from "../components/employer/EmployerHeader";
 
 function EmployerFooter() {
   return (

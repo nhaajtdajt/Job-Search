@@ -1,20 +1,20 @@
-import SearchBar from "../components/SearchBar.jsx";
-import heroImage from "../assets/logoAdvertise/teleper_hrbn.webp";
-import mbBanner from "../assets/logoBank/MBbankBanner_136036.webp";
-import boschImage from "../assets/logoAdvertise/BOSCH_GLOBAL.webp";
+import SearchBar from "../../components/common/SearchBar.jsx";
+import heroImage from "../../assets/logoAdvertise/teleper_hrbn.webp";
+import mbBanner from "../../assets/logoBank/MBbankBanner_136036.webp";
+import boschImage from "../../assets/logoAdvertise/BOSCH_GLOBAL.webp";
 import { Dropdown } from "antd";
 import { Menu } from "lucide-react";
-import SectionTitle from "../components/SectionTitle";
-import Card from "../components/Card.jsx";
-import SimpleJobCard from "../components/SimpleJobCard";
-import EmployerCard from "../components/EmployerCard";
-import vinhome from "../assets/logocompanies/vinhomes.png";
-import viec24h from "../assets/logocompanies/logoviec69.png";
-import vinfast from "../assets/logocompanies/vinfast.jpg";
-import vinsmart from "../assets/logocompanies/vinsmart.png";
-import vincomretail from "../assets/logocompanies/vincomretail.png";
-import techcombank from "../assets/logoBank/techcombank.jpg";
-import shinhanbank from "../assets/logoBank/shinhanbank.jpg";
+import SectionTitle from "../../components/common/SectionTitle";
+import Card from "../../components/common/Card.jsx";
+import SimpleJobCard from "../../components/job/SimpleJobCard";
+import EmployerCard from "../../components/employer/EmployerCard";
+import vinhome from "../../assets/logocompanies/vinhomes.png";
+import viec24h from "../../assets/logocompanies/logoviec69.png";
+import vinfast from "../../assets/logocompanies/vinfast.jpg";
+import vinsmart from "../../assets/logocompanies/vinsmart.png";
+import vincomretail from "../../assets/logocompanies/vincomretail.png";
+import techcombank from "../../assets/logoBank/techcombank.jpg";
+import shinhanbank from "../../assets/logoBank/shinhanbank.jpg";
 import { Link } from "react-router-dom";
 
 const heroStats = [

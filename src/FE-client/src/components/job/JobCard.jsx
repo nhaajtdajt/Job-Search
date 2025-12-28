@@ -14,4 +14,3 @@ export default function JobCard({ id, title, company, location }) {
     </Link>
   )
 }
-
