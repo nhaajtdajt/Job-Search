@@ -1,4 +1,5 @@
 const StorageService = require('../services/storage.service');
+const UserRepository = require('../repositories/user.repo');
 const HTTP_STATUS = require('../constants/http-status');
 const { BadRequestError, NotFoundError } = require('../errors');
 const ResponseHandler = require('../utils/response-handler');
@@ -29,11 +30,15 @@ class UserController {
         throw new BadRequestError('User ID not found in authentication');
       }
 
-      // TODO: Get old avatar URL from database to delete
-      // const user = await UserRepository.findById(userId);
-      // if (user && user.avatar_url) {
-      //   await StorageService.deleteOldFile(user.avatar_url);
-      // }
+      // Get old avatar URL from database to delete
+      const user = await UserRepository.findById(userId);
+      if (user && user.avatar_url) {
+        try {
+          await StorageService.deleteFile(user.avatar_url);
+        } catch (err) {
+          console.warn('Failed to delete old avatar:', err.message);
+        }
+      }
 
       // Upload new avatar
       const result = await StorageService.uploadAvatar(
@@ -42,8 +47,8 @@ class UserController {
         'user'
       );
 
-      // TODO: Update database with new avatar URL
-      // await UserRepository.update(userId, { avatar_url: result.url });
+      // Update database with new avatar URL
+      await UserRepository.update(userId, { avatar_url: result.url });
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -66,17 +71,17 @@ class UserController {
     try {
       const userId = req.user.user_id;
 
-      // TODO: Get avatar URL from database
-      // const user = await UserRepository.findById(userId);
-      // if (!user || !user.avatar_url) {
-      //   throw new NotFoundError('No avatar found');
-      // }
+      // Get avatar URL from database
+      const user = await UserRepository.findById(userId);
+      if (!user || !user.avatar_url) {
+        throw new NotFoundError('No avatar found');
+      }
 
-      // TODO: Delete from storage
-      // await StorageService.deleteFile(user.avatar_url);
+      // Delete from storage
+      await StorageService.deleteFile(user.avatar_url);
 
-      // TODO: Update database
-      // await UserRepository.update(userId, { avatar_url: null });
+      // Update database
+      await UserRepository.update(userId, { avatar_url: null });
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -96,16 +101,16 @@ class UserController {
     try {
       const userId = req.user.user_id;
 
-      // TODO: Implement with UserRepository
-      // const user = await UserRepository.findById(userId);
+      const user = await UserRepository.findById(userId);
+
+      if (!user) {
+        throw new NotFoundError('User not found');
+      }
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Profile retrieved successfully',
-        data: {
-          user_id: userId,
-          message: 'User repository not yet implemented',
-        },
+        data: user,
       });
     } catch (error) {
       return next(error);
@@ -121,15 +126,16 @@ class UserController {
       const userId = req.user.user_id;
       const updateData = req.body;
 
-      // TODO: Implement with UserRepository
-      // const user = await UserRepository.update(userId, updateData);
+      const user = await UserRepository.update(userId, updateData);
+
+      if (!user) {
+        throw new NotFoundError('User not found');
+      }
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Profile updated successfully',
-        data: {
-          message: 'User repository not yet implemented',
-        },
+        data: user,
       });
     } catch (error) {
       return next(error);

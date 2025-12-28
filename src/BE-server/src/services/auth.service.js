@@ -3,6 +3,7 @@ const environment = require('../configs/environment.config');
 const db = require('../databases/knex');
 const JWTUtil = require('../utils/jwt.util');
 const HashUtil = require('../utils/hash.util');
+const SupabaseErrorUtil = require('../utils/supabase-error.util');
 const EmailUtil = require('../utils/email.util');
 const { BadRequestError, UnauthorizedError, NotFoundError, DuplicateError } = require('../errors');
 const ROLES = require('../constants/role');
@@ -45,16 +46,8 @@ class AuthService {
   static async register(userData) {
     const { email, password, name, role = ROLES.JOB_SEEKER, ...additionalData } = userData;
 
-    // Validate required fields
-    if (!email || !password) {
-      throw new BadRequestError('Email and password are required');
-    }
-
-    // Validate password strength
-    const passwordValidation = HashUtil.validatePasswordStrength(password);
-    if (!passwordValidation.valid) {
-      throw new BadRequestError(`Password validation failed: ${passwordValidation.errors.join(', ')}`);
-    }
+    // Note: Input validation is handled by AuthValidator middleware
+    // This service focuses on business logic only
 
     // Register user in Supabase Auth
     // Supabase will return error if user already exists
@@ -69,35 +62,7 @@ class AuthService {
     });
 
     if (authError) {
-      // Check for invalid API key error
-      const errorMessage = authError.message?.toLowerCase() || '';
-      const errorCode = authError.status || authError.code || '';
-      
-      if (
-        errorMessage.includes('invalid api key') ||
-        errorMessage.includes('invalid key') ||
-        errorMessage.includes('jwt') ||
-        errorCode === 401
-      ) {
-        throw new BadRequestError(
-          'Invalid API key. Please ensure SUPABASE_SERVICE_ROLE_KEY is set correctly in .env.development. ' +
-          'Admin operations require SERVICE_ROLE_KEY, not anon key.'
-        );
-      }
-      
-      // Check if error is due to duplicate email
-      if (
-        errorMessage.includes('already registered') ||
-        errorMessage.includes('already exists') ||
-        errorMessage.includes('user already registered') ||
-        errorMessage.includes('email address is already registered') ||
-        errorCode === 422 || // Unprocessable Entity - often means duplicate
-        errorCode === 'PGRST301' // PostgREST duplicate error
-      ) {
-        throw new DuplicateError('User with this email already exists');
-      }
-      
-      throw new BadRequestError(authError.message || 'Failed to create user');
+      SupabaseErrorUtil.handleSupabaseAuthError(authError, 'Failed to create user');
     }
 
     const userId = authData.user.id;
@@ -167,12 +132,43 @@ class AuthService {
       throw new BadRequestError(`Failed to create user profile: ${errorMessage}`);
     }
 
-    // Generate tokens
-    const tokenPayload = {
-      user_id: userId,
-      email: authData.user.email,
-      role: role
-    };
+    // Create employer record if role is employer
+    let employerId = null;
+    if (role === ROLES.EMPLOYER) {
+      try {
+        const employerData = {
+          user_id: userId,
+          full_name: name || 'Employer',
+          email: email,
+          role: additionalData.employer_role || 'HR Manager',
+          status: additionalData.status || 'Active',
+          company_id: additionalData.company_id || null  // Nullable now
+        };
+
+        const [employer] = await db('employer')
+          .insert(employerData)
+          .returning('employer_id');
+        
+        employerId = employer.employer_id;
+        
+        console.log(`✅ Created employer record with ID: ${employerId} for user: ${userId}`);
+      } catch (employerError) {
+        console.error('Failed to create employer record:', employerError);
+        
+        // Rollback: delete user profile and auth user
+        try {
+          await db('users').where('user_id', userId).delete();
+          await supabase.auth.admin.deleteUser(userId);
+        } catch (rollbackError) {
+          console.error('Failed to rollback user profile and auth:', rollbackError);
+        }
+        
+        throw new BadRequestError(`Failed to create employer profile: ${employerError.message}`);
+      }
+    }
+
+    // Generate tokens using helper method
+    const tokenPayload = this.generateTokenPayload(userId, authData.user.email, role, employerId);
     const tokens = JWTUtil.generateTokenPair(tokenPayload);
 
     return {
@@ -180,7 +176,8 @@ class AuthService {
         user_id: userId,
         email: authData.user.email,
         name: name,
-        role: role
+        role: role,
+        ...(employerId && { employer_id: employerId })
       },
       ...tokens
     };
@@ -193,9 +190,7 @@ class AuthService {
    * @returns {Object} { user, tokens }
    */
   static async login(email, password) {
-    if (!email || !password) {
-      throw new BadRequestError('Email and password are required');
-    }
+    // Note: Input validation is handled by AuthValidator middleware
 
     // Authenticate with Supabase
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -204,7 +199,7 @@ class AuthService {
     });
 
     if (authError) {
-      throw new UnauthorizedError('Invalid email or password');
+      SupabaseErrorUtil.handleSupabaseAuthError(authError, 'Invalid email or password');
     }
 
     const userId = authData.user.id;
@@ -220,20 +215,18 @@ class AuthService {
 
     // Get user role (from employer table if exists, else job_seeker)
     let role = ROLES.JOB_SEEKER;
+    let employerId = null;
     const employer = await db('employer')
       .where('user_id', userId)
       .first();
 
     if (employer) {
       role = ROLES.EMPLOYER;
+      employerId = employer.employer_id;
     }
 
-    // Generate tokens
-    const tokenPayload = {
-      user_id: userId,
-      email: authData.user.email,
-      role: role
-    };
+    // Generate tokens using helper method
+    const tokenPayload = this.generateTokenPayload(userId, authData.user.email, role, employerId);
     const tokens = JWTUtil.generateTokenPair(tokenPayload);
 
     return {
@@ -242,7 +235,8 @@ class AuthService {
         email: authData.user.email,
         name: user.name,
         role: role,
-        avatar_url: user.avatar_url
+        avatar_url: user.avatar_url,
+        ...(employerId && { employer_id: employerId })
       },
       ...tokens
     };
@@ -275,22 +269,30 @@ class AuthService {
       throw new NotFoundError('User not found');
     }
 
-    // Get user role
+    // Get user role and employer_id if applicable
     let role = ROLES.JOB_SEEKER;
+    let employerId = null;
     const employer = await db('employer')
       .where('user_id', decoded.user_id)
       .first();
 
     if (employer) {
       role = ROLES.EMPLOYER;
+      employerId = employer.employer_id;
     }
 
-    // Generate new token pair
+    // Generate new token pair with employer_id if user is employer
     const tokenPayload = {
       user_id: decoded.user_id,
       email: decoded.email,
       role: role
     };
+    
+    // Add employer_id to token if user is employer
+    if (employerId) {
+      tokenPayload.employer_id = employerId;
+    }
+    
     const tokens = JWTUtil.generateTokenPair(tokenPayload);
 
     return tokens;
@@ -480,6 +482,31 @@ class AuthService {
     }
 
     return true;
+  }
+
+  /**
+   * Generate token payload for JWT
+   * Helper method to centralize token generation logic
+   * @private
+   * @param {string} userId - User ID
+   * @param {string} email - User email
+   * @param {string} role - User role
+   * @param {number|null} employerId - Employer ID (if applicable)
+   * @returns {Object} Token payload
+   */
+  static generateTokenPayload(userId, email, role, employerId = null) {
+    const payload = {
+      user_id: userId,
+      email: email,
+      role: role
+    };
+
+    // Add employer_id if user is employer
+    if (employerId) {
+      payload.employer_id = employerId;
+    }
+
+    return payload;
   }
 }
 

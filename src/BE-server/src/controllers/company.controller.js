@@ -1,4 +1,5 @@
 const StorageService = require('../services/storage.service');
+const CompanyRepository = require('../repositories/company.repo');
 const HTTP_STATUS = require('../constants/http-status');
 const { BadRequestError, NotFoundError, ForbiddenError } = require('../errors');
 const ResponseHandler = require('../utils/response-handler');
@@ -141,15 +142,16 @@ class CompanyController {
     try {
       const { companyId } = req.params;
 
-      // TODO: Implement with CompanyRepository
+      const company = await CompanyRepository.findById(companyId);
+
+      if (!company) {
+        throw new NotFoundError('Company not found');
+      }
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Company retrieved successfully',
-        data: {
-          company_id: companyId,
-          message: 'Company repository not yet implemented',
-        },
+        data: company,
       });
     } catch (error) {
       return next(error);
@@ -162,14 +164,12 @@ class CompanyController {
    */
   static async getAll(req, res, next) {
     try {
-      // TODO: Implement pagination and filters
+      const companies = await CompanyRepository.findAll();
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Companies retrieved successfully',
-        data: {
-          message: 'Company repository not yet implemented',
-        },
+        data: companies,
       });
     } catch (error) {
       return next(error);

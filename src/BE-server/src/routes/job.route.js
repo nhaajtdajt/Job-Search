@@ -7,6 +7,13 @@ const { authenticate, authorize } = require("../middlewares/auth.middleware");
 // GET /api/jobs - Get jobs list with pagination
 router.get("/", JobController.getJobs);
 
+// GET /api/jobs/my-jobs - Get employer's own jobs (must be before /:jobId)
+router.get("/my-jobs",
+  authenticate,
+  authorize(['employer']),
+  JobController.getEmployerJobs
+);
+
 // GET /api/jobs/:jobId - Get job detail by ID
 router.get("/:jobId", JobController.getJobById);
 

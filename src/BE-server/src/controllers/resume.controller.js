@@ -1,4 +1,5 @@
 const StorageService = require('../services/storage.service');
+const ResumeRepository = require('../repositories/resume.repo');
 const HTTP_STATUS = require('../constants/http-status');
 const { BadRequestError, NotFoundError, ForbiddenError } = require('../errors');
 const ResponseHandler = require('../utils/response-handler');
@@ -139,16 +140,12 @@ class ResumeController {
     try {
       const userId = req.user.user_id;
 
-      // TODO: Implement with ResumeRepository
-      // const resumes = await ResumeRepository.findByUserId(userId);
+      const resumes = await ResumeRepository.findByUserId(userId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Resumes retrieved successfully',
-        data: {
-          message: 'Resume repository not yet implemented',
-          user_id: userId,
-        },
+        data: resumes,
       });
     } catch (error) {
       return next(error);
@@ -164,15 +161,21 @@ class ResumeController {
       const { resumeId } = req.params;
       const userId = req.user.user_id;
 
-      // TODO: Implement
+      const resume = await ResumeRepository.findById(resumeId);
+
+      if (!resume) {
+        throw new NotFoundError('Resume not found');
+      }
+
+      // Check ownership
+      if (resume.user_id !== userId) {
+        throw new ForbiddenError('Not authorized to view this resume');
+      }
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Resume retrieved successfully',
-        data: {
-          resume_id: resumeId,
-          message: 'Resume repository not yet implemented',
-        },
+        data: resume,
       });
     } catch (error) {
       return next(error);
@@ -188,14 +191,36 @@ class ResumeController {
       const userId = req.user.user_id;
       const resumeData = req.body;
 
-      // TODO: Validate and create resume
+      // Generate resume ID
+      const resumeId = 'RES' + Date.now().toString().slice(-4);
+
+      // Create resume
+      const resume = await ResumeRepository.create({
+        resume_id: resumeId,
+        user_id: userId,
+        resume_title: resumeData.resume_title,
+        summary: resumeData.summary
+      });
+
+      // Add education if provided
+      if (resumeData.education && resumeData.education.length > 0) {
+        await ResumeRepository.addEducation(resumeId, resumeData.education);
+      }
+
+      // Add experience if provided
+      if (resumeData.experience && resumeData.experience.length > 0) {
+        await ResumeRepository.addExperience(resumeId, resumeData.experience);
+      }
+
+      // Add skills if provided
+      if (resumeData.skills && resumeData.skills.length > 0) {
+        await ResumeRepository.addSkills(resumeId, resumeData.skills);
+      }
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.CREATED,
         message: 'Resume created successfully',
-        data: {
-          message: 'Resume repository not yet implemented',
-        },
+        data: resume,
       });
     } catch (error) {
       return next(error);
@@ -212,14 +237,22 @@ class ResumeController {
       const userId = req.user.user_id;
       const updateData = req.body;
 
-      // TODO: Check ownership and update
+      // Check ownership
+      const isOwner = await ResumeRepository.isOwnedByUser(resumeId, userId);
+      if (!isOwner) {
+        throw new ForbiddenError('Not authorized to update this resume');
+      }
+
+      const resume = await ResumeRepository.update(resumeId, updateData);
+
+      if (!resume) {
+        throw new NotFoundError('Resume not found');
+      }
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Resume updated successfully',
-        data: {
-          message: 'Resume repository not yet implemented',
-        },
+        data: resume,
       });
     } catch (error) {
       return next(error);
@@ -235,7 +268,26 @@ class ResumeController {
       const { resumeId } = req.params;
       const userId = req.user.user_id;
 
-      // TODO: Check ownership, delete CV file, delete resume record
+      // Check ownership
+      const resume = await ResumeRepository.findById(resumeId);
+      if (!resume) {
+        throw new NotFoundError('Resume not found');
+      }
+      if (resume.user_id !== userId) {
+        throw new ForbiddenError('Not authorized to delete this resume');
+      }
+
+      // Delete CV file if exists
+      if (resume.resume_url) {
+        try {
+          await StorageService.deleteFile(resume.resume_url);
+        } catch (err) {
+          console.warn('Failed to delete CV file:', err.message);
+        }
+      }
+
+      // Delete resume record
+      await ResumeRepository.delete(resumeId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,

@@ -102,10 +102,7 @@ class JobRepository {
   static async update(jobId, updateData) {
     const [job] = await db(MODULE.JOB)
       .where('job_id', jobId)
-      .update({
-        ...updateData,
-        updated_at: db.fn.now()
-      })
+      .update(updateData)
       .returning('*');
     
     return job;

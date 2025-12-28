@@ -1,4 +1,5 @@
 const StorageService = require('../services/storage.service');
+const EmployerRepository = require('../repositories/employer.repo');
 const HTTP_STATUS = require('../constants/http-status');
 const { BadRequestError, NotFoundError } = require('../errors');
 const ResponseHandler = require('../utils/response-handler');
@@ -24,11 +25,15 @@ class EmployerController {
         throw new BadRequestError('Employer ID not found in authentication');
       }
 
-      // TODO: Delete old avatar
-      // const employer = await EmployerRepository.findById(employerId);
-      // if (employer && employer.avatar_url) {
-      //   await StorageService.deleteOldFile(employer.avatar_url);
-      // }
+      // Delete old avatar
+      const employer = await EmployerRepository.findById(employerId);
+      if (employer && employer.avatar_url) {
+        try {
+          await StorageService.deleteFile(employer.avatar_url);
+        } catch (err) {
+          console.warn('Failed to delete old avatar:', err.message);
+        }
+      }
 
       // Upload new avatar
       const result = await StorageService.uploadAvatar(
@@ -37,8 +42,8 @@ class EmployerController {
         'employer'
       );
 
-      // TODO: Update database
-      // await EmployerRepository.update(employerId, { avatar_url: result.url });
+      // Update database
+      await EmployerRepository.update(employerId, { avatar_url: result.url });
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -61,10 +66,14 @@ class EmployerController {
     try {
       const employerId = req.user.employer_id;
 
-      // TODO: Implement with repository
-      // const employer = await EmployerRepository.findById(employerId);
-      // await StorageService.deleteFile(employer.avatar_url);
-      // await EmployerRepository.update(employerId, { avatar_url: null });
+      // Implement with repository
+      const employer = await EmployerRepository.findById(employerId);
+      if (!employer || !employer.avatar_url) {
+        throw new NotFoundError('No avatar found');
+      }
+
+      await StorageService.deleteFile(employer.avatar_url);
+      await EmployerRepository.update(employerId, { avatar_url: null });
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -84,15 +93,16 @@ class EmployerController {
     try {
       const employerId = req.user.employer_id;
 
-      // TODO: Implement with EmployerRepository
+      const employer = await EmployerRepository.findById(employerId);
+
+      if (!employer) {
+        throw new NotFoundError('Employer not found');
+      }
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Employer profile retrieved successfully',
-        data: {
-          employer_id: employerId,
-          message: 'Employer repository not yet implemented',
-        },
+        data: employer,
       });
     } catch (error) {
       return next(error);
@@ -108,12 +118,16 @@ class EmployerController {
       const employerId = req.user.employer_id;
       const updateData = req.body;
 
-      // TODO: Implement
+      const employer = await EmployerRepository.update(employerId, updateData);
+
+      if (!employer) {
+        throw new NotFoundError('Employer not found');
+      }
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Employer profile updated successfully',
-        data: { message: 'Repository not yet implemented' },
+        data: employer,
       });
     } catch (error) {
       return next(error);
