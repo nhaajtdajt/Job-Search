@@ -1,7 +1,11 @@
 const environment = require('../configs/environment.config');
 const jobRoutes = require('./job.route');
+const swaggerRoute = require('./swagger.route');
 
 const initRoute = (app) => {
+  // Swagger Documentation (public, no auth)
+  app.use("/docs", swaggerRoute);
+
   // Root endpoint
   app.get("/", (req, res) => {
     res.json({
@@ -11,6 +15,7 @@ const initRoute = (app) => {
       endpoints: {
         jobs: "/api/jobs",
         jobDetail: "/api/jobs/:jobId",
+        docs: "/docs",
       },
     });
   });
