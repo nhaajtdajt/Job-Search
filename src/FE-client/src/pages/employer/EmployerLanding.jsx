@@ -10,22 +10,22 @@ import {
   Clock,
   Award,
 } from "lucide-react";
-import banner1 from "../assets/banner/banner_vietnamworks_1.png";
-import banner2 from "../assets/banner/banner_vietnamworks_2.png";
-import banner3 from "../assets/banner/banner_vietnamworks_3.png";
-import dangTuyenImg from "../assets/employer/dang_tuyen.svg";
-import timHoSoImg from "../assets/employer/tim_ho_so.svg";
-import quangBaImg from "../assets/employer/quang_ba_thuong_hieu.svg";
-import prudentialLogo from "../assets/logo/Prudential.png";
-import vingroupLogo from "../assets/logo/vingroup.png";
-import vnptLogo from "../assets/logo/vnpt.png";
-import vngLogo from "../assets/logo/vng.png";
-import fossilLogo from "../assets/logo/fossil.png";
-import fptLogo from "../assets/logo/FPT.png";
-import lgLogo from "../assets/logo/LG.png";
-import lazadaLogo from "../assets/logo/lazada.png";
-import boschLogo from "../assets/logo/Bosch.png";
-import vpbankLogo from "../assets/logo/vpbank.jpg";
+import banner1 from "../../assets/banner/banner_vietnamworks_1.png";
+import banner2 from "../../assets/banner/banner_vietnamworks_2.png";
+import banner3 from "../../assets/banner/banner_vietnamworks_3.png";
+import dangTuyenImg from "../../assets/employer/dang_tuyen.svg";
+import timHoSoImg from "../../assets/employer/tim_ho_so.svg";
+import quangBaImg from "../../assets/employer/quang_ba_thuong_hieu.svg";
+import prudentialLogo from "../../assets/logo/Prudential.png";
+import vingroupLogo from "../../assets/logo/vingroup.png";
+import vnptLogo from "../../assets/logo/vnpt.png";
+import vngLogo from "../../assets/logo/vng.png";
+import fossilLogo from "../../assets/logo/fossil.png";
+import fptLogo from "../../assets/logo/FPT.png";
+import lgLogo from "../../assets/logo/LG.png";
+import lazadaLogo from "../../assets/logo/lazada.png";
+import boschLogo from "../../assets/logo/Bosch.png";
+import vpbankLogo from "../../assets/logo/vpbank.jpg";
 
 function BannerSlider() {
   const banners = [banner1, banner2, banner3];
