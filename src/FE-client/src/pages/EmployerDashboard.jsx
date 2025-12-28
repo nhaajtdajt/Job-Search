@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -241,7 +242,9 @@ export default function EmployerDashboard() {
               <p className="text-3xl font-bold text-gray-900 mb-2">
                 {stat.value}
               </p>
-              <p className="text-sm text-green-600 font-medium">{stat.change}</p>
+              <p className="text-sm text-green-600 font-medium">
+                {stat.change}
+              </p>
             </div>
           ))}
         </div>
@@ -362,7 +365,9 @@ export default function EmployerDashboard() {
                         </span>
                         <span className="flex items-center gap-1 text-gray-700">
                           <Eye className="w-4 h-4 text-green-500" />
-                          <span className="font-semibold">{job.views}</span>{" "}
+                          <span className="font-semibold">
+                            {job.views}
+                          </span>{" "}
                           lượt xem
                         </span>
                       </div>
