@@ -1,47 +1,12 @@
-require("dotenv").config()
-const express = require("express");
-const cors = require("./config/cors");
-const environment = require("./config/environment");
-const {
-  errorHandler,
-  notFoundHandler,
-  requestLogger,
-} = require("./middlewares/middleware");
+require("dotenv").config({ path: '.env.development' })
+const app = require("./app");
+const environment = require("./configs/environment.config");
 
-const app = express();
 const hostname = environment.HOSTNAME;
 const port = environment.PORT;
 
-// Middleware
-app.use(cors);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(requestLogger); // Log requests
-
-// Routes
-const jobRoutes = require("./routes/jobRoutes");
-
-app.get("/", (req, res) => {
-  res.json({
-    message: "Job Search API Server",
-    version: "1.0.0",
-    environment: environment.NODE_ENV,
-    endpoints: {
-      testConnection: "/api/test/test-connection",
-    },
-  });
-});
-
-// API Routes
-//app.use("/api/jobs", jobRoutes);
-
-// Error handling middleware (phải đặt sau tất cả routes)
-app.use(notFoundHandler); // 404 handler
-app.use(errorHandler); // Error handler
-
 app.listen(port, hostname, () => {
-  // eslint-disable-next-line no-console
   console.log(`🚀 Server is running at http://${hostname}:${port}/`);
   console.log(`📡 Environment: ${environment.NODE_ENV}`);
-  console.log(`🔗 Test API: http://${hostname}:${port}/api/test`);
 });
+
