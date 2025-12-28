@@ -56,6 +56,150 @@ class JobController {
       return next(error);
     }
   }
+
+  /**
+   * POST /api/jobs
+   * Create a new job posting (employer only)
+   */
+  static async createJob(req, res, next) {
+    try {
+      const employerId = req.user.employer_id; // From auth middleware
+      const jobData = req.body;
+
+      const job = await JobService.createJob(employerId, jobData);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.CREATED,
+        message: "Job created successfully",
+        data: job,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * PUT /api/jobs/:jobId
+   * Update job posting (employer only)
+   */
+  static async updateJob(req, res, next) {
+    try {
+      const { jobId } = req.params;
+      const employerId = req.user.employer_id; // From auth middleware
+      const updateData = req.body;
+
+      const job = await JobService.updateJob(jobId, employerId, updateData);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: "Job updated successfully",
+        data: job,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * DELETE /api/jobs/:jobId
+   * Delete job posting (employer only)
+   */
+  static async deleteJob(req, res, next) {
+    try {
+      const { jobId } = req.params;
+      const employerId = req.user.employer_id; // From auth middleware
+
+      const result = await JobService.deleteJob(jobId, employerId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: result.message,
+        data: null,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * POST /api/jobs/:jobId/publish
+   * Publish a job posting (employer only)
+   */
+  static async publishJob(req, res, next) {
+    try {
+      const { jobId } = req.params;
+      const employerId = req.user.employer_id; // From auth middleware
+
+      const job = await JobService.publishJob(jobId, employerId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: "Job published successfully",
+        data: job,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * POST /api/jobs/:jobId/expire
+   * Expire/close a job posting (employer only)
+   */
+  static async expireJob(req, res, next) {
+    try {
+      const { jobId } = req.params;
+      const employerId = req.user.employer_id; // From auth middleware
+
+      const job = await JobService.expireJob(jobId, employerId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: "Job expired successfully",
+        data: job,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * PUT /api/jobs/:jobId/views
+   * Increment view counter for a job
+   */
+  static async incrementViews(req, res, next) {
+    try {
+      const { jobId } = req.params;
+      const job = await JobService.incrementViews(jobId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: "View counted successfully",
+        data: job,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * GET /api/employer/jobs
+   * Get all jobs for the authenticated employer
+   */
+  static async getEmployerJobs(req, res, next) {
+    try {
+      const employerId = req.user.employer_id; // From auth middleware
+      const jobs = await JobService.getJobsByEmployer(employerId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: "Employer jobs retrieved successfully",
+        data: jobs,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = JobController;

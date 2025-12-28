@@ -79,6 +79,167 @@ class JobRepository {
 
     return job;
   }
+
+  /**
+   * Create a new job
+   * @param {Object} jobData - Job data to insert
+   * @returns {Object} Created job
+   */
+  static async create(jobData) {
+    const [job] = await db(MODULE.JOB)
+      .insert(jobData)
+      .returning('*');
+    
+    return job;
+  }
+
+  /**
+   * Update job by ID
+   * @param {number} jobId - Job ID to update
+   * @param {Object} updateData - Data to update
+   * @returns {Object} Updated job
+   */
+  static async update(jobId, updateData) {
+    const [job] = await db(MODULE.JOB)
+      .where('job_id', jobId)
+      .update({
+        ...updateData,
+        updated_at: db.fn.now()
+      })
+      .returning('*');
+    
+    return job;
+  }
+
+  /**
+   * Delete job by ID
+   * @param {number} jobId - Job ID to delete
+   * @returns {number} Number of deleted rows
+   */
+  static async delete(jobId) {
+    return await db(MODULE.JOB)
+      .where('job_id', jobId)
+      .del();
+  }
+
+  /**
+   * Increment views counter for a job
+   * @param {number} jobId - Job ID
+   * @returns {Object} Updated job
+   */
+  static async incrementViews(jobId) {
+    const [job] = await db(MODULE.JOB)
+      .where('job_id', jobId)
+      .increment('views', 1)
+      .returning('*');
+    
+    return job;
+  }
+
+  /**
+   * Check if job exists and belongs to employer
+   * @param {number} jobId - Job ID
+   * @param {number} employerId - Employer ID
+   * @returns {boolean}
+   */
+  static async isOwnedByEmployer(jobId, employerId) {
+    const job = await db(MODULE.JOB)
+      .select('job_id')
+      .where({ job_id: jobId, employer_id: employerId })
+      .first();
+    
+    return !!job;
+  }
+
+  /**
+   * Add tags to a job
+   * @param {number} jobId - Job ID
+   * @param {Array<number>} tagIds - Array of tag IDs
+   */
+  static async addTags(jobId, tagIds) {
+    if (!tagIds || tagIds.length === 0) return;
+
+    const tagInserts = tagIds.map(tagId => ({
+      job_id: jobId,
+      tag_id: tagId
+    }));
+
+    await db(MODULE.JOB_TAG).insert(tagInserts);
+  }
+
+  /**
+   * Remove all tags from a job
+   * @param {number} jobId - Job ID
+   */
+  static async removeTags(jobId) {
+    await db(MODULE.JOB_TAG)
+      .where('job_id', jobId)
+      .del();
+  }
+
+  /**
+   * Add locations to a job
+   * @param {number} jobId - Job ID
+   * @param {Array<number>} locationIds - Array of location IDs
+   */
+  static async addLocations(jobId, locationIds) {
+    if (!locationIds || locationIds.length === 0) return;
+
+    const locationInserts = locationIds.map(locationId => ({
+      job_id: jobId,
+      location_id: locationId
+    }));
+
+    await db(MODULE.JOB_LOCATION).insert(locationInserts);
+  }
+
+  /**
+   * Remove all locations from a job
+   * @param {number} jobId - Job ID
+   */
+  static async removeLocations(jobId) {
+    await db(MODULE.JOB_LOCATION)
+      .where('job_id', jobId)
+      .del();
+  }
+
+  /**
+   * Add skills to a job
+   * @param {number} jobId - Job ID
+   * @param {Array<string>} skillIds - Array of skill IDs
+   */
+  static async addSkills(jobId, skillIds) {
+    if (!skillIds || skillIds.length === 0) return;
+
+    const skillInserts = skillIds.map(skillId => ({
+      job_id: jobId,
+      skill_id: skillId
+    }));
+
+    await db(MODULE.JOB_SKILL).insert(skillInserts);
+  }
+
+  /**
+   * Remove all skills from a job
+   * @param {number} jobId - Job ID
+   */
+  static async removeSkills(jobId) {
+    await db(MODULE.JOB_SKILL)
+      .where('job_id', jobId)
+      .del();
+  }
+
+  /**
+   * Get jobs by employer ID
+   * @param {number} employerId - Employer ID
+   * @returns {Array} Jobs
+   */
+  static async findByEmployerId(employerId) {
+    return await db(MODULE.JOB)
+      .select('*')
+      .where('employer_id', employerId)
+      .orderBy('posted_at', 'desc');
+  }
 }
 
 module.exports = JobRepository;

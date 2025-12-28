@@ -1,0 +1,242 @@
+{
+  "info": {
+    "_postman_id": "job-search-api-collection",
+    "name": "Job Search API",
+    "description": "Collection for testing Job Search API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8017",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Root",
+      "item": [
+        {
+          "name": "Get Server Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Get server information and available endpoints"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Get All Jobs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs"]
+            },
+            "description": "Get all jobs with default pagination (page=1, limit=10)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Jobs with Pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs?page=1&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "5",
+                  "description": "Items per page (default: 10)"
+                }
+              ]
+            },
+            "description": "Get jobs with custom pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Jobs with Filter - Job Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs?job_type=Full-time",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs"],
+              "query": [
+                {
+                  "key": "job_type",
+                  "value": "Full-time",
+                  "description": "Filter by job type (Full-time, Part-time, Contract, Internship, Freelance)"
+                }
+              ]
+            },
+            "description": "Get jobs filtered by job type"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Jobs with Filter - Employer ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs?employer_id=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs"],
+              "query": [
+                {
+                  "key": "employer_id",
+                  "value": "1",
+                  "description": "Filter by employer ID"
+                }
+              ]
+            },
+            "description": "Get jobs filtered by employer"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Jobs with All Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs?page=1&limit=10&job_type=Full-time&employer_id=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "job_type",
+                  "value": "Full-time"
+                },
+                {
+                  "key": "employer_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get jobs with pagination and all filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs", "1"]
+            },
+            "description": "Get job detail by job ID (includes employer and company info)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Job by ID - Not Found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/99999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs", "99999"]
+            },
+            "description": "Test 404 error when job not found"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "item": [
+        {
+          "name": "Invalid Page Parameter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs?page=-1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "-1"
+                }
+              ]
+            },
+            "description": "Test 400 error for invalid page parameter"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Limit Parameter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs?limit=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Test 400 error for invalid limit parameter"
+          },
+          "response": []
+        },
+        {
+          "name": "Route Not Found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/unknown-route",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "unknown-route"]
+            },
+            "description": "Test 404 error for unknown route"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
