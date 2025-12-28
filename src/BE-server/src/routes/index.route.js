@@ -1,6 +1,10 @@
 const environment = require('../configs/environment.config');
 const jobRoutes = require('./job.route');
 const swaggerRoute = require('./swagger.route');
+const userRoutes = require('./user.route');
+const employerRoutes = require('./employer.route');
+const companyRoutes = require('./company.route');
+const resumeRoutes = require('./resume.route');
 
 const initRoute = (app) => {
   // Swagger Documentation (public, no auth)
@@ -15,6 +19,10 @@ const initRoute = (app) => {
       endpoints: {
         jobs: "/api/jobs",
         jobDetail: "/api/jobs/:jobId",
+        users: "/api/users",
+        employers: "/api/employers",
+        companies: "/api/companies",
+        resumes: "/api/resumes",
         docs: "/docs",
       },
     });
@@ -22,6 +30,10 @@ const initRoute = (app) => {
 
   // API Routes
   app.use("/api/jobs", jobRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/employers", employerRoutes);
+  app.use("/api/companies", companyRoutes);
+  app.use("/api/resumes", resumeRoutes);
 
   // 404 handler - must be after all routes
   app.use((req, res) => {
@@ -33,3 +45,4 @@ const initRoute = (app) => {
 };
 
 module.exports = initRoute;
+
