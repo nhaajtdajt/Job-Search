@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const JobController = require("../controllers/job.controller");
+const ApplicationController = require("../controllers/application.controller");
 const { authenticate, authorize } = require("../middlewares/auth.middleware");
 
 // Public routes
@@ -54,6 +55,13 @@ router.post("/:jobId/expire",
   authenticate, 
   authorize(['employer']), 
   JobController.expireJob
+);
+
+// GET /api/jobs/:jobId/applications - Get applications for a job (employer only)
+router.get("/:jobId/applications",
+  authenticate,
+  authorize(['employer']),
+  ApplicationController.getJobApplications
 );
 
 module.exports = router;

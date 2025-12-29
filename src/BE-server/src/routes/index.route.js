@@ -6,6 +6,7 @@ const userRoutes = require('./user.route');
 const employerRoutes = require('./employer.route');
 const companyRoutes = require('./company.route');
 const resumeRoutes = require('./resume.route');
+const applicationRoutes = require('./application.route');
 
 const initRoute = (app) => {
   // Swagger Documentation (public, no auth)
@@ -36,6 +37,7 @@ const initRoute = (app) => {
         employers: "/api/employers",
         companies: "/api/companies",
         resumes: "/api/resumes",
+        applications: "/api/applications",
         docs: "GET /docs"
       },
     });
@@ -48,6 +50,7 @@ const initRoute = (app) => {
   app.use("/api/employers", employerRoutes);
   app.use("/api/companies", companyRoutes);
   app.use("/api/resumes", resumeRoutes);
+  app.use("/api/applications", applicationRoutes);
 
   // 404 handler - must be after all routes
   app.use((req, res) => {
