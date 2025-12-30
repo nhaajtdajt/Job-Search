@@ -24,20 +24,26 @@ class SearchService {
       throw new BadRequestError('Search filters are required');
     }
 
-    // Create search
+    // Create search (Map API fields to DB columns: search_name -> name, filters -> filter)
     const searchToCreate = {
       user_id: userId,
-      search_name: search_name.trim(),
-      filters: JSON.stringify(filters),
+      name: search_name.trim(),
+      filter: JSON.stringify(filters),
       created_at: new Date()
     };
 
     const search = await SearchRepository.create(searchToCreate);
-    
-    // Parse filters back to object for response
-    search.filters = JSON.parse(search.filters);
-    
-    return search;
+
+    // Map back to API response format
+    const response = {
+      ...search,
+      search_name: search.name,
+      filters: JSON.parse(search.filter)
+    };
+    delete response.name;
+    delete response.filter;
+
+    return response;
   }
 
   /**
@@ -47,19 +53,30 @@ class SearchService {
    */
   static async getSavedSearches(userId) {
     const searches = await SearchRepository.findByUserId(userId);
-    
-    // Parse filters JSON for each search
-    searches.forEach(search => {
-      if (search.filters) {
+
+    // Parse filters and map fields for response
+    return searches.map(search => {
+      let parsedFilters = {};
+      if (search.filter) {
         try {
-          search.filters = JSON.parse(search.filters);
+          parsedFilters = typeof search.filter === 'string'
+            ? JSON.parse(search.filter)
+            : search.filter;
         } catch (e) {
-          search.filters = {};
+          parsedFilters = {};
         }
       }
+
+      const response = {
+        ...search,
+        search_name: search.name,
+        filters: parsedFilters
+      };
+      delete response.name;
+      delete response.filter;
+
+      return response;
     });
-    
-    return searches;
   }
 
   /**
@@ -82,21 +99,21 @@ class SearchService {
       throw new ForbiddenError('You can only update your own searches');
     }
 
-    // Prepare update data
+    // Prepare update data (Map API fields to DB columns)
     const dataToUpdate = {};
-    
+
     if (updateData.search_name !== undefined) {
       if (!updateData.search_name.trim()) {
         throw new BadRequestError('Search name cannot be empty');
       }
-      dataToUpdate.search_name = updateData.search_name.trim();
+      dataToUpdate.name = updateData.search_name.trim();
     }
 
     if (updateData.filters !== undefined) {
       if (typeof updateData.filters !== 'object') {
         throw new BadRequestError('Filters must be an object');
       }
-      dataToUpdate.filters = JSON.stringify(updateData.filters);
+      dataToUpdate.filter = JSON.stringify(updateData.filters);
     }
 
     if (Object.keys(dataToUpdate).length === 0) {
@@ -104,13 +121,17 @@ class SearchService {
     }
 
     const updatedSearch = await SearchRepository.update(searchId, dataToUpdate);
-    
-    // Parse filters back to object
-    if (updatedSearch.filters) {
-      updatedSearch.filters = JSON.parse(updatedSearch.filters);
-    }
-    
-    return updatedSearch;
+
+    // Map back to API response format
+    const response = {
+      ...updatedSearch,
+      search_name: updatedSearch.name,
+      filters: updatedSearch.filter ? JSON.parse(updatedSearch.filter) : {}
+    };
+    delete response.name;
+    delete response.filter;
+
+    return response;
   }
 
   /**

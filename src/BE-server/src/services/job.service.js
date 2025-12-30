@@ -1,5 +1,6 @@
 const JobRepository = require('../repositories/job.repo');
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../errors');
+const JobMatchService = require('./job-match.service');
 
 /**
  * Job Service
@@ -71,9 +72,17 @@ class JobService {
       await JobRepository.addLocations(job.job_id, jobData.location_ids);
     }
 
-    if (jobData.skill_ids && jobData.skill_ids.length > 0) {
-      await JobRepository.addSkills(job.job_id, jobData.skill_ids);
-    }
+    // Check for matching saved searches and notify users (async, don't block response)
+    // Pass extra data (tags, skills) for similarity matching
+    const jobForMatch = {
+      ...job,
+      tag_ids: jobData.tag_ids || [],
+      skill_ids: jobData.skill_ids || []
+    };
+
+    JobMatchService.checkAndNotifyMatches(jobForMatch).catch(err => {
+      console.error('Failed to check job matches:', err.message);
+    });
 
     return job;
   }

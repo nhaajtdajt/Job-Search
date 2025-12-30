@@ -21,7 +21,7 @@ class SavedRepository {
         saved_at: new Date()
       })
       .returning('*');
-    
+
     return savedJob;
   }
 
@@ -88,7 +88,7 @@ class SavedRepository {
     const saved = await db(MODULE.SAVED_JOB)
       .where({ user_id: userId, job_id: jobId })
       .first();
-    
+
     return !!saved;
   }
 
@@ -101,8 +101,45 @@ class SavedRepository {
     const [{ count }] = await db(MODULE.SAVED_JOB)
       .where('user_id', userId)
       .count('* as count');
-    
+
     return parseInt(count, 10);
+  }
+  /**
+   * Find users who have saved jobs similar to the new job
+   * Criteria: Same job_type AND (share at least one skill OR tag)
+   * @param {string} jobType - Job type (e.g. 'full-time')
+   * @param {Array<number>} tagIds - List of tag IDs from new job
+   * @param {Array<string>} skillIds - List of skill IDs from new job
+   * @returns {Array} List of distinct { user_id }
+   */
+  static async findUsersWithSimilarSavedJobs(jobType, tagIds, skillIds) {
+    const query = db(MODULE.SAVED_JOB)
+      .distinct('saved_job.user_id')
+      .join(MODULE.JOB, 'saved_job.job_id', `${MODULE.JOB}.job_id`)
+      .leftJoin(MODULE.JOB_SKILL, `${MODULE.JOB}.job_id`, `${MODULE.JOB_SKILL}.job_id`)
+      .leftJoin(MODULE.JOB_TAG, `${MODULE.JOB}.job_id`, `${MODULE.JOB_TAG}.job_id`)
+      .where(`${MODULE.JOB}.job_type`, jobType);
+
+    query.andWhere(builder => {
+      let hasCondition = false;
+
+      if (skillIds && skillIds.length > 0) {
+        builder.orWhereIn(`${MODULE.JOB_SKILL}.skill_id`, skillIds);
+        hasCondition = true;
+      }
+
+      if (tagIds && tagIds.length > 0) {
+        builder.orWhereIn(`${MODULE.JOB_TAG}.tag_id`, tagIds);
+        hasCondition = true;
+      }
+
+      // If no skills/tags provided, we strictly require at least one match
+      if (!hasCondition) {
+        builder.whereRaw('1 = 0');
+      }
+    });
+
+    return await query;
   }
 }
 

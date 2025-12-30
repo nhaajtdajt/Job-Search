@@ -246,6 +246,35 @@ class EmailService {
             }
         });
     }
+
+    /**
+     * Send email to job seeker about new job matching their saved search
+     * @param {string} email - Job seeker's email
+     * @param {Object} data - { userName, searchName, jobTitle, companyName, jobType, salaryMin, salaryMax, jobId }
+     */
+    async sendJobMatchEmail(email, data) {
+        // Format salary for display
+        const formatSalary = (amount) => {
+            if (!amount) return null;
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        };
+
+        return this.sendEmail({
+            to: email,
+            subject: `🎯 Việc làm mới phù hợp: ${data.jobTitle}`,
+            template: 'new-job-match',
+            data: {
+                userName: data.userName || 'Bạn',
+                searchName: data.searchName || 'Tìm kiếm đã lưu',
+                jobTitle: data.jobTitle,
+                companyName: data.companyName,
+                jobType: data.jobType,
+                salaryMin: formatSalary(data.salaryMin),
+                salaryMax: formatSalary(data.salaryMax),
+                jobId: data.jobId
+            }
+        });
+    }
 }
 
 // Export singleton instance

@@ -15,7 +15,7 @@ class SearchRepository {
     const [search] = await db(MODULE.SAVED_SEARCH)
       .insert(searchData)
       .returning('*');
-    
+
     return search;
   }
 
@@ -28,7 +28,19 @@ class SearchRepository {
     const searches = await db(MODULE.SAVED_SEARCH)
       .where('user_id', userId)
       .orderBy('created_at', 'desc');
-    
+
+    return searches;
+  }
+
+  /**
+   * Get all saved searches (for job matching)
+   * @returns {Array} List of all saved searches
+   */
+  static async findAll() {
+    const searches = await db(MODULE.SAVED_SEARCH)
+      .select('*')
+      .orderBy('created_at', 'desc');
+
     return searches;
   }
 
@@ -41,7 +53,7 @@ class SearchRepository {
     const search = await db(MODULE.SAVED_SEARCH)
       .where('search_id', searchId)
       .first();
-    
+
     return search || null;
   }
 
@@ -56,7 +68,7 @@ class SearchRepository {
       .where('search_id', searchId)
       .update(updateData)
       .returning('*');
-    
+
     return search;
   }
 
@@ -82,7 +94,7 @@ class SearchRepository {
       .select('search_id')
       .where({ search_id: searchId, user_id: userId })
       .first();
-    
+
     return !!search;
   }
 }
