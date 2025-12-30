@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cập nhật trạng thái đơn ứng tuyển</title>
+</head>
+
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+        style="background-color: #f5f5f5;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600"
+                    style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td
+                            style="padding: 32px 40px 24px; text-align: center; background: linear-gradient(135deg, {{#if isPositive}}#4caf50, #2e7d32{{else}}#ff9800, #f57c00{{/if}}); border-radius: 8px 8px 0 0;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 500;">
+                                {{#if isPositive}}🎉{{else}}📋{{/if}} Cập nhật đơn ứng tuyển
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0 0 24px; color: #202124; font-size: 16px;">
+                                Xin chào <strong>{{userName}}</strong>,
+                            </p>
+
+                            <p style="margin: 0 0 24px; color: #5f6368; font-size: 14px; line-height: 22px;">
+                                Trạng thái đơn ứng tuyển của bạn đã được cập nhật:
+                            </p>
+
+                            <!-- Job Info -->
+                            <div
+                                style="padding: 16px 24px; background-color: #f5f5f5; border-radius: 4px; margin-bottom: 24px;">
+                                <p style="margin: 0 0 4px; color: #202124; font-size: 16px; font-weight: 600;">
+                                    {{jobTitle}}
+                                </p>
+                                <p style="margin: 0; color: #5f6368; font-size: 14px;">
+                                    🏢 {{companyName}}
+                                </p>
+                            </div>
+
+                            <!-- Status Change -->
+                            <div
+                                style="padding: 24px; background-color: {{#if isPositive}}#e8f5e9{{else}}#fff3e0{{/if}}; border-radius: 8px; margin-bottom: 24px; text-align: center;">
+                                <p style="margin: 0 0 8px; color: #9e9e9e; font-size: 12px; text-transform: uppercase;">
+                                    Trạng thái mới
+                                </p>
+                                <p
+                                    style="margin: 0; color: {{#if isPositive}}#2e7d32{{else}}#e65100{{/if}}; font-size: 24px; font-weight: 600;">
+                                    {{newStatus}}
+                                </p>
+                                <p style="margin: 12px 0 0; color: #757575; font-size: 12px;">
+                                    Trạng thái trước: {{oldStatus}}
+                                </p>
+                            </div>
+
+                            <!-- Status-specific messages -->
+                            {{#if (eq newStatusRaw "interview")}}
+                            <div
+                                style="padding: 16px; background-color: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 4px; margin-bottom: 24px;">
+                                <p style="margin: 0; color: #1565c0; font-size: 14px; font-weight: 500;">
+                                    🎯 Chúc mừng! Bạn đã được mời phỏng vấn.
+                                </p>
+                                <p style="margin: 8px 0 0; color: #5f6368; font-size: 13px;">
+                                    Nhà tuyển dụng sẽ liên hệ với bạn để sắp xếp lịch phỏng vấn. Hãy chuẩn bị thật tốt
+                                    nhé!
+                                </p>
+                            </div>
+                            {{/if}}
+
+                            {{#if (eq newStatusRaw "offer")}}
+                            <div
+                                style="padding: 16px; background-color: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 4px; margin-bottom: 24px;">
+                                <p style="margin: 0; color: #2e7d32; font-size: 14px; font-weight: 500;">
+                                    🎉 Tin tuyệt vời! Bạn đã nhận được đề nghị làm việc!
+                                </p>
+                                <p style="margin: 8px 0 0; color: #5f6368; font-size: 13px;">
+                                    Vui lòng xem xét và phản hồi sớm nhất có thể.
+                                </p>
+                            </div>
+                            {{/if}}
+
+                            {{#if (eq newStatusRaw "accepted")}}
+                            <div
+                                style="padding: 16px; background-color: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 4px; margin-bottom: 24px;">
+                                <p style="margin: 0; color: #2e7d32; font-size: 14px; font-weight: 500;">
+                                    🎊 Chúc mừng! Bạn đã được nhận vào vị trí này!
+                                </p>
+                            </div>
+                            {{/if}}
+
+                            {{#if (eq newStatusRaw "rejected")}}
+                            <div
+                                style="padding: 16px; background-color: #fce4ec; border-left: 4px solid #e91e63; border-radius: 4px; margin-bottom: 24px;">
+                                <p style="margin: 0; color: #c2185b; font-size: 14px; font-weight: 500;">
+                                    Rất tiếc, đơn ứng tuyển của bạn không được chọn lần này.
+                                </p>
+                                <p style="margin: 8px 0 0; color: #5f6368; font-size: 13px;">
+                                    Đừng nản lòng! Tiếp tục tìm kiếm cơ hội phù hợp trên Job Search nhé.
+                                </p>
+                            </div>
+                            {{/if}}
+
+                            <p style="margin: 0; color: #5f6368; font-size: 14px;">
+                                Bạn có thể theo dõi tất cả đơn ứng tuyển trong mục "Đơn ứng tuyển" trên ứng dụng.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td
+                            style="padding: 24px 40px; background-color: #f8f9fa; border-top: 1px solid #e8eaed; border-radius: 0 0 8px 8px;">
+                            <p style="margin: 0; color: #9aa0a6; font-size: 12px; text-align: center;">
+                                Email tự động từ Job Search. Vui lòng không trả lời email này.
+                            </p>
+                            <p style="margin: 8px 0 0; color: #9aa0a6; font-size: 11px; text-align: center;">
+                                © {{year}} Job Search. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

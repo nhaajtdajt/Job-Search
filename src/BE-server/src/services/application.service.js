@@ -2,7 +2,10 @@ const ApplicationRepository = require('../repositories/application.repo');
 const JobRepository = require('../repositories/job.repo');
 const ResumeRepository = require('../repositories/resume.repo');
 const EmployerRepository = require('../repositories/employer.repo');
+const UserRepository = require('../repositories/user.repo');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors');
+const EmailService = require('./email.service');
+const { getUserEmailById } = require('../utils/supabase.util');
 
 /**
  * Application Service
@@ -62,8 +65,10 @@ class ApplicationService {
 
     const application = await ApplicationRepository.create(applicationToCreate);
 
-    // TODO: Send notification to employer
-    // TODO: Send confirmation email to user
+    // Send email notifications (async, don't block response)
+    this.sendApplicationEmails(userId, job, resume).catch(err => {
+      console.error('Failed to send application emails:', err.message);
+    });
 
     return application;
   }
@@ -279,7 +284,10 @@ class ApplicationService {
 
     const updatedApplication = await ApplicationRepository.updateStatus(applicationId, status);
 
-    // TODO: Send notification to user about status change
+    // Send status update email to user (async, don't block response)
+    this.sendStatusUpdateEmail(application.user_id, job, currentStatus, status).catch(err => {
+      console.error('Failed to send status update email:', err.message);
+    });
 
     return updatedApplication;
   }
@@ -314,6 +322,85 @@ class ApplicationService {
     const updatedApplication = await ApplicationRepository.addNotes(applicationId, notes);
     return updatedApplication;
   }
+
+  // ==========================================
+  // Private Helper Methods for Email
+  // ==========================================
+
+  /**
+   * Send application confirmation emails
+   * @private
+   * @param {string} userId - User ID
+   * @param {Object} job - Job object with employer info
+   * @param {Object} resume - Resume object
+   */
+  static async sendApplicationEmails(userId, job, resume) {
+    // Get user info
+    const user = await UserRepository.findById(userId);
+    const userEmail = await getUserEmailById(userId);
+
+    if (!userEmail) {
+      console.warn(`⚠️  Cannot send email: User ${userId} email not found`);
+      return;
+    }
+
+    // Get company name
+    const companyName = job.employer?.company?.company_name || 'Công ty';
+
+    // 1. Send confirmation to job seeker
+    await EmailService.sendApplicationReceivedEmail(userEmail, {
+      userName: user?.name || 'Ứng viên',
+      jobTitle: job.job_title,
+      companyName: companyName,
+      applyDate: new Date().toLocaleDateString('vi-VN')
+    });
+
+    // 2. Send notification to employer
+    if (job.employer?.email) {
+      await EmailService.sendNewApplicationEmail(job.employer.email, {
+        employerName: job.employer.full_name || 'Nhà tuyển dụng',
+        applicantName: user?.name || 'Ứng viên',
+        jobTitle: job.job_title,
+        resumeTitle: resume?.resume_title || 'CV',
+        applyDate: new Date().toLocaleDateString('vi-VN')
+      });
+    }
+
+    console.log(`📧 Application emails sent for job ${job.job_id} by user ${userId}`);
+  }
+
+  /**
+   * Send status update email to user
+   * @private
+   * @param {string} userId - User ID
+   * @param {Object} job - Job object
+   * @param {string} oldStatus - Previous status
+   * @param {string} newStatus - New status
+   */
+  static async sendStatusUpdateEmail(userId, job, oldStatus, newStatus) {
+    // Get user info
+    const user = await UserRepository.findById(userId);
+    const userEmail = await getUserEmailById(userId);
+
+    if (!userEmail) {
+      console.warn(`⚠️  Cannot send email: User ${userId} email not found`);
+      return;
+    }
+
+    // Get company name
+    const companyName = job.employer?.company?.company_name || 'Công ty';
+
+    await EmailService.sendStatusUpdateEmail(userEmail, {
+      userName: user?.name || 'Ứng viên',
+      jobTitle: job.job_title,
+      companyName: companyName,
+      oldStatus: oldStatus,
+      newStatus: newStatus
+    });
+
+    console.log(`📧 Status update email sent to user ${userId}: ${oldStatus} -> ${newStatus}`);
+  }
 }
 
 module.exports = ApplicationService;
+

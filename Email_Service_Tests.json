@@ -1,0 +1,509 @@
+{
+    "info": {
+        "name": "Job Search - Email Service Tests",
+        "_postman_id": "email-service-tests-v2",
+        "description": "Collection để test Email Service Integration - V2",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8017",
+            "type": "string"
+        },
+        {
+            "key": "jobSeekerToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "employerToken",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "0. Chuẩn bị - Xem dữ liệu có sẵn",
+            "item": [
+                {
+                    "name": "0.1 Get Jobs List (không cần auth)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "console.log('=== JOBS LIST ===');",
+                                    "if (jsonData.data && jsonData.data.data) {",
+                                    "  jsonData.data.data.forEach(function(job) {",
+                                    "    console.log('Job ID: ' + job.job_id + ' | Title: ' + job.job_title + ' | Employer ID: ' + job.employer_id);",
+                                    "  });",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/jobs",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "jobs"
+                            ]
+                        },
+                        "description": "Xem danh sách jobs có sẵn trong database. Lưu ý job_id và employer_id để test."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "1. Đăng nhập Job Seeker",
+            "item": [
+                {
+                    "name": "1.1 Register Job Seeker (nếu chưa có)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.data && jsonData.data.accessToken) {",
+                                    "    pm.collectionVariables.set('jobSeekerToken', jsonData.data.accessToken);",
+                                    "    console.log('✅ Job Seeker Token saved!');",
+                                    "    console.log('Role: ' + jsonData.data.user.role);",
+                                    "} else {",
+                                    "    console.log('❌ Registration failed or user exists');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"testseeker@gmail.com\",\n  \"password\": \"Test@123456\",\n  \"name\": \"Test Job Seeker\",\n  \"role\": \"job_seeker\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "1.2 Login Job Seeker",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.data && jsonData.data.accessToken) {",
+                                    "    pm.collectionVariables.set('jobSeekerToken', jsonData.data.accessToken);",
+                                    "    console.log('✅ Job Seeker Token saved!');",
+                                    "    console.log('User ID: ' + jsonData.data.user.user_id);",
+                                    "    console.log('Role: ' + jsonData.data.user.role);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"testseeker@gmail.com\",\n  \"password\": \"Test@123456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2. Đăng nhập Employer (để test status update)",
+            "item": [
+                {
+                    "name": "2.1 Login Employer có job (dùng seed data)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.data && jsonData.data.accessToken) {",
+                                    "    pm.collectionVariables.set('employerToken', jsonData.data.accessToken);",
+                                    "    console.log('✅ Employer Token saved!');",
+                                    "    console.log('Employer ID: ' + jsonData.data.user.employer_id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"hr_fpt@test.com\",\n  \"password\": \"password123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Login với employer từ seed data. Email có thể là:\n- hr_fpt@test.com\n- hr_vng@test.com\n- hr_zalopay@test.com"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "3. Tạo Resume cho Job Seeker",
+            "item": [
+                {
+                    "name": "3.1 Create Resume",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.data && jsonData.data.resume_id) {",
+                                    "    pm.collectionVariables.set('resumeId', jsonData.data.resume_id);",
+                                    "    console.log('✅ Resume created! ID: ' + jsonData.data.resume_id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jobSeekerToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"resume_title\": \"CV Software Engineer\",\n  \"resume_url\": \"https://example.com/my-cv.pdf\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/resumes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "resumes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "3.2 Get My Resumes",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.data && jsonData.data.length > 0) {",
+                                    "    pm.collectionVariables.set('resumeId', jsonData.data[0].resume_id);",
+                                    "    console.log('✅ Resume ID: ' + jsonData.data[0].resume_id);",
+                                    "} else {",
+                                    "    console.log('❌ No resumes found. Create one first!');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jobSeekerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/resumes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "resumes"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "4. TEST EMAIL - Apply Job",
+            "item": [
+                {
+                    "name": "4.1 Apply Job (GỬI 2 EMAIL)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.data && jsonData.data.application_id) {",
+                                    "    pm.collectionVariables.set('applicationId', jsonData.data.application_id);",
+                                    "    console.log('✅ Application created! ID: ' + jsonData.data.application_id);",
+                                    "    console.log('📧 Check server logs for email status');",
+                                    "} else {",
+                                    "    console.log('❌ Application failed: ' + jsonData.message);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jobSeekerToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"job_id\": 1,\n  \"resume_id\": \"{{resumeId}}\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/applications",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "applications"
+                            ]
+                        },
+                        "description": "⚠️ QUAN TRỌNG:\n- Dùng token của JOB SEEKER (không phải employer)\n- job_id phải là job có trong database\n- resume_id phải là resume của job seeker đang login\n\n📧 Email sẽ gửi:\n1. application-received → Job Seeker\n2. new-application → Employer (owner của job)"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "5. TEST EMAIL - Status Update",
+            "item": [
+                {
+                    "name": "5.1 Get Employer Applications",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "console.log('=== APPLICATIONS ===');",
+                                    "if (jsonData.data && jsonData.data.data) {",
+                                    "  jsonData.data.data.forEach(function(app) {",
+                                    "    console.log('App ID: ' + app.application_id + ' | Status: ' + app.status + ' | Job: ' + (app.job ? app.job.job_title : 'N/A'));",
+                                    "  });",
+                                    "  if (jsonData.data.data.length > 0) {",
+                                    "    pm.collectionVariables.set('applicationId', jsonData.data.data[0].application_id);",
+                                    "  }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/employers/applications",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employers",
+                                "applications"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "5.2 Update Status to Reviewing (GỬI EMAIL)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employerToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"reviewing\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/applications/{{applicationId}}/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "applications",
+                                "{{applicationId}}",
+                                "status"
+                            ]
+                        },
+                        "description": "⚠️ Dùng token của EMPLOYER\n📧 Gửi email status update → Job Seeker"
+                    }
+                },
+                {
+                    "name": "5.3 Update Status to Interview (GỬI EMAIL)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employerToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"interview\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/applications/{{applicationId}}/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "applications",
+                                "{{applicationId}}",
+                                "status"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "6. TEST EMAIL - Password Reset",
+            "item": [
+                {
+                    "name": "6.1 Forgot Password (GỬI EMAIL)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"YOUR_REAL_EMAIL@gmail.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/forgot-password",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "forgot-password"
+                            ]
+                        },
+                        "description": "Thay YOUR_REAL_EMAIL bằng email thật để nhận email reset password"
+                    }
+                }
+            ]
+        }
+    ]
+}

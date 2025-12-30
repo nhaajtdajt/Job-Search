@@ -4,7 +4,7 @@ const db = require('../databases/knex');
 const JWTUtil = require('../utils/jwt.util');
 const HashUtil = require('../utils/hash.util');
 const SupabaseErrorUtil = require('../utils/supabase-error.util');
-const EmailUtil = require('../utils/email.util');
+const EmailService = require('./email.service');
 const { BadRequestError, UnauthorizedError, NotFoundError, DuplicateError } = require('../errors');
 const ROLES = require('../constants/role');
 
@@ -73,11 +73,11 @@ class AuthService {
     try {
       // Define allowed fields for users table (based on migration schema)
       const allowedFields = ['name', 'gender', 'date_of_birth', 'phone', 'address', 'avatar_url'];
-      
+
       // Filter additionalData to only include allowed fields
       const userProfileData = {};
       if (name) userProfileData.name = name;
-      
+
       Object.keys(additionalData).forEach(key => {
         if (allowedFields.includes(key)) {
           userProfileData[key] = additionalData[key];
@@ -86,7 +86,7 @@ class AuthService {
 
       // Check if user profile already exists (created by trigger)
       const existingUser = await db('users').where('user_id', userId).first();
-      
+
       if (existingUser) {
         // Update existing profile with additional data
         // Only update fields that are provided and different
@@ -96,7 +96,7 @@ class AuthService {
             updateData[key] = userProfileData[key];
           }
         });
-        
+
         if (Object.keys(updateData).length > 0) {
           await db('users')
             .where('user_id', userId)
@@ -119,14 +119,14 @@ class AuthService {
         userId: userId,
         additionalData: additionalData
       });
-      
+
       // Rollback: delete auth user if profile creation fails
       try {
         await supabase.auth.admin.deleteUser(userId);
       } catch (deleteError) {
         console.error('Failed to rollback auth user:', deleteError);
       }
-      
+
       // Provide more detailed error message
       const errorMessage = dbError.detail || dbError.message || 'Failed to create user profile';
       throw new BadRequestError(`Failed to create user profile: ${errorMessage}`);
@@ -148,13 +148,13 @@ class AuthService {
         const [employer] = await db('employer')
           .insert(employerData)
           .returning('employer_id');
-        
+
         employerId = employer.employer_id;
-        
+
         console.log(`✅ Created employer record with ID: ${employerId} for user: ${userId}`);
       } catch (employerError) {
         console.error('Failed to create employer record:', employerError);
-        
+
         // Rollback: delete user profile and auth user
         try {
           await db('users').where('user_id', userId).delete();
@@ -162,7 +162,7 @@ class AuthService {
         } catch (rollbackError) {
           console.error('Failed to rollback user profile and auth:', rollbackError);
         }
-        
+
         throw new BadRequestError(`Failed to create employer profile: ${employerError.message}`);
       }
     }
@@ -287,12 +287,12 @@ class AuthService {
       email: decoded.email,
       role: role
     };
-    
+
     // Add employer_id to token if user is employer
     if (employerId) {
       tokenPayload.employer_id = employerId;
     }
-    
+
     const tokens = JWTUtil.generateTokenPair(tokenPayload);
 
     return tokens;
@@ -345,7 +345,7 @@ class AuthService {
     console.log(`🔐 Generated token: ${resetToken}`);
 
     // Send custom email with token displayed in email content
-    const emailSent = await EmailUtil.sendPasswordResetEmail(email, resetToken);
+    const emailSent = await EmailService.sendPasswordResetEmail(email, resetToken);
 
     if (!emailSent) {
       // If email config is not set, still return token in response
@@ -360,8 +360,8 @@ class AuthService {
 
     return {
       token: resetToken,
-      message: emailSent 
-        ? 'Password reset token has been sent to your email.' 
+      message: emailSent
+        ? 'Password reset token has been sent to your email.'
         : 'Password reset token generated. Please check email configuration.',
       email: email
     };
