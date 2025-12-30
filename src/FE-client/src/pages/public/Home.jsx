@@ -365,10 +365,8 @@ export default function Home() {
 
   return (
     <div className="pb-24">
-      <section className="relative overflow-hidden bg-linear-to-br from-brand-950 via-brand-900 to-brand-700 text-black">
-        <div
-          className="absolute inset-0 opacity-20 bg-blue-200"
-        />
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-100 via-blue-200 to-blue-200 text-black">
+        <div className="absolute inset-0 opacity-10 bg-blue-300" />
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">
             <div className="space-y-6">
@@ -513,7 +511,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-16 bg-white/10 py-12 backdrop-blur">
+      <section className="mt-16 bg-gradient-to-b from-blue-50/50 via-blue-100/50 to-blue-100/50 py-12 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionTitle
             title="Việc làm nổi bật • Tài chính đầu tư"
@@ -558,7 +556,7 @@ export default function Home() {
                 <Link
                   to="#"
                   key={tool.title}
-                  className="rounded-3xl border-2  bg-[#ffdac0] p-6 shadow hover:border-brand-200 hover:shadow-glow transition hover:bg-white/70"
+                  className="rounded-3xl border-2 bg-gradient-to-b from-blue-50 via-blue-100 to-blue-200 p-6 shadow hover:border-brand-200 hover:shadow-glow transition hover:from-blue-100 hover:via-blue-200 hover:to-blue-300"
                 >
                   <span className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand-600">
                     {tool.badge}

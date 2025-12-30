@@ -12,8 +12,30 @@ class UserRepository {
    * @returns {Object|null} User object or null
    */
   static async findById(userId) {
+    // Use raw SQL to format date_of_birth as YYYY-MM-DD string to avoid timezone issues
     const user = await db(MODULE.USERS)
-      .select('*')
+      .select(
+        'user_id',
+        'name',
+        'gender',
+        db.raw("COALESCE(to_char(date_of_birth, 'YYYY-MM-DD'), NULL) as date_of_birth"),
+        'phone',
+        'address',
+        'avatar_url',
+        'job_title',
+        'current_level',
+        'industry',
+        'field',
+        'experience_years',
+        'current_salary',
+        'education',
+        'nationality',
+        'marital_status',
+        'country',
+        'province',
+        'desired_location',
+        'desired_salary'
+      )
       .where('user_id', userId)
       .first();
     
@@ -34,7 +56,23 @@ class UserRepository {
       'address',
       'date_of_birth',
       'gender',
-      'avatar_url'
+      'avatar_url',
+      // Professional information
+      'job_title',
+      'current_level',
+      'industry',
+      'field',
+      'experience_years',
+      'current_salary',
+      'education',
+      // Personal information
+      'nationality',
+      'marital_status',
+      'country',
+      'province',
+      // Job preferences
+      'desired_location',
+      'desired_salary'
     ];
 
     const filteredData = {};
@@ -44,12 +82,38 @@ class UserRepository {
       }
     }
 
-    const [user] = await db(MODULE.USERS)
+    await db(MODULE.USERS)
       .where('user_id', userId)
-      .update(filteredData)
-      .returning('*');
+      .update(filteredData);
     
-    return user;
+    // Fetch updated user with formatted date using raw SQL to avoid timezone issues
+    const user = await db(MODULE.USERS)
+      .select(
+        'user_id',
+        'name',
+        'gender',
+        db.raw("COALESCE(to_char(date_of_birth, 'YYYY-MM-DD'), NULL) as date_of_birth"),
+        'phone',
+        'address',
+        'avatar_url',
+        'job_title',
+        'current_level',
+        'industry',
+        'field',
+        'experience_years',
+        'current_salary',
+        'education',
+        'nationality',
+        'marital_status',
+        'country',
+        'province',
+        'desired_location',
+        'desired_salary'
+      )
+      .where('user_id', userId)
+      .first();
+    
+    return user || null;
   }
 
   /**

@@ -53,6 +53,12 @@ router.post("/refresh-token",
   AuthController.refreshToken
 );
 
+// Social login callback (no authentication required)
+router.post(
+  "/social/callback",
+  AuthController.socialLoginCallback
+);
+
 // Protected routes (authentication required)
 router.post(
   "/logout",

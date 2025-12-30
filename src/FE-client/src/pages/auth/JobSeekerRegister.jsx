@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { supabase } from "../../config/supabase";
 import {
   Mail,
   Lock,
@@ -12,6 +14,8 @@ import {
 } from "lucide-react";
 
 export default function JobSeekerRegister() {
+  const { register } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -24,6 +28,7 @@ export default function JobSeekerRegister() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   const validateForm = () => {
     const newErrors = {};
@@ -48,8 +53,16 @@ export default function JobSeekerRegister() {
 
     if (!formData.password) {
       newErrors.password = "Vui lòng nhập mật khẩu";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = "Mật khẩu phải có ít nhất 1 chữ hoa";
+    } else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = "Mật khẩu phải có ít nhất 1 chữ thường";
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = "Mật khẩu phải có ít nhất 1 số";
+    } else if (!/[@$!%*?&]/.test(formData.password)) {
+      newErrors.password = "Mật khẩu phải có ít nhất 1 ký tự đặc biệt (@$!%*?&)";
     }
 
     if (!formData.confirmPassword) {
@@ -72,14 +85,55 @@ export default function JobSeekerRegister() {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setApiError("");
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Register data:", formData);
+    try {
+      const registerData = {
+        email: formData.email,
+        password: formData.password,
+        full_name: formData.fullName, // Backend expects 'full_name', not 'name'
+        phone: formData.phone,
+        role: "job_seeker", // Default role for job seeker
+      };
+
+      await register(registerData);
+      // Redirect to home page after successful registration
+      navigate("/");
+    } catch (error) {
+      console.error("Register error:", error);
+      
+      // Handle validation errors from backend
+      // Backend returns errors as array: [{field: 'email', message: 'Invalid email'}]
+      if (error.response?.data?.error && Array.isArray(error.response.data.error)) {
+        const validationErrors = error.response.data.error;
+        const errorMessages = validationErrors.map(err => err.message).join(', ');
+        setApiError(errorMessages || "Validation failed");
+        
+        // Map backend field names to frontend field names
+        const fieldMap = {
+          'full_name': 'fullName',
+          'email': 'email',
+          'password': 'password',
+          'phone': 'phone',
+        };
+        
+        // Set field-specific errors
+        const fieldErrors = {};
+        validationErrors.forEach(err => {
+          const frontendField = fieldMap[err.field] || err.field;
+          fieldErrors[frontendField] = err.message;
+        });
+        setErrors(prev => ({ ...prev, ...fieldErrors }));
+      } else {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Đăng ký thất bại. Vui lòng thử lại.";
+        setApiError(errorMessage);
+      }
+    } finally {
       setIsLoading(false);
-      // Redirect to login or home page after successful registration
-      window.location.href = "/login";
-    }, 1500);
+    }
   };
 
   const handleChange = (e) => {
@@ -173,6 +227,17 @@ export default function JobSeekerRegister() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* API Error Message */}
+              {apiError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-red-800">Lỗi đăng ký</p>
+                    <p className="text-sm text-red-600 mt-1">{apiError}</p>
+                  </div>
+                </div>
+              )}
+
               {/* Full Name Field */}
               <div>
                 <label
