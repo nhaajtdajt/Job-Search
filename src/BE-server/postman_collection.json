@@ -1,0 +1,482 @@
+{
+	"info": {
+		"_postman_id": "job-search-auth-api",
+		"name": "Job Search - Authentication API",
+		"description": "Postman collection for testing Job Search Authentication API endpoints\n\nDatabase Schema:\n- users table: user_id (UUID), name, gender (VARCHAR(10)), date_of_birth (DATE), phone (VARCHAR(15)), address (TEXT), avatar_url (TEXT)\n- Required fields: email, password\n- Optional fields: name, role, gender, date_of_birth, phone, address, avatar_url",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register - Job Seeker",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+									"    pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+									"    pm.environment.set(\"userId\", jsonData.data.user.user_id);",
+									"    pm.environment.set(\"userEmail\", jsonData.data.user.email);",
+									"    pm.environment.set(\"userRole\", jsonData.data.user.role);",
+									"    console.log('User registered:', jsonData.data.user);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"jobseeker@test.com\",\n    \"password\": \"Test123!@#\",\n    \"name\": \"Nguyễn Văn A\",\n    \"role\": \"job_seeker\",\n    \"gender\": \"Male\",\n    \"date_of_birth\": \"1995-05-15\",\n    \"phone\": \"0123456789\",\n    \"address\": \"123 Đường ABC, Quận 1, TP.HCM\",\n    \"avatar_url\": \"https://example.com/avatar.jpg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new job seeker account.\n\nRequired fields:\n- email: User email address\n- password: Must be at least 8 chars, include uppercase, lowercase, number, and special char\n\nOptional fields (all fields except email/password are optional):\n- name: Full name\n- role: 'job_seeker' (default) or 'employer'\n- gender: 'Male', 'Female', or 'Other' (VARCHAR(10))\n- date_of_birth: Format 'YYYY-MM-DD'\n- phone: Phone number (VARCHAR(15))\n- address: Full address (TEXT)\n- avatar_url: URL to avatar image (TEXT)\n\nNote: You can remove any optional fields from the request body - they will be ignored."
+					},
+					"response": []
+				},
+				{
+					"name": "Register - Employer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+									"    pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+									"    pm.environment.set(\"userId\", jsonData.data.user.user_id);",
+									"    pm.environment.set(\"userEmail\", jsonData.data.user.email);",
+									"    pm.environment.set(\"userRole\", jsonData.data.user.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"employer@test.com\",\n    \"password\": \"Test123!@#\",\n    \"name\": \"Lê Văn C\",\n    \"role\": \"employer\",\n    \"gender\": \"Male\",\n    \"date_of_birth\": \"1985-03-20\",\n    \"phone\": \"0987654321\",\n    \"address\": \"456 Đường XYZ, Quận 2, TP.HCM\",\n    \"avatar_url\": \"https://example.com/employer-avatar.jpg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new employer account.\n\nRequired fields:\n- email: User email address\n- password: Must be at least 8 chars, include uppercase, lowercase, number, and special char\n- role: 'employer'\n\nOptional fields:\n- name: Full name\n- gender: 'Male', 'Female', or 'Other' (VARCHAR(10))\n- date_of_birth: Format 'YYYY-MM-DD'\n- phone: Phone number (VARCHAR(15))\n- address: Full address (TEXT)\n- avatar_url: URL to avatar image (TEXT)\n\nNote: After registration, employer needs to be linked to a company in the employer table separately."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+									"    pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+									"    pm.environment.set(\"userId\", jsonData.data.user.user_id);",
+									"    pm.environment.set(\"userEmail\", jsonData.data.user.email);",
+									"    pm.environment.set(\"userRole\", jsonData.data.user.role);",
+									"    console.log('Login successful:', jsonData.data.user);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"Test123!@#\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with email and password. Returns access token and refresh token."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout user. Requires authentication (Bearer token). Client should delete tokens after logout."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+									"    pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+									"    console.log('Tokens refreshed successfully');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/refresh-token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh-token"
+							]
+						},
+						"description": "Refresh access token using refresh token. Returns new access token and refresh token pair."
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"resetToken\", jsonData.data.token);",
+									"    console.log('Reset token (6 digits):', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/forgot-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"forgot-password"
+							]
+						},
+						"description": "Request password reset. Generates a 6-digit token and sends it via email.\n\nThis endpoint:\n1. Validates email exists\n2. Generates a random 6-digit reset token\n3. Sends the token via email (in redirect URL)\n4. Returns the token in the response\n\nResponse includes:\n- token: Random 6-digit reset token (e.g., 123456) - also sent via email\n- email: User email\n\nNote: Token is included in the email reset link as a query parameter."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"resetToken\", jsonData.data.token);",
+									"    console.log('Reset token:', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"newPassword\": \"NewPassword123!@#\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"reset-password"
+							]
+						},
+						"description": "Reset password with email and new password.\n\nThis endpoint:\n1. Validates the new password\n2. Updates the user's password\n3. Generates a random 6-digit reset token\n4. Sends the token via email\n5. Returns the token in the response\n\nRequired fields:\n- email: User email address\n- newPassword: New password (must meet requirements)\n\nPassword requirements:\n- At least 8 characters\n- Include uppercase letter\n- Include lowercase letter\n- Include number\n- Include special character\n\nResponse includes:\n- token: Random 6-digit reset token (e.g., 123456) - also sent via email\n- email: User email"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"your-verification-token-from-email\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/verify-email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"verify-email"
+							]
+						},
+						"description": "Verify email address with token from verification email."
+					},
+					"response": []
+				},
+				{
+					"name": "Resend Verification Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/resend-verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"resend-verification"
+							]
+						},
+						"description": "Resend email verification to user."
+					},
+					"response": []
+				}
+			],
+			"description": "All authentication endpoints for Job Search API"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8017",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userEmail",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userRole",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "resetToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
