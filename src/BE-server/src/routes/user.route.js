@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/user.controller');
+const SavedJobController = require('../controllers/saved_job.controller');
+const SavedSearchController = require('../controllers/saved_search.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const { uploadAvatarSafe } = require('../middlewares/upload.middleware');
 
@@ -36,6 +38,69 @@ router.delete(
   '/avatar',
   authMiddleware.authenticate,
   UserController.deleteAvatar
+);
+
+// Statistics endpoint (must be before saved-jobs/:jobId routes)
+router.get(
+  '/statistics',
+  authMiddleware.authenticate,
+  UserController.getStatistics
+);
+
+// Saved Jobs routes
+router.post(
+  '/saved-jobs',
+  authMiddleware.authenticate,
+  SavedJobController.saveJob
+);
+
+router.get(
+  '/saved-jobs/count',
+  authMiddleware.authenticate,
+  SavedJobController.getSavedJobsCount
+);
+
+router.get(
+  '/saved-jobs',
+  authMiddleware.authenticate,
+  SavedJobController.getSavedJobs
+);
+
+router.get(
+  '/saved-jobs/:jobId/check',
+  authMiddleware.authenticate,
+  SavedJobController.checkSaved
+);
+
+router.delete(
+  '/saved-jobs/:jobId',
+  authMiddleware.authenticate,
+  SavedJobController.unsaveJob
+);
+
+// Saved Searches routes
+router.post(
+  '/saved-searches',
+  authMiddleware.authenticate,
+  SavedSearchController.saveSearch
+);
+
+router.get(
+  '/saved-searches/count',
+  authMiddleware.authenticate,
+  SavedSearchController.getSavedSearchesCount
+);
+
+router.get(
+  '/saved-searches',
+  authMiddleware.authenticate,
+  SavedSearchController.getSavedSearches
+);
+
+router.delete(
+  '/saved-searches/:searchId',
+  authMiddleware.authenticate,
+  SavedSearchController.deleteSearch
 );
 
 module.exports = router;

@@ -1,7 +1,6 @@
 /**
  * Seed Locations - Master Data
- * Cities and provinces in Vietnam
- * Major cities where tech companies are located
+ * All 63 provinces and cities in Vietnam
  */
 
 /**
@@ -14,36 +13,77 @@ exports.seed = async function (knex) {
   // Clear existing locations
   await knex('location').del();
   
-  await knex('location').insert([
-    // Tier 1 Cities (Major Tech Hubs)
-    { location_name: 'Hồ Chí Minh' },
-    { location_name: 'Hà Nội' },
-    { location_name: 'Đà Nẵng' },
-    
-    // Tier 2 Cities
-    { location_name: 'Cần Thơ' },
-    { location_name: 'Hải Phòng' },
-    { location_name: 'Biên Hòa' },
-    { location_name: 'Nha Trang' },
-    { location_name: 'Huế' },
-    { location_name: 'Vũng Tàu' },
-    { location_name: 'Quy Nhon' },
-    
-    // Other Tech Cities
-    { location_name: 'Bình Dương' },
-    { location_name: 'Đồng Nai' },
-    { location_name: 'Thủ Đức' },
-    { location_name: 'Quận 1, TP.HCM' },
-    { location_name: 'Quận 2, TP.HCM' },
-    { location_name: 'Quận 3, TP.HCM' },
-    { location_name: 'Quận 7, TP.HCM' },
-    { location_name: 'Quận 9, TP.HCM' },
-    { location_name: 'Cầu Giấy, Hà Nội' },
-    { location_name: 'Đống Đa, Hà Nội' },
-    { location_name: 'Hai Bà Trưng, Hà Nội' },
-    { location_name: 'Thanh Xuân, Hà Nội' }
-  ]);
+  // All 63 provinces and cities in Vietnam
+  const vietnamProvinces = [
+    'An Giang',
+    'Bà Rịa - Vũng Tàu',
+    'Bạc Liêu',
+    'Bắc Giang',
+    'Bắc Kạn',
+    'Bắc Ninh',
+    'Bến Tre',
+    'Bình Định',
+    'Bình Dương',
+    'Bình Phước',
+    'Bình Thuận',
+    'Cà Mau',
+    'Cao Bằng',
+    'Cần Thơ',
+    'Đà Nẵng',
+    'Đắk Lắk',
+    'Đắk Nông',
+    'Điện Biên',
+    'Đồng Nai',
+    'Đồng Tháp',
+    'Gia Lai',
+    'Hà Giang',
+    'Hà Nam',
+    'Hà Nội',
+    'Hà Tĩnh',
+    'Hải Dương',
+    'Hải Phòng',
+    'Hậu Giang',
+    'Hòa Bình',
+    'Hưng Yên',
+    'Khánh Hòa',
+    'Kiên Giang',
+    'Kon Tum',
+    'Lai Châu',
+    'Lâm Đồng',
+    'Lạng Sơn',
+    'Lào Cai',
+    'Long An',
+    'Nam Định',
+    'Nghệ An',
+    'Ninh Bình',
+    'Ninh Thuận',
+    'Phú Thọ',
+    'Phú Yên',
+    'Quảng Bình',
+    'Quảng Nam',
+    'Quảng Ngãi',
+    'Quảng Ninh',
+    'Quảng Trị',
+    'Sóc Trăng',
+    'Sơn La',
+    'Tây Ninh',
+    'Thái Bình',
+    'Thái Nguyên',
+    'Thanh Hóa',
+    'Thừa Thiên Huế',
+    'Tiền Giang',
+    'Thành phố Hồ Chí Minh',
+    'Trà Vinh',
+    'Tuyên Quang',
+    'Vĩnh Long',
+    'Vĩnh Phúc',
+    'Yên Bái'
+  ];
+  
+  const locationData = vietnamProvinces.map(name => ({ location_name: name }));
+  
+  await knex('location').insert(locationData);
   
   const count = await knex('location').count('* as count').first().then(r => r.count);
-  console.log(`✅ Created ${count} locations`);
+  console.log(`✅ Created ${count} locations (63 provinces/cities in Vietnam)`);
 };

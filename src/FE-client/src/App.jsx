@@ -1,7 +1,11 @@
 import { Outlet, Link } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
+import UserDropdown from "./components/common/UserDropdown";
 import "./App.css";
 
 function Header() {
+  const { isAuthenticated } = useAuth();
+  
   const primaryLinks = [
     { label: "Trang chủ", to: "/" },
     { label: "Việc làm", to: "/jobs" },
@@ -79,14 +83,18 @@ function Header() {
               >
                 Nhà tuyển dụng
               </Link>
-              <div className="flex items-center gap-8">
-                <Link to="/login" className="text-brand-50 font-semibold transition hover:text-white">
-                  Đăng nhập
-                </Link>
-                <Link to="/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
-                  Đăng ký
-                </Link>
-              </div>
+              {isAuthenticated ? (
+                <UserDropdown />
+              ) : (
+                <div className="flex items-center gap-8">
+                  <Link to="/login" className="text-brand-50 font-semibold transition hover:text-white">
+                    Đăng nhập
+                  </Link>
+                  <Link to="/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
+                    Đăng ký
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -11,7 +11,23 @@ exports.up = async function (knex) {
       date_of_birth DATE,
       phone VARCHAR(15),
       address TEXT,
-      avatar_url TEXT
+      avatar_url TEXT,
+      -- Professional information
+      job_title TEXT,
+      current_level VARCHAR(50),
+      industry TEXT,
+      field TEXT,
+      experience_years INTEGER,
+      current_salary DECIMAL(15, 2),
+      education VARCHAR(100),
+      -- Personal information
+      nationality VARCHAR(100),
+      marital_status VARCHAR(20),
+      country VARCHAR(100),
+      province VARCHAR(100),
+      -- Job preferences
+      desired_location TEXT,
+      desired_salary DECIMAL(15, 2)
     );
   `);
 
@@ -39,7 +55,7 @@ exports.up = async function (knex) {
     table
       .bigInteger('company_id')
       .unsigned()
-      .notNullable()
+      .nullable()
       .references('company.company_id')
       .onDelete('CASCADE');
   });
