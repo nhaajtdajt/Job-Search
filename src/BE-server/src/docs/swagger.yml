@@ -1,7 +1,7 @@
 # ============================================
 # JOB SEARCH API - Complete OpenAPI 3.0 Spec
 # ============================================
-# All 37 endpoints in a single file for swagger-jsdoc compatibility
+# All 55 endpoints in a single file for swagger-jsdoc compatibility
 
 openapi: 3.0.3
 
@@ -43,9 +43,15 @@ tags:
     description: Company information
   - name: Resumes
     description: Resume/CV management
+  - name: Applications
+    description: Job application management (job seekers & employers)
+  - name: Saved Jobs
+    description: Save and manage favorite jobs
+  - name: Searches
+    description: Saved search queries
 
 # ============================================
-# PATHS - All 37 Endpoints
+# PATHS - All 55 Endpoints
 # ============================================
 
 paths:
@@ -830,6 +836,623 @@ paths:
                 format: binary
         "403":
           $ref: "#/components/responses/Forbidden"
+
+  # ==================== APPLICATIONS (10) ====================
+  
+  /api/applications:
+    post:
+      tags: [Applications]
+      summary: Submit job application
+      description: |
+        Submit application for a job.
+        
+        **Validations:**
+        - Job must exist and not expired
+        - Resume must belong to user
+        - Prevents duplicate applications
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [job_id, resume_id]
+              properties:
+                job_id:
+                  type: integer
+                  example: 1
+                resume_id:
+                  type: string
+                  example: "RES0001"
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      application_id:
+                        type: integer
+                      user_id:
+                        type: string
+                        format: uuid
+                      job_id:
+                        type: integer
+                      resume_id:
+                        type: string
+                      status:
+                        type: string
+                        enum: [pending, reviewing, interview, offer, rejected, accepted]
+                      apply_date:
+                        type: string
+                        format: date-time
+        "400":
+          description: Validation error (duplicate, expired job, etc.)
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Job or resume not found
+
+    get:
+      tags: [Applications]
+      summary: Get user's application history
+      description: Get paginated list of user's applications with filters
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, reviewing, interview, offer, rejected, accepted]
+          description: Filter by status
+      responses:
+        "200":
+          description: Applications retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+
+  /api/applications/statistics:
+    get:
+      tags: [Applications]
+      summary: Get application statistics
+      description: Get statistics of user's applications grouped by status
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 25
+                      by_status:
+                        type: object
+                        properties:
+                          pending:
+                            type: integer
+                          reviewing:
+                            type: integer
+                          interview:
+                            type: integer
+                          offer:
+                            type: integer
+                          rejected:
+                            type: integer
+                          accepted:
+                            type: integer
+
+  /api/applications/{applicationId}:
+    get:
+      tags: [Applications]
+      summary: Get application detail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Application retrieved
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [Applications]
+      summary: Update application
+      description: |
+        Update application (change resume).
+        Only allowed when status is 'pending'.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resume_id:
+                  type: string
+                  example: "RES0002"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: Cannot update (status not pending)
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+    delete:
+      tags: [Applications]
+      summary: Withdraw application
+      description: |
+        Withdraw application.
+        Only allowed when status is 'pending' or 'reviewing'.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: Cannot withdraw (invalid status)
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/applications/{applicationId}/status:
+    put:
+      tags: [Applications]
+      summary: Update application status
+      description: |
+        Update application status (employer only).
+        
+        **Valid statuses:**
+        - pending, reviewing, interview, offer, rejected, accepted
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [pending, reviewing, interview, offer, rejected, accepted]
+                  example: "interview"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: Invalid status transition
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/applications/{applicationId}/notes:
+    post:
+      tags: [Applications]
+      summary: Add notes to application
+      description: Add or update notes for an application (employer only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [notes]
+              properties:
+                notes:
+                  type: string
+                  example: "Strong candidate! Great technical skills."
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/jobs/{jobId}/applications:
+    get:
+      tags: [Applications]
+      summary: Get applications for a job
+      description: Get all applications for a specific job (employer only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Applications retrieved
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/employers/applications:
+    get:
+      tags: [Applications]
+      summary: Get all employer's applications
+      description: Get applications for all jobs posted by employer
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: job_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by specific job
+      responses:
+        "200":
+          description: Applications retrieved
+
+  # ==================== SAVED JOBS (4) ====================
+  
+  /api/saved-jobs/{jobId}:
+    post:
+      tags: [Saved Jobs]
+      summary: Save job to favorites
+      description: |
+        Save job to user's saved list.
+        
+        **Validations:**
+        - Job must exist
+        - Prevents duplicate saves
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Job saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: string
+                        format: uuid
+                      job_id:
+                        type: integer
+                      saved_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Job already saved
+        "404":
+          description: Job not found
+
+    delete:
+      tags: [Saved Jobs]
+      summary: Unsave job
+      description: Remove job from user's saved list
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          description: Job not in saved list
+
+  /api/saved-jobs:
+    get:
+      tags: [Saved Jobs]
+      summary: Get saved jobs
+      description: Get user's saved jobs with pagination
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Saved jobs retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user_id:
+                              type: string
+                            job_id:
+                              type: integer
+                            saved_at:
+                              type: string
+                            job_title:
+                              type: string
+                            job_type:
+                              type: string
+                            salary_min:
+                              type: number
+                            salary_max:
+                              type: number
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+
+  /api/saved-jobs/check/{jobId}:
+    get:
+      tags: [Saved Jobs]
+      summary: Check if job is saved
+      description: Check if a job is in user's saved list (for UI)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Check completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      is_saved:
+                        type: boolean
+                        example: true
+
+  # ==================== SEARCHES (4) ====================
+  
+  /api/searches:
+    post:
+      tags: [Searches]
+      summary: Create saved search
+      description: |
+        Save search criteria for job alerts.
+        Filters are stored as JSON.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [search_name, filters]
+              properties:
+                search_name:
+                  type: string
+                  example: "NodeJS Jobs in HCM"
+                filters:
+                  type: object
+                  properties:
+                    keyword:
+                      type: string
+                      example: "nodejs"
+                    location:
+                      type: string
+                      example: "Hồ Chí Minh"
+                    salary_min:
+                      type: number
+                      example: 1000
+                    job_type:
+                      type: string
+                      example: "full-time"
+      responses:
+        "201":
+          description: Search saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      search_id:
+                        type: integer
+                      search_name:
+                        type: string
+                      filters:
+                        type: object
+                      created_at:
+                        type: string
+                        format: date-time
+
+    get:
+      tags: [Searches]
+      summary: Get saved searches
+      description: Get all saved searches for the user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Searches retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        search_id:
+                          type: integer
+                        search_name:
+                          type: string
+                        filters:
+                          type: object
+                        created_at:
+                          type: string
+
+  /api/searches/{searchId}:
+    put:
+      tags: [Searches]
+      summary: Update saved search
+      description: Update search name and/or filters (owner only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: searchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                search_name:
+                  type: string
+                filters:
+                  type: object
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Searches]
+      summary: Delete saved search
+      description: Delete a saved search (owner only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: searchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
 # ============================================
 # COMPONENTS - Reusable
