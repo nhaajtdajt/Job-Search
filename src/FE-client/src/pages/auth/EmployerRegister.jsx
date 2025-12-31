@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   Mail,
   Lock,
@@ -14,6 +15,8 @@ import {
 } from "lucide-react";
 
 export default function EmployerRegister() {
+  const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     companyName: "",
     contactPerson: "",
@@ -28,6 +31,7 @@ export default function EmployerRegister() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   const validateForm = () => {
     const newErrors = {};
@@ -80,18 +84,37 @@ export default function EmployerRegister() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError("");
 
     if (!validateForm()) return;
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Register data:", formData);
+    try {
+      // Prepare registration data for employer
+      const registerData = {
+        email: formData.email,
+        password: formData.password,
+        name: formData.contactPerson,
+        role: 'employer',
+        phone: formData.phone,
+        // Company info - will be linked after registration
+        company_name: formData.companyName,
+        company_address: formData.address,
+      };
+
+      // Use AuthContext register to properly update state
+      await register(registerData);
+
+      // Navigate to employer dashboard
+      navigate('/employer/dashboard');
+    } catch (error) {
+      console.error('Registration error:', error);
+      const errorMessage = error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
+      setApiError(errorMessage);
+    } finally {
       setIsLoading(false);
-      // Redirect to login after successful registration
-      window.location.href = "/employer/login";
-    }, 2000);
+    }
   };
 
   const handleChange = (e) => {
@@ -132,6 +155,14 @@ export default function EmployerRegister() {
           {/* Form */}
           <div className="px-8 py-8">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* API Error Alert */}
+              {apiError && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700">{apiError}</p>
+                </div>
+              )}
+
               {/* Company Information Section */}
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">

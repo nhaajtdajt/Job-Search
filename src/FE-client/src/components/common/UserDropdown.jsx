@@ -63,7 +63,7 @@ export default function UserDropdown() {
     {
       label: 'Tổng Quan',
       icon: <User className="w-4 h-4" />,
-      to: '/profile',
+      to: '/overview',
       divider: false,
     },
     {

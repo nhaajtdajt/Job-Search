@@ -77,10 +77,11 @@ export const authService = {
   /**
    * Verify email
    * @param {string} token - Verification token
+   * @param {string} email - User email (optional)
    * @returns {Promise<void>}
    */
-  async verifyEmail(token) {
-    const response = await api.post('/auth/verify-email', { token });
+  async verifyEmail(token, email = null) {
+    const response = await api.post('/auth/verify-email', { token, email });
     return response.data;
   },
 

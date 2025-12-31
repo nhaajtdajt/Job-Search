@@ -57,6 +57,7 @@ class JobService {
       salary_max: jobData.salary_max,
       job_type: jobData.job_type,
       expired_at: jobData.expired_at,
+      status: jobData.status || 'draft',
       views: 0
     };
 
@@ -115,7 +116,8 @@ class JobService {
       'salary_min',
       'salary_max',
       'job_type',
-      'expired_at'
+      'expired_at',
+      'status'
     ];
 
     const jobUpdateData = {};
@@ -200,9 +202,10 @@ class JobService {
       throw new ForbiddenError('You do not have permission to publish this job');
     }
 
-    // Update posted_at to now
+    // Update posted_at to now and set status to published
     const updatedJob = await JobRepository.update(jobId, {
-      posted_at: new Date()
+      posted_at: new Date(),
+      status: 'published'
     });
 
     return updatedJob;
@@ -226,9 +229,10 @@ class JobService {
       throw new ForbiddenError('You do not have permission to expire this job');
     }
 
-    // Set expired_at to now
+    // Set expired_at to now and set status to expired
     const updatedJob = await JobRepository.update(jobId, {
-      expired_at: new Date()
+      expired_at: new Date(),
+      status: 'expired'
     });
 
     return updatedJob;

@@ -7,7 +7,6 @@ const employerRoutes = require('./employer.route');
 const companyRoutes = require('./company.route');
 const resumeRoutes = require('./resume.route');
 const applicationRoutes = require('./application.route');
-const savedRoutes = require('./saved.route');
 const searchRoutes = require('./search.route');
 const notificationRoutes = require('./notification.route');
 const adminRoutes = require('./admin.route');
@@ -59,7 +58,6 @@ const initRoute = (app) => {
   app.use("/api/companies", companyRoutes);
   app.use("/api/resumes", resumeRoutes);
   app.use("/api/applications", applicationRoutes);
-  app.use("/api/saved-jobs", savedRoutes);
   app.use("/api/searches", searchRoutes);
   app.use("/api/notifications", notificationRoutes);
   app.use("/api/admin", adminRoutes);

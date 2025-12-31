@@ -39,6 +39,11 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 const resetTokens = new Map();
 const TOKEN_EXPIRY_TIME = 15 * 60 * 1000; // 15 minutes
 
+// Store verified emails (allowed to reset password)
+// Format: { email: { verifiedAt: timestamp, expiresAt: timestamp } }
+const verifiedEmails = new Map();
+const VERIFIED_EMAIL_EXPIRY_TIME = 10 * 60 * 1000; // 10 minutes - email verification is valid for 10 minutes
+
 /**
  * Auth Service
  * Handles authentication business logic with Supabase Auth integration
@@ -337,22 +342,66 @@ class AuthService {
       throw new BadRequestError('Email is required');
     }
 
-    // Check if user exists
+    // Check if user exists in Supabase Auth (covers both email/password and social login users)
     const { data: usersList, error: listError } = await supabase.auth.admin.listUsers();
     if (listError) {
       throw new BadRequestError('Failed to find user');
     }
 
-    const authUser = usersList.users.find(user => user.email === email);
+    const emailLower = email.toLowerCase();
+    const authUser = usersList.users.find(user => user.email && user.email.toLowerCase() === emailLower);
+
     if (!authUser) {
-      // Don't reveal if user exists or not for security
-      // Still return success to prevent email enumeration
-      // But don't store token if user doesn't exist
-      return {
-        token: this.generateResetToken(),
-        message: 'If the email exists, a password reset token has been sent.',
-        email: email
-      };
+      // User not found - throw error to inform that email is not registered
+      throw new NotFoundError('Email này chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại email hoặc đăng ký tài khoản mới.');
+    }
+
+    // Try to get user details by ID to see full structure
+    // Supabase Admin API might not return encrypted_password in listUsers()
+    let userDetails = null;
+    try {
+      const { data: userData, error: getUserError } = await supabase.auth.admin.getUserById(authUser.id);
+      if (!getUserError && userData && userData.user) {
+        userDetails = userData.user;
+      }
+    } catch (error) {
+      // Continue with authUser from list if getUserById fails
+    }
+
+    // Use userDetails if available, otherwise use authUser from list
+    const userToCheck = userDetails || authUser;
+
+    // Check if user has password (can reset password)
+    // In Supabase, email/password users should have either:
+    // 1. encrypted_password field (might not be available via Admin API for security)
+    // 2. identity with provider = 'email' 
+    // 3. app_metadata.provider = 'email' or no provider (default email/password)
+
+    const hasPassword = userToCheck.encrypted_password && userToCheck.encrypted_password.length > 0;
+    const hasEmailProvider = userToCheck.identities && Array.isArray(userToCheck.identities) && userToCheck.identities.some(
+      identity => identity.provider === 'email'
+    );
+
+    // Check app_metadata for provider info
+    const appMetadata = userToCheck.app_metadata || {};
+    const provider = appMetadata.provider;
+
+    // Check identities for social providers
+    const hasSocialProvider = userToCheck.identities && Array.isArray(userToCheck.identities) && userToCheck.identities.some(
+      identity => ['google', 'facebook', 'github', 'twitter', 'azure', 'linkedin'].includes(identity.provider)
+    );
+
+    // Social providers that don't have passwords
+    const socialProviders = ['google', 'facebook', 'github', 'twitter', 'azure', 'linkedin'];
+    const isSocialOnly = (provider && socialProviders.includes(provider.toLowerCase())) || (hasSocialProvider && !hasEmailProvider && !hasPassword);
+
+    // Since Supabase Admin API might not return encrypted_password for security reasons,
+    // we'll be more permissive: if user exists and is not clearly a social-only account, allow reset
+    // Block only if we're CERTAIN it's social-only (has social provider AND no email provider AND no password)
+
+    if (isSocialOnly) {
+      // User is definitely social-only (has social provider and no email provider/password)
+      throw new BadRequestError('Tài khoản này được đăng nhập bằng tài khoản xã hội (Google/Facebook) và không có mật khẩu để đặt lại. Vui lòng đăng nhập bằng tài khoản xã hội của bạn.');
     }
 
     // Generate random 6-digit reset token
@@ -369,9 +418,7 @@ class AuthService {
     // Clean up expired tokens (optional cleanup)
     this.cleanupExpiredTokens();
 
-    console.log(`\n🔐 Password reset requested for: ${email}`);
-    console.log(`🔐 Generated token: ${resetToken}`);
-    console.log(`🔐 Token expires at: ${new Date(expiresAt).toISOString()}`);
+    console.log(`🔐 Password reset requested for: ${email}`);
 
     // Send custom email with token displayed in email content
     const emailSent = await EmailService.sendPasswordResetEmail(email, resetToken);
@@ -408,6 +455,18 @@ class AuthService {
       throw new BadRequestError('Email and new password are required');
     }
 
+    const emailLower = email.toLowerCase();
+
+    // Check if email has been verified (token was verified successfully)
+    const verifiedData = verifiedEmails.get(emailLower);
+    if (!verifiedData || verifiedData.expiresAt < Date.now()) {
+      // Clean up expired verification
+      if (verifiedData && verifiedData.expiresAt < Date.now()) {
+        verifiedEmails.delete(emailLower);
+      }
+      throw new BadRequestError('Email verification required. Please verify your email token first.');
+    }
+
     // Validate password strength
     const passwordValidation = HashUtil.validatePasswordStrength(newPassword);
     if (!passwordValidation.valid) {
@@ -420,10 +479,13 @@ class AuthService {
       throw new BadRequestError('Failed to find user');
     }
 
-    const authUser = usersList.users.find(user => user.email === email);
+    const authUser = usersList.users.find(user => user.email.toLowerCase() === emailLower);
     if (!authUser) {
       throw new NotFoundError('User with this email not found');
     }
+
+    // Remove verified email after password reset (one-time use)
+    verifiedEmails.delete(emailLower);
 
     // Generate random reset token (32 characters)
     const resetToken = this.generateResetToken();
@@ -478,6 +540,12 @@ class AuthService {
         resetTokens.delete(email);
       }
     }
+    // Also cleanup expired verified emails
+    for (const [email, verifiedData] of verifiedEmails.entries()) {
+      if (verifiedData.expiresAt < now) {
+        verifiedEmails.delete(email);
+      }
+    }
   }
 
   /**
@@ -491,19 +559,24 @@ class AuthService {
       return false;
     }
 
-    const tokenData = resetTokens.get(email.toLowerCase());
+    const emailLower = email.toLowerCase();
+    const tokenData = resetTokens.get(emailLower);
     if (!tokenData) {
       return false;
     }
 
+    // Normalize token (ensure string, trim whitespace)
+    const normalizedToken = String(token).trim();
+    const normalizedStoredToken = String(tokenData.token).trim();
+
     // Check if token matches
-    if (tokenData.token !== token) {
+    if (normalizedStoredToken !== normalizedToken) {
       return false;
     }
 
     // Check if token has expired
     if (tokenData.expiresAt < Date.now()) {
-      resetTokens.delete(email.toLowerCase());
+      resetTokens.delete(emailLower);
       return false;
     }
 
@@ -524,14 +597,22 @@ class AuthService {
 
     // If email is provided, verify directly
     if (email) {
-      if (this.verifyResetToken(email, token)) {
+      const emailLower = email.toLowerCase();
+      if (this.verifyResetToken(emailLower, token)) {
         // Token is valid, remove it (one-time use)
-        resetTokens.delete(email.toLowerCase());
+        resetTokens.delete(emailLower);
+
+        // Mark email as verified (allows reset password for next 10 minutes)
+        const verifiedExpiresAt = Date.now() + VERIFIED_EMAIL_EXPIRY_TIME;
+        verifiedEmails.set(emailLower, {
+          verifiedAt: Date.now(),
+          expiresAt: verifiedExpiresAt
+        });
 
         // Also verify email in Supabase if user exists
         try {
           const { data: usersList } = await supabase.auth.admin.listUsers();
-          const authUser = usersList?.users?.find(user => user.email.toLowerCase() === email.toLowerCase());
+          const authUser = usersList?.users?.find(user => user.email.toLowerCase() === emailLower);
           if (authUser && !authUser.email_confirmed_at) {
             // Update email confirmation status
             await supabase.auth.admin.updateUserById(authUser.id, {
@@ -553,6 +634,13 @@ class AuthService {
         if (tokenData.token === token && tokenData.expiresAt >= Date.now()) {
           // Token found and valid, remove it (one-time use)
           resetTokens.delete(storedEmail);
+
+          // Mark email as verified (allows reset password for next 10 minutes)
+          const verifiedExpiresAt = Date.now() + VERIFIED_EMAIL_EXPIRY_TIME;
+          verifiedEmails.set(storedEmail, {
+            verifiedAt: Date.now(),
+            expiresAt: verifiedExpiresAt
+          });
 
           // Also verify email in Supabase if user exists
           try {

@@ -1,10 +1,21 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import EmployerUserDropdown from "./EmployerUserDropdown";
 
 export default function EmployerHeader() {
+  const { isAuthenticated } = useAuth();
+
   const primaryLinks = [
+    { label: "Dashboard", to: "/employer/dashboard" },
+    { label: "Đăng tin", to: "/employer/post-job" },
+    { label: "Hồ sơ", to: "/employer/profile" },
+    { label: "Công ty", to: "/employer/company" },
+  ];
+
+  const guestLinks = [
     { label: "Trang chủ", to: "/employer" },
-    { label: "Đăng tin tuyển dụng", to: "/employer/dashboard" },
-    { label: "Tìm ứng viên", to: "/employer/candidates" },
+    { label: "Về chúng tôi", to: "/employer/about" },
+    { label: "Liên hệ", to: "/employer/contact" },
   ];
 
   const supportLinks = [
@@ -12,6 +23,8 @@ export default function EmployerHeader() {
     { label: "Liên hệ hỗ trợ", href: "#" },
     { label: "Hotline: 1900 1234", href: "#" },
   ];
+
+  const navLinks = isAuthenticated ? primaryLinks : guestLinks;
 
   return (
     <header className="sticky top-0 z-50">
@@ -57,7 +70,7 @@ export default function EmployerHeader() {
           </Link>
           <div className="flex flex-1 flex-col items-start gap-4 text-sm font-medium text-brand-100/80 lg:flex-row lg:items-center lg:justify-end">
             <nav className="flex flex-wrap items-center gap-1 rounded-full bg-white/10 px-1 py-1 ring-1 ring-white/15 backdrop-blur">
-              {primaryLinks.map((item) => (
+              {navLinks.map((item) => (
                 <Link
                   key={item.label}
                   to={item.to}
@@ -66,17 +79,25 @@ export default function EmployerHeader() {
                   {item.label}
                 </Link>
               ))}
-              <button className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition hover:bg-white/15 hover:text-white">
-                Thông báo
-              </button>
+              {isAuthenticated && (
+                <button className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition hover:bg-white/15 hover:text-white">
+                  Thông báo
+                </button>
+              )}
             </nav>
             <div className="flex items-center gap-8">
-              <Link to="/employer/login" className="text-brand-50 font-semibold transition hover:text-white">
-                Đăng nhập
-              </Link>
-              <Link to="/employer/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
-                Đăng ký
-              </Link>
+              {isAuthenticated ? (
+                <EmployerUserDropdown />
+              ) : (
+                <>
+                  <Link to="/employer/login" className="text-brand-50 font-semibold transition hover:text-white">
+                    Đăng nhập
+                  </Link>
+                  <Link to="/employer/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
+                    Đăng ký
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -84,3 +105,4 @@ export default function EmployerHeader() {
     </header>
   );
 }
+
