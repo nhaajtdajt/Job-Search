@@ -347,15 +347,51 @@ class AuthService {
       throw new NotFoundError('Email này chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại email hoặc đăng ký tài khoản mới.');
     }
 
-    // Check if user has email/password provider (not just social login)
-    // User can have multiple identities (providers), we need to check if at least one is "email"
-    const hasEmailProvider = authUser.identities && authUser.identities.some(
+    // Try to get user details by ID to see full structure
+    // Supabase Admin API might not return encrypted_password in listUsers()
+    let userDetails = null;
+    try {
+      const { data: userData, error: getUserError } = await supabase.auth.admin.getUserById(authUser.id);
+      if (!getUserError && userData && userData.user) {
+        userDetails = userData.user;
+      }
+    } catch (error) {
+      // Continue with authUser from list if getUserById fails
+    }
+    
+    // Use userDetails if available, otherwise use authUser from list
+    const userToCheck = userDetails || authUser;
+    
+    // Check if user has password (can reset password)
+    // In Supabase, email/password users should have either:
+    // 1. encrypted_password field (might not be available via Admin API for security)
+    // 2. identity with provider = 'email' 
+    // 3. app_metadata.provider = 'email' or no provider (default email/password)
+    
+    const hasPassword = userToCheck.encrypted_password && userToCheck.encrypted_password.length > 0;
+    const hasEmailProvider = userToCheck.identities && Array.isArray(userToCheck.identities) && userToCheck.identities.some(
       identity => identity.provider === 'email'
     );
-
-    if (!hasEmailProvider) {
-      // User only has social login providers (Google, Facebook, etc.)
-      // Social login users don't have passwords to reset
+    
+    // Check app_metadata for provider info
+    const appMetadata = userToCheck.app_metadata || {};
+    const provider = appMetadata.provider;
+    
+    // Check identities for social providers
+    const hasSocialProvider = userToCheck.identities && Array.isArray(userToCheck.identities) && userToCheck.identities.some(
+      identity => ['google', 'facebook', 'github', 'twitter', 'azure', 'linkedin'].includes(identity.provider)
+    );
+    
+    // Social providers that don't have passwords
+    const socialProviders = ['google', 'facebook', 'github', 'twitter', 'azure', 'linkedin'];
+    const isSocialOnly = (provider && socialProviders.includes(provider.toLowerCase())) || (hasSocialProvider && !hasEmailProvider && !hasPassword);
+    
+    // Since Supabase Admin API might not return encrypted_password for security reasons,
+    // we'll be more permissive: if user exists and is not clearly a social-only account, allow reset
+    // Block only if we're CERTAIN it's social-only (has social provider AND no email provider AND no password)
+    
+    if (isSocialOnly) {
+      // User is definitely social-only (has social provider and no email provider/password)
       throw new BadRequestError('Tài khoản này được đăng nhập bằng tài khoản xã hội (Google/Facebook) và không có mật khẩu để đặt lại. Vui lòng đăng nhập bằng tài khoản xã hội của bạn.');
     }
 
