@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   Mail,
   Lock,
@@ -11,6 +12,8 @@ import {
 } from "lucide-react";
 
 export default function EmployerLogin() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -19,6 +22,7 @@ export default function EmployerLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   const validateForm = () => {
     const newErrors = {};
@@ -41,18 +45,32 @@ export default function EmployerLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError("");
 
     if (!validateForm()) return;
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Login data:", formData);
+    try {
+      // Use AuthContext login to properly update state
+      const result = await login(formData.email, formData.password);
+      
+      // Check if user is employer role
+      if (result.user.role !== 'employer') {
+        setApiError("Tài khoản này không phải là nhà tuyển dụng. Vui lòng sử dụng trang đăng nhập dành cho ứng viên.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Navigate to employer dashboard
+      navigate('/employer/dashboard');
+    } catch (error) {
+      console.error('Login error:', error);
+      const errorMessage = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+      setApiError(errorMessage);
+    } finally {
       setIsLoading(false);
-      // Redirect to dashboard after successful login
-      window.location.href = "/employer/dashboard";
-    }, 1500);
+    }
   };
 
   const handleChange = (e) => {
@@ -138,6 +156,14 @@ export default function EmployerLogin() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* API Error Alert */}
+              {apiError && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700">{apiError}</p>
+                </div>
+              )}
+
               {/* Email Field */}
               <div>
                 <label

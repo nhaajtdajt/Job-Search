@@ -15,6 +15,8 @@ import AuthCallback from './pages/auth/AuthCallback.jsx'
 import ForgotPassword from './pages/auth/ForgotPassword.jsx'
 import EmployerLanding from './pages/employer/EmployerLanding.jsx'
 import EmployerDashboard from './pages/employer/EmployerDashboard.jsx'
+import EmployerProfile from './pages/employer/EmployerProfile.jsx'
+import CompanyProfile from './pages/employer/CompanyProfile.jsx'
 import EmployerLogin from './pages/auth/EmployerLogin.jsx'
 import EmployerRegister from './pages/auth/EmployerRegister.jsx'
 import Profile from './pages/user/ProfileComplete.jsx'
@@ -43,6 +45,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <EmployerLanding /> },
       { path: 'dashboard', element: <EmployerDashboard /> },
+      { path: 'profile', element: <EmployerProfile /> },
+      { path: 'company', element: <CompanyProfile /> },
       { path: 'login', element: <EmployerLogin /> },
       { path: 'register', element: <EmployerRegister /> },
     ],
