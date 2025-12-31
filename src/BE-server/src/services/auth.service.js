@@ -84,13 +84,9 @@ class AuthService {
 
       // Filter additionalData to only include allowed fields
       const userProfileData = {};
-<<<<<<< HEAD
-      if (name) userProfileData.name = name;
 
-=======
       if (userName) userProfileData.name = userName;
-      
->>>>>>> main
+
       Object.keys(additionalData).forEach(key => {
         if (allowedFields.includes(key)) {
           userProfileData[key] = additionalData[key];
@@ -361,7 +357,7 @@ class AuthService {
 
     // Generate random 6-digit reset token
     const resetToken = this.generateResetToken();
-    
+
     // Store token in memory with expiry time
     const expiresAt = Date.now() + TOKEN_EXPIRY_TIME;
     resetTokens.set(email.toLowerCase(), {
@@ -369,7 +365,7 @@ class AuthService {
       expiresAt: expiresAt,
       createdAt: Date.now()
     });
-    
+
     // Clean up expired tokens (optional cleanup)
     this.cleanupExpiredTokens();
 
@@ -531,7 +527,7 @@ class AuthService {
       if (this.verifyResetToken(email, token)) {
         // Token is valid, remove it (one-time use)
         resetTokens.delete(email.toLowerCase());
-        
+
         // Also verify email in Supabase if user exists
         try {
           const { data: usersList } = await supabase.auth.admin.listUsers();
@@ -546,18 +542,18 @@ class AuthService {
           console.warn('Failed to update email confirmation in Supabase:', error.message);
           // Continue anyway as token verification succeeded
         }
-        
+
         return true;
       }
     } else {
       // Search for token across all stored tokens
       this.cleanupExpiredTokens();
-      
+
       for (const [storedEmail, tokenData] of resetTokens.entries()) {
         if (tokenData.token === token && tokenData.expiresAt >= Date.now()) {
           // Token found and valid, remove it (one-time use)
           resetTokens.delete(storedEmail);
-          
+
           // Also verify email in Supabase if user exists
           try {
             const { data: usersList } = await supabase.auth.admin.listUsers();
@@ -570,7 +566,7 @@ class AuthService {
           } catch (error) {
             console.warn('Failed to update email confirmation in Supabase:', error.message);
           }
-          
+
           return true;
         }
       }
@@ -623,7 +619,7 @@ class AuthService {
 
     // Generate random 6-digit verification token (same as forgot password)
     const verificationToken = this.generateResetToken();
-    
+
     // Store token in memory with expiry time (same storage as forgot password)
     const expiresAt = Date.now() + TOKEN_EXPIRY_TIME;
     resetTokens.set(email.toLowerCase(), {
@@ -631,7 +627,7 @@ class AuthService {
       expiresAt: expiresAt,
       createdAt: Date.now()
     });
-    
+
     // Clean up expired tokens
     this.cleanupExpiredTokens();
 
@@ -650,8 +646,8 @@ class AuthService {
 
     return {
       token: verificationToken,
-      message: emailSent 
-        ? 'Verification email has been sent to your email.' 
+      message: emailSent
+        ? 'Verification email has been sent to your email.'
         : 'Verification token generated. Please check email configuration.',
       email: email
     };
@@ -683,12 +679,12 @@ class AuthService {
 
     // Extract user info from metadata
     const name = userMetadata.full_name || userMetadata.name || userMetadata.display_name || email?.split('@')[0];
-    
+
     // Get avatar URL from multiple possible locations in Google OAuth response
     // Google OAuth may store avatar in different fields depending on configuration
-    const avatarUrl = 
-      userMetadata.avatar_url || 
-      userMetadata.picture || 
+    const avatarUrl =
+      userMetadata.avatar_url ||
+      userMetadata.picture ||
       userMetadata.photo_url ||
       userMetadata.avatar ||
       authUser.user_metadata?.avatar_url ||
@@ -699,7 +695,7 @@ class AuthService {
       (authUser.identities && authUser.identities[0]?.identity_data?.avatar_url) ||
       (authUser.identities && authUser.identities[0]?.identity_data?.picture) ||
       null;
-    
+
     // Log for debugging (only in development)
     if (process.env.NODE_ENV === 'development') {
       console.log('🔍 Google OAuth Debug:');
@@ -734,7 +730,7 @@ class AuthService {
         user = await db('users')
           .where('user_id', userId)
           .first();
-        
+
         if (!user) {
           throw new BadRequestError('Failed to create user profile');
         }
@@ -747,7 +743,7 @@ class AuthService {
           .update({ avatar_url: avatarUrl });
         user.avatar_url = avatarUrl;
       }
-      
+
       // Update name if available and different
       if (name && user.name !== name) {
         await db('users')
