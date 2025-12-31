@@ -137,20 +137,44 @@ export const jobService = {
         return new Date(j.posted_at) >= threshold;
       });
       
-      // Calculate stats
+      // Calculate job stats
       const totalJobs = filteredJobs.length;
       const activeJobs = filteredJobs.filter(j => j.status === 'published').length;
       const expiredJobs = filteredJobs.filter(j => j.status === 'expired').length;
       const draftJobs = filteredJobs.filter(j => j.status === 'draft').length;
       const totalViews = filteredJobs.reduce((sum, j) => sum + (j.views || 0), 0);
-      const totalApplications = filteredJobs.reduce((sum, j) => sum + (j.applications_count || 0), 0);
       
-      // Calculate pending applications (estimate from job data)
-      // In a real app, this would come from a separate API
-      const pendingApplications = filteredJobs.reduce((sum, j) => {
-        // Estimate: assume 30% of applications are pending
-        return sum + Math.floor((j.applications_count || 0) * 0.3);
-      }, 0);
+      // Fetch actual applications from API
+      let totalApplications = 0;
+      let pendingApplications = 0;
+      let statusBreakdown = { pending: 0, reviewing: 0, shortlisted: 0, rejected: 0, hired: 0 };
+      
+      try {
+        const applicationsResponse = await api.get('/applications/employer', { 
+          params: { limit: 1000 } 
+        });
+        const applications = applicationsResponse?.data?.data?.data || 
+                            applicationsResponse?.data?.data || [];
+        
+        totalApplications = applications.length;
+        
+        // Calculate status breakdown
+        applications.forEach(app => {
+          const status = app.status || 'pending';
+          if (statusBreakdown.hasOwnProperty(status)) {
+            statusBreakdown[status]++;
+          } else {
+            statusBreakdown.pending++; // Default unknown status to pending
+          }
+        });
+        
+        pendingApplications = statusBreakdown.pending;
+      } catch (appError) {
+        console.error('Error fetching applications for stats:', appError);
+        // Fallback to estimated values from jobs
+        totalApplications = filteredJobs.reduce((sum, j) => sum + (j.applications_count || 0), 0);
+        pendingApplications = Math.floor(totalApplications * 0.3);
+      }
       
       // Calculate conversion rate (applications / views * 100)
       const conversionRate = totalViews > 0 
@@ -166,6 +190,7 @@ export const jobService = {
         totalApplications,
         pendingApplications,
         conversionRate: parseFloat(conversionRate),
+        statusBreakdown, // Add status breakdown for charts
         timeRange
       };
     } catch (error) {
@@ -179,6 +204,7 @@ export const jobService = {
         totalApplications: 0,
         pendingApplications: 0,
         conversionRate: 0,
+        statusBreakdown: { pending: 0, reviewing: 0, shortlisted: 0, rejected: 0, hired: 0 },
         timeRange: options.timeRange || '30d'
       };
     }
