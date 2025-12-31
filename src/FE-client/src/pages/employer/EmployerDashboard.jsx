@@ -14,18 +14,22 @@ import { message } from 'antd';
 // Components
 import StatCard from '../../components/employer/StatCard';
 import RecentApplications from '../../components/employer/RecentApplications';
-import JobPerformance from '../../components/employer/JobPerformance';
 import QuickActions from '../../components/employer/QuickActions';
 import JobStatusOverview from '../../components/employer/JobStatusOverview';
 import TimeRangeFilter from '../../components/employer/TimeRangeFilter';
+
+// Chart Components
+import ApplicationTrendChart from '../../components/employer/ApplicationTrendChart';
+import JobComparisonChart from '../../components/employer/JobComparisonChart';
+import ApplicationStatusChart from '../../components/employer/ApplicationStatusChart';
 
 // Services
 import { jobService } from '../../services/jobService';
 
 /**
  * Employer Dashboard
- * Overview page with statistics, recent applications, job performance
- * Enhanced with time range filter, status breakdown, and pending applications
+ * Overview page with statistics, recent applications, job performance, and charts
+ * Enhanced with time range filter, status breakdown, pending applications, and data visualizations
  */
 export default function EmployerDashboard() {
   // State for dashboard statistics
@@ -40,6 +44,9 @@ export default function EmployerDashboard() {
     conversionRate: 0,
   });
   
+  // State for jobs list (for charts)
+  const [jobsList, setJobsList] = useState([]);
+  
   // State for time range filter
   const [timeRange, setTimeRange] = useState('30d');
   const [loading, setLoading] = useState(true);
@@ -53,6 +60,13 @@ export default function EmployerDashboard() {
   const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
+      
+      // Fetch jobs list for charts
+      const jobsResponse = await jobService.getEmployerJobs({ limit: 100 });
+      const jobs = jobsResponse?.data || jobsResponse || [];
+      setJobsList(jobs);
+      
+      // Fetch dashboard stats
       const dashboardStats = await jobService.getDashboardStats({ timeRange });
       setStats(dashboardStats);
     } catch (error) {
@@ -198,16 +212,34 @@ export default function EmployerDashboard() {
           />
         </div>
 
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <ApplicationTrendChart 
+            jobs={jobsList} 
+            timeRange={timeRange} 
+            isLoading={loading} 
+          />
+          <JobComparisonChart 
+            jobs={jobsList} 
+            isLoading={loading} 
+          />
+        </div>
+
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Recent Applications & Performance (2 cols) */}
+          {/* Left Column - Recent Applications (2 cols) */}
           <div className="lg:col-span-2 space-y-6">
             <RecentApplications limit={5} />
-            <JobPerformance limit={5} />
           </div>
 
-          {/* Right Column - Quick Actions & Tips */}
+          {/* Right Column - Quick Actions, Pipeline Chart & Tips */}
           <div className="space-y-6">
+            {/* Application Status Chart (Donut) */}
+            <ApplicationStatusChart 
+              totalApplications={stats.totalApplications}
+              isLoading={loading}
+            />
+            
             <QuickActions />
             
             {/* Tips Card */}
