@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { supabase } from "../../config/supabase";
 import {
   Mail,
   Lock,
@@ -11,6 +13,8 @@ import {
 } from "lucide-react";
 
 export default function JobSeekerLogin() {
+  const { login, socialLogin } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -19,6 +23,8 @@ export default function JobSeekerLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [socialLoading, setSocialLoading] = useState({ google: false });
 
   const validateForm = () => {
     const newErrors = {};
@@ -45,14 +51,24 @@ export default function JobSeekerLogin() {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setApiError("");
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Login data:", formData);
+    try {
+      await login(formData.email, formData.password);
+      // Small delay to ensure state is updated before redirect
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // Redirect to home page after successful login
+      navigate("/", { replace: true });
+    } catch (error) {
+      console.error("Login error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Đăng nhập thất bại. Vui lòng thử lại.";
+      setApiError(errorMessage);
+    } finally {
       setIsLoading(false);
-      // Redirect to home page or user dashboard after successful login
-      window.location.href = "/";
-    }, 1500);
+    }
   };
 
   const handleChange = (e) => {
@@ -66,6 +82,61 @@ export default function JobSeekerLogin() {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
+
+  const handleGoogleLogin = async () => {
+    try {
+      setSocialLoading(prev => ({ ...prev, google: true }));
+      setApiError("");
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Redirect will happen automatically
+    } catch (error) {
+      console.error('Google login error:', error);
+      setApiError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+    } finally {
+      setSocialLoading(prev => ({ ...prev, google: false }));
+    }
+  };
+
+  // Facebook login - temporarily disabled
+  // const handleFacebookLogin = async () => {
+  //   try {
+  //     setSocialLoading(prev => ({ ...prev, facebook: true }));
+  //     setApiError("");
+  //     
+  //     const { data, error } = await supabase.auth.signInWithOAuth({
+  //       provider: 'facebook',
+  //       options: {
+  //         redirectTo: `${window.location.origin}/auth/callback`,
+  //       },
+  //     });
+
+  //     if (error) {
+  //       throw error;
+  //     }
+
+  //     // Redirect will happen automatically
+  //   } catch (error) {
+  //     console.error('Facebook login error:', error);
+  //     setApiError('Đăng nhập bằng Facebook thất bại. Vui lòng thử lại.');
+  //   } finally {
+  //     setSocialLoading(prev => ({ ...prev, facebook: false }));
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -142,6 +213,17 @@ export default function JobSeekerLogin() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* API Error Message */}
+              {apiError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-red-800">Lỗi đăng nhập</p>
+                    <p className="text-sm text-red-600 mt-1">{apiError}</p>
+                  </div>
+                </div>
+              )}
+
               {/* Email Field */}
               <div>
                 <label
@@ -285,9 +367,12 @@ export default function JobSeekerLogin() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
+                {/* Google Login Button */}
                 <button
                   type="button"
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  onClick={handleGoogleLogin}
+                  disabled={isLoading || socialLoading.google}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                     <path
@@ -309,9 +394,13 @@ export default function JobSeekerLogin() {
                   </svg>
                   Google
                 </button>
+
+                {/* Facebook Login Button - Display Only (No Functionality) */}
                 <button
                   type="button"
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  disabled
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 opacity-60 cursor-not-allowed transition-all duration-200"
+                  title="Đăng nhập bằng Facebook đang được phát triển"
                 >
                   <svg
                     className="w-5 h-5 mr-2"

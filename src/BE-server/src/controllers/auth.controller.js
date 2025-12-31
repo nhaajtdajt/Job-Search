@@ -115,12 +115,12 @@ class AuthController {
 
   /**
    * POST /api/auth/verify-email
-   * Verify email address
+   * Verify email address using token from forgot password
    */
   static async verifyEmail(req, res, next) {
     try {
-      const { token } = req.body;
-      await AuthService.verifyEmail(token);
+      const { token, email } = req.body;
+      await AuthService.verifyEmail(token, email);
       return ResponseHandler.success(res, {
         message: 'Email verified successfully'
       });
@@ -131,14 +131,43 @@ class AuthController {
 
   /**
    * POST /api/auth/resend-verification
-   * Resend verification email
+   * Resend verification email with 6-digit token
    */
   static async resendVerificationEmail(req, res, next) {
     try {
       const { email } = req.body;
-      await AuthService.resendVerificationEmail(email);
+      const result = await AuthService.resendVerificationEmail(email);
       return ResponseHandler.success(res, {
-        message: 'Verification email sent successfully'
+        message: result.message,
+        data: {
+          token: result.token,
+          email: result.email
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/auth/social/callback
+   * Handle social login callback (Google, Facebook)
+   */
+  static async socialLoginCallback(req, res, next) {
+    try {
+      const { accessToken, provider } = req.body;
+      
+      if (!accessToken) {
+        return ResponseHandler.error(res, {
+          status: 400,
+          message: 'Access token is required'
+        });
+      }
+
+      const result = await AuthService.socialLoginCallback(accessToken, provider);
+      return ResponseHandler.success(res, {
+        message: 'Social login successful',
+        data: result
       });
     } catch (error) {
       next(error);

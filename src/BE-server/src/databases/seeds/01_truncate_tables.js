@@ -22,6 +22,8 @@ exports.seed = async function (knex) {
       job_location,
       job_tag,
       saved_job,
+      notification,
+      saved_search,
       job,
       employer,
       users,

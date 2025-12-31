@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import { AuthProvider } from './contexts/AuthContext.jsx'
 import EmployerLayout from './layouts/EmployerLayout.jsx'
 import Home from './pages/public/Home.jsx'
 import Jobs from './pages/public/Jobs.jsx'
@@ -10,10 +11,13 @@ import JobDetail from './pages/public/JobDetail.jsx'
 import Companies from './pages/public/Companies.jsx'
 import JobSeekerLogin from './pages/auth/JobSeekerLogin.jsx'
 import JobSeekerRegister from './pages/auth/JobSeekerRegister.jsx'
+import AuthCallback from './pages/auth/AuthCallback.jsx'
 import EmployerLanding from './pages/employer/EmployerLanding.jsx'
 import EmployerDashboard from './pages/employer/EmployerDashboard.jsx'
 import EmployerLogin from './pages/auth/EmployerLogin.jsx'
 import EmployerRegister from './pages/auth/EmployerRegister.jsx'
+import Profile from './pages/user/ProfileComplete.jsx'
+import Overview from './pages/user/Overview.jsx'
 
 const router = createBrowserRouter([
   {
@@ -26,6 +30,9 @@ const router = createBrowserRouter([
       { path: 'companies', element: <Companies /> },
       { path: 'login', element: <JobSeekerLogin /> },
       { path: 'register', element: <JobSeekerRegister /> },
+      { path: 'auth/callback', element: <AuthCallback /> },
+      { path: 'profile', element: <Profile /> },
+      { path: 'overview', element: <Overview /> },
     ],
   },
   {
@@ -42,6 +49,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>
 )

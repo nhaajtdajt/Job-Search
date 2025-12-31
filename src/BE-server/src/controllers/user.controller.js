@@ -1,5 +1,8 @@
 const StorageService = require('../services/storage.service');
 const UserRepository = require('../repositories/user.repo');
+const ApplicationRepository = require('../repositories/application.repo');
+const SavedJobRepository = require('../repositories/saved_job.repo');
+const SavedSearchRepository = require('../repositories/saved_search.repo');
 const HTTP_STATUS = require('../constants/http-status');
 const { BadRequestError, NotFoundError } = require('../errors');
 const ResponseHandler = require('../utils/response-handler');
@@ -136,6 +139,37 @@ class UserController {
         status: HTTP_STATUS.OK,
         message: 'Profile updated successfully',
         data: user,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Get user statistics for overview page
+   * GET /api/users/statistics
+   */
+  static async getStatistics(req, res, next) {
+    try {
+      const userId = req.user.user_id;
+
+      // Get counts for applications, saved jobs, and saved searches
+      const [applicationsCount, savedJobsCount, savedSearchesCount] = await Promise.all([
+        ApplicationRepository.getStatistics(userId).then(stats => stats.total),
+        SavedJobRepository.countByUserId(userId),
+        SavedSearchRepository.countByUserId(userId)
+      ]);
+
+      const statistics = {
+        applications: applicationsCount || 0,
+        saved_jobs: savedJobsCount || 0,
+        saved_searches: savedSearchesCount || 0
+      };
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Statistics retrieved successfully',
+        data: statistics,
       });
     } catch (error) {
       return next(error);

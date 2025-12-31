@@ -34,6 +34,11 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 });
 
+// In-memory token storage for password reset tokens
+// Format: { email: { token: string, expiresAt: timestamp, createdAt: timestamp } }
+const resetTokens = new Map();
+const TOKEN_EXPIRY_TIME = 15 * 60 * 1000; // 15 minutes
+
 /**
  * Auth Service
  * Handles authentication business logic with Supabase Auth integration
@@ -45,7 +50,9 @@ class AuthService {
    * @returns {Object} { user, tokens }
    */
   static async register(userData) {
-    const { email, password, name, role = ROLES.JOB_SEEKER, ...additionalData } = userData;
+    // Backend validator sends 'full_name', but we use 'name' internally
+    const { email, password, full_name, name, role = ROLES.JOB_SEEKER, ...additionalData } = userData;
+    const userName = full_name || name; // Support both 'full_name' (from validator) and 'name' (legacy)
 
     // Note: Input validation is handled by AuthValidator middleware
     // This service focuses on business logic only
@@ -57,7 +64,7 @@ class AuthService {
       password,
       email_confirm: true, // Auto-confirm email in development
       user_metadata: {
-        full_name: name,
+        full_name: userName,
         role: role
       }
     });
@@ -77,8 +84,13 @@ class AuthService {
 
       // Filter additionalData to only include allowed fields
       const userProfileData = {};
+<<<<<<< HEAD
       if (name) userProfileData.name = name;
 
+=======
+      if (userName) userProfileData.name = userName;
+      
+>>>>>>> main
       Object.keys(additionalData).forEach(key => {
         if (allowedFields.includes(key)) {
           userProfileData[key] = additionalData[key];
@@ -176,7 +188,7 @@ class AuthService {
       user: {
         user_id: userId,
         email: authData.user.email,
-        name: name,
+        name: userName,
         role: role,
         ...(employerId && { employer_id: employerId })
       },
@@ -339,6 +351,7 @@ class AuthService {
     if (!authUser) {
       // Don't reveal if user exists or not for security
       // Still return success to prevent email enumeration
+      // But don't store token if user doesn't exist
       return {
         token: this.generateResetToken(),
         message: 'If the email exists, a password reset token has been sent.',
@@ -348,9 +361,21 @@ class AuthService {
 
     // Generate random 6-digit reset token
     const resetToken = this.generateResetToken();
+    
+    // Store token in memory with expiry time
+    const expiresAt = Date.now() + TOKEN_EXPIRY_TIME;
+    resetTokens.set(email.toLowerCase(), {
+      token: resetToken,
+      expiresAt: expiresAt,
+      createdAt: Date.now()
+    });
+    
+    // Clean up expired tokens (optional cleanup)
+    this.cleanupExpiredTokens();
 
     console.log(`\n🔐 Password reset requested for: ${email}`);
     console.log(`🔐 Generated token: ${resetToken}`);
+    console.log(`🔐 Token expires at: ${new Date(expiresAt).toISOString()}`);
 
     // Send custom email with token displayed in email content
     const emailSent = await EmailService.sendPasswordResetEmail(email, resetToken);
@@ -448,48 +473,317 @@ class AuthService {
   }
 
   /**
-   * Verify email
-   * @param {string} token - Email verification token
-   * @returns {boolean} Success status
+   * Clean up expired tokens from memory
    */
-  static async verifyEmail(token) {
-    if (!token) {
-      throw new BadRequestError('Verification token is required');
+  static cleanupExpiredTokens() {
+    const now = Date.now();
+    for (const [email, tokenData] of resetTokens.entries()) {
+      if (tokenData.expiresAt < now) {
+        resetTokens.delete(email);
+      }
+    }
+  }
+
+  /**
+   * Verify reset token
+   * @param {string} email - User email
+   * @param {string} token - Reset token
+   * @returns {boolean} True if token is valid
+   */
+  static verifyResetToken(email, token) {
+    if (!email || !token) {
+      return false;
     }
 
-    // Verify email with Supabase
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash: token,
-      type: 'email'
-    });
+    const tokenData = resetTokens.get(email.toLowerCase());
+    if (!tokenData) {
+      return false;
+    }
 
-    if (error) {
-      throw new BadRequestError(error.message);
+    // Check if token matches
+    if (tokenData.token !== token) {
+      return false;
+    }
+
+    // Check if token has expired
+    if (tokenData.expiresAt < Date.now()) {
+      resetTokens.delete(email.toLowerCase());
+      return false;
     }
 
     return true;
   }
 
   /**
-   * Resend verification email
-   * @param {string} email - User email
+   * Verify email using reset token from forgot password
+   * This allows using the 6-digit token from forgot password flow
+   * @param {string} token - Email verification token (6-digit from forgot password)
+   * @param {string} email - User email (optional, will search all tokens if not provided)
    * @returns {boolean} Success status
+   */
+  static async verifyEmail(token, email = null) {
+    if (!token) {
+      throw new BadRequestError('Verification token is required');
+    }
+
+    // If email is provided, verify directly
+    if (email) {
+      if (this.verifyResetToken(email, token)) {
+        // Token is valid, remove it (one-time use)
+        resetTokens.delete(email.toLowerCase());
+        
+        // Also verify email in Supabase if user exists
+        try {
+          const { data: usersList } = await supabase.auth.admin.listUsers();
+          const authUser = usersList?.users?.find(user => user.email.toLowerCase() === email.toLowerCase());
+          if (authUser && !authUser.email_confirmed_at) {
+            // Update email confirmation status
+            await supabase.auth.admin.updateUserById(authUser.id, {
+              email_confirm: true
+            });
+          }
+        } catch (error) {
+          console.warn('Failed to update email confirmation in Supabase:', error.message);
+          // Continue anyway as token verification succeeded
+        }
+        
+        return true;
+      }
+    } else {
+      // Search for token across all stored tokens
+      this.cleanupExpiredTokens();
+      
+      for (const [storedEmail, tokenData] of resetTokens.entries()) {
+        if (tokenData.token === token && tokenData.expiresAt >= Date.now()) {
+          // Token found and valid, remove it (one-time use)
+          resetTokens.delete(storedEmail);
+          
+          // Also verify email in Supabase if user exists
+          try {
+            const { data: usersList } = await supabase.auth.admin.listUsers();
+            const authUser = usersList?.users?.find(user => user.email.toLowerCase() === storedEmail.toLowerCase());
+            if (authUser && !authUser.email_confirmed_at) {
+              await supabase.auth.admin.updateUserById(authUser.id, {
+                email_confirm: true
+              });
+            }
+          } catch (error) {
+            console.warn('Failed to update email confirmation in Supabase:', error.message);
+          }
+          
+          return true;
+        }
+      }
+    }
+
+    // If token not found in reset tokens, try Supabase OTP as fallback
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: 'email'
+      });
+
+      if (!error) {
+        return true;
+      }
+    } catch (error) {
+      // Supabase OTP verification failed, continue to throw error
+    }
+
+    throw new BadRequestError('Email verification token is invalid or has expired');
+  }
+
+  /**
+   * Resend verification email
+   * Generates a 6-digit token and sends it via email (consistent with forgot password flow)
+   * @param {string} email - User email
+   * @returns {Object} { token, message } - Returns token for consistency with forgot password
    */
   static async resendVerificationEmail(email) {
     if (!email) {
       throw new BadRequestError('Email is required');
     }
 
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email: email
-    });
-
-    if (error) {
-      throw new BadRequestError(error.message);
+    // Check if user exists
+    const { data: usersList, error: listError } = await supabase.auth.admin.listUsers();
+    if (listError) {
+      throw new BadRequestError('Failed to find user');
     }
 
-    return true;
+    const authUser = usersList.users.find(user => user.email === email);
+    if (!authUser) {
+      // Don't reveal if user exists or not for security
+      // Still return success to prevent email enumeration
+      return {
+        token: this.generateResetToken(),
+        message: 'If the email exists, a verification email has been sent.',
+        email: email
+      };
+    }
+
+    // Generate random 6-digit verification token (same as forgot password)
+    const verificationToken = this.generateResetToken();
+    
+    // Store token in memory with expiry time (same storage as forgot password)
+    const expiresAt = Date.now() + TOKEN_EXPIRY_TIME;
+    resetTokens.set(email.toLowerCase(), {
+      token: verificationToken,
+      expiresAt: expiresAt,
+      createdAt: Date.now()
+    });
+    
+    // Clean up expired tokens
+    this.cleanupExpiredTokens();
+
+    console.log(`\n📧 Verification email resend requested for: ${email}`);
+    console.log(`📧 Generated token: ${verificationToken}`);
+    console.log(`📧 Token expires at: ${new Date(expiresAt).toISOString()}`);
+
+    // Send custom email with token displayed in email content
+    const emailSent = await EmailUtil.sendPasswordResetEmail(email, verificationToken);
+
+    if (!emailSent) {
+      console.warn('⚠️  Email not sent. Token returned in response only.');
+    } else {
+      console.log(`✅ Verification email sent successfully to: ${email}\n`);
+    }
+
+    return {
+      token: verificationToken,
+      message: emailSent 
+        ? 'Verification email has been sent to your email.' 
+        : 'Verification token generated. Please check email configuration.',
+      email: email
+    };
+  }
+
+  /**
+   * Social login callback
+   * Handles OAuth callback from social providers (Google, Facebook)
+   * @param {string} accessToken - Supabase access token from OAuth
+   * @param {string} provider - Provider name ('google' or 'facebook')
+   * @returns {Object} { user, tokens }
+   */
+  static async socialLoginCallback(accessToken, provider = 'google') {
+    if (!accessToken) {
+      throw new BadRequestError('Access token is required');
+    }
+
+    // Verify token with Supabase and get user info
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (authError || !authUser) {
+      throw new UnauthorizedError('Invalid or expired access token');
+    }
+
+    const userId = authUser.id;
+    const email = authUser.email;
+    const userMetadata = authUser.user_metadata || {};
+    const appMetadata = authUser.app_metadata || {};
+
+    // Extract user info from metadata
+    const name = userMetadata.full_name || userMetadata.name || userMetadata.display_name || email?.split('@')[0];
+    
+    // Get avatar URL from multiple possible locations in Google OAuth response
+    // Google OAuth may store avatar in different fields depending on configuration
+    const avatarUrl = 
+      userMetadata.avatar_url || 
+      userMetadata.picture || 
+      userMetadata.photo_url ||
+      userMetadata.avatar ||
+      authUser.user_metadata?.avatar_url ||
+      authUser.user_metadata?.picture ||
+      authUser.user_metadata?.photo_url ||
+      authUser.user_metadata?.avatar ||
+      // Check identities for provider-specific data
+      (authUser.identities && authUser.identities[0]?.identity_data?.avatar_url) ||
+      (authUser.identities && authUser.identities[0]?.identity_data?.picture) ||
+      null;
+    
+    // Log for debugging (only in development)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 Google OAuth Debug:');
+      console.log('  - Avatar URL found:', avatarUrl);
+      console.log('  - User Metadata keys:', Object.keys(userMetadata));
+      console.log('  - Auth User keys:', Object.keys(authUser));
+      if (authUser.identities) {
+        console.log('  - Identities:', JSON.stringify(authUser.identities, null, 2));
+      }
+    }
+
+    // Check if user profile exists in database
+    let user = await db('users')
+      .where('user_id', userId)
+      .first();
+
+    // If user doesn't exist, create profile
+    if (!user) {
+      try {
+        await db('users').insert({
+          user_id: userId,
+          name: name,
+          avatar_url: avatarUrl,
+          // Other fields can be null for social login users
+        });
+        user = await db('users')
+          .where('user_id', userId)
+          .first();
+      } catch (dbError) {
+        console.error('Error creating user profile:', dbError);
+        // If insert fails (e.g., trigger already created it), try to fetch again
+        user = await db('users')
+          .where('user_id', userId)
+          .first();
+        
+        if (!user) {
+          throw new BadRequestError('Failed to create user profile');
+        }
+      }
+    } else {
+      // Update avatar if available (always update from Google if provided)
+      if (avatarUrl) {
+        await db('users')
+          .where('user_id', userId)
+          .update({ avatar_url: avatarUrl });
+        user.avatar_url = avatarUrl;
+      }
+      
+      // Update name if available and different
+      if (name && user.name !== name) {
+        await db('users')
+          .where('user_id', userId)
+          .update({ name: name });
+        user.name = name;
+      }
+    }
+
+    // Get user role (from employer table if exists, else job_seeker)
+    let role = ROLES.JOB_SEEKER;
+    let employerId = null;
+    const employer = await db('employer')
+      .where('user_id', userId)
+      .first();
+
+    if (employer) {
+      role = ROLES.EMPLOYER;
+      employerId = employer.employer_id;
+    }
+
+    // Generate tokens using helper method
+    const tokenPayload = this.generateTokenPayload(userId, email, role, employerId);
+    const tokens = JWTUtil.generateTokenPair(tokenPayload);
+
+    return {
+      user: {
+        user_id: userId,
+        email: email,
+        name: user.name || name,
+        role: role,
+        avatar_url: user.avatar_url || avatarUrl,
+        ...(employerId && { employer_id: employerId })
+      },
+      ...tokens
+    };
   }
 
   /**

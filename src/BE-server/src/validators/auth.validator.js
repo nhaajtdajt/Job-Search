@@ -79,7 +79,11 @@ exports.resetPassword = [
  */
 exports.verifyEmail = [
   body('token')
-    .notEmpty().withMessage('Verification token is required')
+    .notEmpty().withMessage('Verification token is required'),
+  body('email')
+    .optional()
+    .isEmail().withMessage('Invalid email format')
+    .normalizeEmail()
 ];
 
 /**
