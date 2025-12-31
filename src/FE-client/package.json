@@ -11,6 +11,7 @@
     "check:oauth": "node scripts/check-google-oauth.js"
   },
   "dependencies": {
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@supabase/supabase-js": "^2.89.0",
     "antd": "^5.28.1",
     "axios": "^1.13.2",
