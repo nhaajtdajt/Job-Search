@@ -331,6 +331,11 @@ paths:
                 expired_at:
                   type: string
                   format: date-time
+                status:
+                  type: string
+                  enum: [draft, published, expired]
+                  default: draft
+                  description: Job status (draft, published, expired)
       responses:
         "201":
           $ref: "#/components/responses/Success"
@@ -379,6 +384,10 @@ paths:
                   type: string
                 description:
                   type: string
+                status:
+                  type: string
+                  enum: [draft, published, expired]
+                  description: Job status (draft, published, expired)
       responses:
         "200":
           $ref: "#/components/responses/Success"
@@ -1730,7 +1739,12 @@ components:
         expired_at:
           type: string
           format: date-time
-          description: Expiration timestamp
+          description: Expiry date-time
+        status:
+          type: string
+          enum: [draft, published, expired]
+          default: draft
+          description: Job status (draft, published, expired)
         views:
           type: integer
           default: 0
