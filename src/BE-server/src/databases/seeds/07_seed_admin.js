@@ -1,18 +1,26 @@
 /**
- * Seed Admin User - For Development Testing
- * Creates an admin user for testing notification broadcasts
+ * Seed Admin Users
+ * Creates admin accounts with predefined emails
+ * Note: These emails must match ADMIN_EMAILS in src/constants/admin.js
  * 
  * RUN: npx knex seed:run --specific=07_seed_admin.js
  */
 
 const { createClient } = require('@supabase/supabase-js');
 
+// Admin emails - MUST MATCH constants/admin.js
+const ADMIN_EMAILS = [
+    'admin@jobsearch.com',
+    'admin2@jobsearch.com',
+    'superadmin@jobsearch.com'
+];
+
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 exports.seed = async function (knex) {
-    console.log('👑 Seeding admin user...');
+    console.log('👑 Seeding admin users...');
 
     // Get Supabase config from environment
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -30,66 +38,70 @@ exports.seed = async function (knex) {
         }
     });
 
-    // Admin credentials
-    const adminEmail = 'admin@jobsearch.com';
-    const adminPassword = 'Admin@123456';
-    const adminName = 'System Admin';
+    // Admin accounts to create
+    const adminAccounts = ADMIN_EMAILS.map((email, index) => ({
+        email: email,
+        password: 'Admin@123456',
+        name: index === 0 ? 'System Admin' : `Admin ${index + 1}`
+    }));
 
-    // Check if admin already exists in auth
-    const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const existingAdmin = existingUsers?.users?.find(u => u.email === adminEmail);
+    let createdCount = 0;
 
-    if (existingAdmin) {
-        console.log('✅ Admin user already exists:', adminEmail);
+    for (const admin of adminAccounts) {
+        try {
+            // Check if admin already exists in auth
+            const { data: existingUsers } = await supabase.auth.admin.listUsers();
+            const existingAdmin = existingUsers?.users?.find(u => u.email === admin.email);
 
-        // Make sure user profile has admin role
-        await knex('users')
-            .where('user_id', existingAdmin.id)
-            .update({ role: 'admin', name: adminName });
+            if (existingAdmin) {
+                console.log(`  ✅ Admin already exists: ${admin.email}`);
+                continue;
+            }
 
-        console.log('✅ Updated admin role in users table');
-        return;
-    }
+            // Create admin user in Supabase Auth
+            const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+                email: admin.email,
+                password: admin.password,
+                email_confirm: true,
+                user_metadata: {
+                    full_name: admin.name
+                }
+            });
 
-    // Create admin user in Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: adminEmail,
-        password: adminPassword,
-        email_confirm: true,
-        user_metadata: {
-            full_name: adminName,
-            role: 'admin'
+            if (authError) {
+                console.error(`  ❌ Failed to create ${admin.email}:`, authError.message);
+                continue;
+            }
+
+            console.log(`  ✅ Created admin: ${admin.email}`);
+            createdCount++;
+
+            // Check if profile was created by trigger, update name if needed
+            const existingProfile = await knex('users').where('user_id', authData.user.id).first();
+
+            if (existingProfile) {
+                await knex('users')
+                    .where('user_id', authData.user.id)
+                    .update({ name: admin.name });
+            } else {
+                // Create profile manually if trigger didn't create it
+                await knex('users').insert({
+                    user_id: authData.user.id,
+                    name: admin.name
+                });
+            }
+
+        } catch (error) {
+            console.error(`  ❌ Error creating ${admin.email}:`, error.message);
         }
-    });
-
-    if (authError) {
-        console.error('❌ Failed to create admin in Supabase Auth:', authError.message);
-        return;
     }
 
-    console.log('✅ Created admin in Supabase Auth');
-
-    // Check if profile was created by trigger
-    const existingProfile = await knex('users').where('user_id', authData.user.id).first();
-
-    if (existingProfile) {
-        // Update with admin role
-        await knex('users')
-            .where('user_id', authData.user.id)
-            .update({ role: 'admin', name: adminName });
-    } else {
-        // Create profile manually
-        await knex('users').insert({
-            user_id: authData.user.id,
-            name: adminName,
-            role: 'admin',
-            created_at: new Date()
-        });
-    }
-
-    console.log('✅ Admin user created successfully!');
-    console.log('📧 Email:', adminEmail);
-    console.log('🔑 Password:', adminPassword);
     console.log('');
-    console.log('🎉 You can now login as Admin to send notifications!');
+    console.log('🎉 Admin seeding completed!');
+    console.log(`   Created: ${createdCount} new admins`);
+    console.log('');
+    console.log('📧 Admin Accounts:');
+    adminAccounts.forEach(a => {
+        console.log(`   - ${a.email} / ${a.password}`);
+    });
 };

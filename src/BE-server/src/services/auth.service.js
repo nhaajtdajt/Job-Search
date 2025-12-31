@@ -7,6 +7,7 @@ const SupabaseErrorUtil = require('../utils/supabase-error.util');
 const EmailService = require('./email.service');
 const { BadRequestError, UnauthorizedError, NotFoundError, DuplicateError } = require('../errors');
 const ROLES = require('../constants/role');
+const { ADMIN_EMAILS } = require('../constants/admin');
 
 // Initialize Supabase client
 const supabaseUrl = environment.SUPABASE_URL;
@@ -213,12 +214,15 @@ class AuthService {
       throw new NotFoundError('User profile not found');
     }
 
-    // Get user role from users table first, then check employer table
-    let role = user.role || ROLES.JOB_SEEKER;
+    // Determine user role based on email (admin) or employer table
+    let role = ROLES.JOB_SEEKER;
     let employerId = null;
 
-    // If not admin, check if user is employer
-    if (role !== ROLES.ADMIN) {
+    // Check 1: Is email in admin list?
+    if (ADMIN_EMAILS.includes(email)) {
+      role = ROLES.ADMIN;
+    } else {
+      // Check 2: Is user an employer?
       const employer = await db('employer')
         .where('user_id', userId)
         .first();

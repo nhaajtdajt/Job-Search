@@ -10,4 +10,3 @@ app.listen(port, hostname, () => {
   console.clear();
   console.log(banner);
 });
-
