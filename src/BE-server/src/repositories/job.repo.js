@@ -237,6 +237,30 @@ class JobRepository {
       .where('employer_id', employerId)
       .orderBy('posted_at', 'desc');
   }
+
+  /**
+   * Get jobs by company ID
+   * @param {number} companyId - Company ID
+   * @returns {Array} Jobs
+   */
+  static async findByCompanyId(companyId) {
+    // Get all employers for this company
+    const employers = await db(MODULE.EMPLOYER)
+      .select('employer_id')
+      .where('company_id', companyId);
+    
+    const employerIds = employers.map(e => e.employer_id);
+    
+    if (employerIds.length === 0) {
+      return [];
+    }
+    
+    // Get jobs from these employers
+    return await db(MODULE.JOB)
+      .select('*')
+      .whereIn('employer_id', employerIds)
+      .orderBy('posted_at', 'desc');
+  }
 }
 
 module.exports = JobRepository;

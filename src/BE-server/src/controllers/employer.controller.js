@@ -1,7 +1,6 @@
-const StorageService = require('../services/storage.service');
-const EmployerRepository = require('../repositories/employer.repo');
+const EmployerService = require('../services/employer.service');
 const HTTP_STATUS = require('../constants/http-status');
-const { BadRequestError, NotFoundError } = require('../errors');
+const { BadRequestError } = require('../errors');
 const ResponseHandler = require('../utils/response-handler');
 
 /**
@@ -25,25 +24,7 @@ class EmployerController {
         throw new BadRequestError('Employer ID not found in authentication');
       }
 
-      // Delete old avatar
-      const employer = await EmployerRepository.findById(employerId);
-      if (employer && employer.avatar_url) {
-        try {
-          await StorageService.deleteFile(employer.avatar_url);
-        } catch (err) {
-          console.warn('Failed to delete old avatar:', err.message);
-        }
-      }
-
-      // Upload new avatar
-      const result = await StorageService.uploadAvatar(
-        req.file.buffer,
-        employerId.toString(),
-        'employer'
-      );
-
-      // Update database
-      await EmployerRepository.update(employerId, { avatar_url: result.url });
+      const result = await EmployerService.uploadAvatar(employerId, req.file.buffer);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -66,14 +47,7 @@ class EmployerController {
     try {
       const employerId = req.user.employer_id;
 
-      // Implement with repository
-      const employer = await EmployerRepository.findById(employerId);
-      if (!employer || !employer.avatar_url) {
-        throw new NotFoundError('No avatar found');
-      }
-
-      await StorageService.deleteFile(employer.avatar_url);
-      await EmployerRepository.update(employerId, { avatar_url: null });
+      await EmployerService.deleteAvatar(employerId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -93,11 +67,7 @@ class EmployerController {
     try {
       const employerId = req.user.employer_id;
 
-      const employer = await EmployerRepository.findById(employerId);
-
-      if (!employer) {
-        throw new NotFoundError('Employer not found');
-      }
+      const employer = await EmployerService.getEmployerById(employerId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -118,16 +88,53 @@ class EmployerController {
       const employerId = req.user.employer_id;
       const updateData = req.body;
 
-      const employer = await EmployerRepository.update(employerId, updateData);
-
-      if (!employer) {
-        throw new NotFoundError('Employer not found');
-      }
+      const employer = await EmployerService.updateEmployer(employerId, updateData);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Employer profile updated successfully',
         data: employer,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Get public employer profile
+   * GET /api/employers/:employerId
+   */
+  static async getPublicProfile(req, res, next) {
+    try {
+      const { employerId } = req.params;
+
+      const employer = await EmployerService.getEmployerById(parseInt(employerId));
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Employer profile retrieved successfully',
+        data: employer,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Get jobs by employer ID
+   * GET /api/employers/:employerId/jobs
+   */
+  static async getEmployerJobs(req, res, next) {
+    try {
+      const { employerId } = req.params;
+      const JobService = require('../services/job.service');
+
+      const jobs = await JobService.getJobsByEmployer(parseInt(employerId));
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Employer jobs retrieved successfully',
+        data: jobs,
       });
     } catch (error) {
       return next(error);

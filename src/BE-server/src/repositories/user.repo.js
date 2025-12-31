@@ -139,6 +139,37 @@ class UserRepository {
       .where('user_id', userId)
       .del();
   }
+
+  /**
+   * Find all users with pagination and filters (Admin only)
+   * @param {number} page - Page number
+   * @param {number} limit - Items per page
+   * @param {Object} filters - Optional filters (role, status)
+   * @returns {Object} Paginated users
+   */
+  static async findAll(page = 1, limit = 10, filters = {}) {
+    const { parsePagination } = require('../utils/pagination.util');
+    const { offset } = parsePagination(page, limit);
+
+    let query = db(MODULE.USERS).select('*');
+    
+    // Note: role filter would need to be checked from auth.users table
+    // For now, we'll just paginate users table
+    
+    const [{ total }] = await query.clone().count('* as total');
+    
+    const data = await query
+      .orderBy('user_id', 'asc')
+      .limit(limit)
+      .offset(offset);
+    
+    return {
+      data,
+      total: parseInt(total, 10),
+      page,
+      limit
+    };
+  }
 }
 
 module.exports = UserRepository;

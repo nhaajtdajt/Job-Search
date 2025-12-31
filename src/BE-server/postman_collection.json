@@ -417,9 +417,2125 @@
 						"description": "Resend email verification to user."
 					},
 					"response": []
+				},
+				{
+					"name": "Social Login Callback",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"provider\": \"google\",\n    \"session\": \"supabase-session-token\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/social/callback",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"social",
+								"callback"
+							]
+						},
+						"description": "Callback endpoint for social login (Google, Facebook). Processes OAuth callback from Supabase."
+					},
+					"response": []
 				}
 			],
 			"description": "All authentication endpoints for Job Search API"
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "profile"]
+						},
+						"description": "Get current user profile. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Name\",\n    \"gender\": \"Male\",\n    \"date_of_birth\": \"1990-01-01\",\n    \"phone\": \"0123456789\",\n    \"address\": \"123 Street\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "profile"]
+						},
+						"description": "Update user profile. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload User Avatar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/avatar",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "avatar"]
+						},
+						"description": "Upload user avatar. Requires authentication. Use form-data with 'avatar' field."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User Avatar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/avatar",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "avatar"]
+						},
+						"description": "Delete user avatar. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Statistics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/statistics",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "statistics"]
+						},
+						"description": "Get user activity statistics (applications, saved jobs, saved searches). Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Save Job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"job_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/saved-jobs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "saved-jobs"]
+						},
+						"description": "Save a job. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Saved Jobs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/saved-jobs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "saved-jobs"]
+						},
+						"description": "Get all saved jobs for current user. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Saved Jobs Count",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/saved-jobs/count",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "saved-jobs", "count"]
+						},
+						"description": "Get count of saved jobs. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Check Job Saved",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/saved-jobs/:jobId/check",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "saved-jobs", ":jobId", "check"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Check if a job is saved. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Unsave Job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/saved-jobs/:jobId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "saved-jobs", ":jobId"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Unsave a job. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Save Search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"search_query\": \"developer\",\n    \"filters\": {\n        \"location\": \"Ho Chi Minh\",\n        \"salary\": \"10000000\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/saved-searches",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "saved-searches"]
+						},
+						"description": "Save a job search. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Saved Searches",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/saved-searches",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "saved-searches"]
+						},
+						"description": "Get all saved searches for current user. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Saved Searches Count",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/saved-searches/count",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "saved-searches", "count"]
+						},
+						"description": "Get count of saved searches. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Saved Search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/saved-searches/:searchId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "saved-searches", ":searchId"],
+							"variable": [
+								{
+									"key": "searchId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete a saved search. Requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "User endpoints"
+		},
+		{
+			"name": "Jobs",
+			"item": [
+				{
+					"name": "Get All Jobs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "job_title",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "location",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "salary_min",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "salary_max",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get jobs list with pagination and filters. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Job by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs/:jobId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs", ":jobId"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get job details by ID. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Jobs (Employer)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs/my-jobs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs", "my-jobs"]
+						},
+						"description": "Get all jobs posted by authenticated employer. Requires employer role."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"job_title\": \"Senior Developer\",\n    \"job_description\": \"We are looking for...\",\n    \"requirements\": \"5+ years experience\",\n    \"salary_min\": 20000000,\n    \"salary_max\": 30000000,\n    \"location\": \"Ho Chi Minh City\",\n    \"job_type\": \"full_time\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs"]
+						},
+						"description": "Create a new job posting. Requires employer role."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"job_title\": \"Updated Job Title\",\n    \"job_description\": \"Updated description\",\n    \"salary_min\": 25000000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs/:jobId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs", ":jobId"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update a job posting. Requires employer role."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs/:jobId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs", ":jobId"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete a job posting. Requires employer role."
+					},
+					"response": []
+				},
+				{
+					"name": "Publish Job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs/:jobId/publish",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs", ":jobId", "publish"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Publish a job. Requires employer role."
+					},
+					"response": []
+				},
+				{
+					"name": "Expire Job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs/:jobId/expire",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs", ":jobId", "expire"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Expire/close a job. Requires employer role."
+					},
+					"response": []
+				},
+				{
+					"name": "Increment Job Views",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs/:jobId/views",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs", ":jobId", "views"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Increment job view counter. Public endpoint, no authentication required."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Job Applications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jobs/:jobId/applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "jobs", ":jobId", "applications"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get all applications for a specific job. Requires employer role."
+					},
+					"response": []
+				}
+			],
+			"description": "Job endpoints"
+		},
+		{
+			"name": "Resumes",
+			"item": [
+				{
+					"name": "Get All Resumes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/resumes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "resumes"]
+						},
+						"description": "Get all resumes for authenticated user. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Resume by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/resumes/:resumeId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "resumes", ":resumeId"],
+							"variable": [
+								{
+									"key": "resumeId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get resume by ID. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Resume",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"My Resume\",\n    \"summary\": \"Experienced developer\",\n    \"experience\": \"5 years\",\n    \"education\": \"Bachelor's degree\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/resumes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "resumes"]
+						},
+						"description": "Create a new resume. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Resume",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Resume Title\",\n    \"summary\": \"Updated summary\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/resumes/:resumeId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "resumes", ":resumeId"],
+							"variable": [
+								{
+									"key": "resumeId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update a resume. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Resume",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/resumes/:resumeId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "resumes", ":resumeId"],
+							"variable": [
+								{
+									"key": "resumeId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete a resume. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload CV PDF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cv",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/resumes/:resumeId/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "resumes", ":resumeId", "upload"],
+							"variable": [
+								{
+									"key": "resumeId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Upload CV PDF file for a resume. Requires authentication. Use form-data with 'cv' field."
+					},
+					"response": []
+				},
+				{
+					"name": "Download CV PDF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/resumes/:resumeId/download",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "resumes", ":resumeId", "download"],
+							"variable": [
+								{
+									"key": "resumeId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Download CV PDF file. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete CV PDF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/resumes/:resumeId/cv",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "resumes", ":resumeId", "cv"],
+							"variable": [
+								{
+									"key": "resumeId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete CV PDF file. Requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "Resume endpoints"
+		},
+		{
+			"name": "Applications",
+			"item": [
+				{
+					"name": "Apply for Job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"job_id\": 1,\n    \"resume_id\": 1,\n    \"cover_letter\": \"I am interested in this position...\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "applications"]
+						},
+						"description": "Submit a job application. Requires job_seeker role."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Applications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "applications"]
+						},
+						"description": "Get all applications for authenticated user. Requires job_seeker role."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Application Statistics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/applications/statistics",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "applications", "statistics"]
+						},
+						"description": "Get application statistics for authenticated user. Requires job_seeker role."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Application by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/applications/:applicationId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "applications", ":applicationId"],
+							"variable": [
+								{
+									"key": "applicationId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get application details by ID. Requires job_seeker role."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Application",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cover_letter\": \"Updated cover letter\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/applications/:applicationId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "applications", ":applicationId"],
+							"variable": [
+								{
+									"key": "applicationId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update an application (cover letter, resume). Requires job_seeker role."
+					},
+					"response": []
+				},
+				{
+					"name": "Withdraw Application",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/applications/:applicationId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "applications", ":applicationId"],
+							"variable": [
+								{
+									"key": "applicationId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Withdraw an application. Requires job_seeker role."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Application Status (Employer)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"reviewing\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/applications/:applicationId/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "applications", ":applicationId", "status"],
+							"variable": [
+								{
+									"key": "applicationId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update application status (pending, reviewing, accepted, rejected). Requires employer role."
+					},
+					"response": []
+				},
+				{
+					"name": "Add Application Notes (Employer)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"notes\": \"Good candidate, interview scheduled\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/applications/:applicationId/notes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "applications", ":applicationId", "notes"],
+							"variable": [
+								{
+									"key": "applicationId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Add notes to an application. Requires employer role."
+					},
+					"response": []
+				}
+			],
+			"description": "Application endpoints"
+		},
+		{
+			"name": "Employers",
+			"item": [
+				{
+					"name": "Get Employer Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employers/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "employers", "profile"]
+						},
+						"description": "Get current employer profile. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Employer Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"role\": \"HR Manager\",\n    \"status\": \"active\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/employers/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "employers", "profile"]
+						},
+						"description": "Update employer profile. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Public Employer Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employers/:employerId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "employers", ":employerId"],
+							"variable": [
+								{
+									"key": "employerId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get public employer profile by ID. No authentication required."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employer Jobs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employers/:employerId/jobs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "employers", ":employerId", "jobs"],
+							"variable": [
+								{
+									"key": "employerId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get all jobs posted by an employer. No authentication required."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Employer Avatar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/employers/avatar",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "employers", "avatar"]
+						},
+						"description": "Upload employer avatar. Requires authentication. Use form-data with 'avatar' field."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Employer Avatar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employers/avatar",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "employers", "avatar"]
+						},
+						"description": "Delete employer avatar. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employer Applications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employers/applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "employers", "applications"]
+						},
+						"description": "Get all applications for employer's jobs. Requires employer role."
+					},
+					"response": []
+				}
+			],
+			"description": "Employer endpoints"
+		},
+		{
+			"name": "Companies",
+			"item": [
+				{
+					"name": "Get All Companies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies"]
+						},
+						"description": "Get all companies. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/:companyId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies", ":companyId"],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get company details by ID. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Company",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"company_name\": \"Example Corp\",\n    \"website\": \"https://example.com\",\n    \"address\": \"123 Main St\",\n    \"description\": \"A great company\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/companies",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies"]
+						},
+						"description": "Create a new company. Requires authentication (admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Company",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"company_name\": \"Updated Company Name\",\n    \"website\": \"https://updated.com\",\n    \"address\": \"456 New St\",\n    \"description\": \"Updated description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/:companyId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies", ":companyId"],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update company. Requires authentication (employer/admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Company",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/:companyId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies", ":companyId"],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete company. Requires authentication (admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company Jobs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/:companyId/jobs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies", ":companyId", "jobs"],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get all jobs from a company. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Company Logo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "logo",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/:companyId/logo",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies", ":companyId", "logo"],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Upload company logo. Requires authentication (employer). Use form-data with 'logo' field."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Company Banner",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "banner",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/:companyId/banner",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies", ":companyId", "banner"],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Upload company banner. Requires authentication (employer). Use form-data with 'banner' field."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Company Logo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/:companyId/logo",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies", ":companyId", "logo"],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete company logo. Requires authentication (employer)."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Company Banner",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/:companyId/banner",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "companies", ":companyId", "banner"],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete company banner. Requires authentication (employer)."
+					},
+					"response": []
+				}
+			],
+			"description": "Company endpoints"
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "users"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "role",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all users with pagination. Requires admin role."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"blocked\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users/:userId/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "users", ":userId", "status"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Block or unblock a user. Requires admin role. Status: 'active' or 'blocked'."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Employers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/employers?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "employers"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "company_id",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all employers with pagination. Requires admin role."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Employer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/employers/:employerId/verify",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "employers", ":employerId", "verify"],
+							"variable": [
+								{
+									"key": "employerId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Verify an employer. Requires admin role."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Companies (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/companies?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "companies"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get all companies with pagination. Requires admin role."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Jobs (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/jobs?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "jobs"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "job_type",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "employer_id",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all jobs with pagination. Requires admin role."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/jobs/:jobId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "jobs", ":jobId"],
+							"variable": [
+								{
+									"key": "jobId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete a job (for violations). Requires admin role."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Statistics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/statistics",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "statistics"]
+						},
+						"description": "Get overview statistics. Requires admin role."
+					},
+					"response": []
+				}
+			],
+			"description": "Admin endpoints (require admin role)"
 		}
 	],
 	"event": [
