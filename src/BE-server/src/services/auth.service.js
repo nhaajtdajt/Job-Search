@@ -213,16 +213,20 @@ class AuthService {
       throw new NotFoundError('User profile not found');
     }
 
-    // Get user role (from employer table if exists, else job_seeker)
-    let role = ROLES.JOB_SEEKER;
+    // Get user role from users table first, then check employer table
+    let role = user.role || ROLES.JOB_SEEKER;
     let employerId = null;
-    const employer = await db('employer')
-      .where('user_id', userId)
-      .first();
 
-    if (employer) {
-      role = ROLES.EMPLOYER;
-      employerId = employer.employer_id;
+    // If not admin, check if user is employer
+    if (role !== ROLES.ADMIN) {
+      const employer = await db('employer')
+        .where('user_id', userId)
+        .first();
+
+      if (employer) {
+        role = ROLES.EMPLOYER;
+        employerId = employer.employer_id;
+      }
     }
 
     // Generate tokens using helper method

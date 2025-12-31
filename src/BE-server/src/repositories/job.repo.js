@@ -89,7 +89,7 @@ class JobRepository {
     const [job] = await db(MODULE.JOB)
       .insert(jobData)
       .returning('*');
-    
+
     return job;
   }
 
@@ -104,7 +104,7 @@ class JobRepository {
       .where('job_id', jobId)
       .update(updateData)
       .returning('*');
-    
+
     return job;
   }
 
@@ -129,7 +129,7 @@ class JobRepository {
       .where('job_id', jobId)
       .increment('views', 1)
       .returning('*');
-    
+
     return job;
   }
 
@@ -144,7 +144,7 @@ class JobRepository {
       .select('job_id')
       .where({ job_id: jobId, employer_id: employerId })
       .first();
-    
+
     return !!job;
   }
 

@@ -16,7 +16,7 @@ class UserRepository {
       .select('*')
       .where('user_id', userId)
       .first();
-    
+
     return user || null;
   }
 
@@ -48,7 +48,7 @@ class UserRepository {
       .where('user_id', userId)
       .update(filteredData)
       .returning('*');
-    
+
     return user;
   }
 
@@ -61,7 +61,7 @@ class UserRepository {
     const [user] = await db(MODULE.USERS)
       .insert(userData)
       .returning('*');
-    
+
     return user;
   }
 
@@ -74,6 +74,26 @@ class UserRepository {
     return await db(MODULE.USERS)
       .where('user_id', userId)
       .del();
+  }
+
+  /**
+   * Find all users
+   * @returns {Array} List of users
+   */
+  static async findAll() {
+    return await db(MODULE.USERS)
+      .select('user_id', 'name', 'role');
+  }
+
+  /**
+   * Find users by role
+   * @param {string} role - User role (job_seeker, employer)
+   * @returns {Array} List of users
+   */
+  static async findByRole(role) {
+    return await db(MODULE.USERS)
+      .select('user_id', 'name', 'role')
+      .where('role', role);
   }
 }
 
