@@ -223,21 +223,61 @@ export default function Overview() {
               
               {/* Simple Chart Visualization */}
               <div className="mb-6">
-                <div className="h-64 flex items-end justify-center gap-4 mb-4">
-                  {/* Mock chart bars */}
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-16 bg-green-500 rounded-t" style={{ height: '20px' }}></div>
-                    <span className="text-xs text-gray-500">0</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-16 bg-blue-500 rounded-t" style={{ height: '180px' }}></div>
-                    <span className="text-xs text-gray-500">{activityData.jobViews}</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-16 bg-orange-500 rounded-t" style={{ height: '140px' }}></div>
-                    <span className="text-xs text-gray-500">{activityData.jobSearches}</span>
-                  </div>
-                </div>
+                {(() => {
+                  // Calculate bar heights based on actual data
+                  const maxHeight = 200; // Maximum bar height in pixels
+                  const minHeight = 20; // Minimum bar height for visibility
+                  
+                  // Find the maximum value for scaling
+                  const maxValue = Math.max(
+                    activityData.applications,
+                    activityData.jobViews,
+                    activityData.jobSearches,
+                    1 // Minimum 1 to avoid division by zero
+                  );
+                  
+                  // Calculate heights for each bar
+                  const applicationsHeight = activityData.applications === 0 
+                    ? minHeight 
+                    : Math.max(minHeight, (activityData.applications / maxValue) * maxHeight);
+                  
+                  const jobViewsHeight = activityData.jobViews === 0 
+                    ? minHeight 
+                    : Math.max(minHeight, (activityData.jobViews / maxValue) * maxHeight);
+                  
+                  const jobSearchesHeight = activityData.jobSearches === 0 
+                    ? minHeight 
+                    : Math.max(minHeight, (activityData.jobSearches / maxValue) * maxHeight);
+                  
+                  return (
+                    <div className="h-64 flex items-end justify-center gap-4 mb-4">
+                      {/* Applications bar (green) */}
+                      <div className="flex flex-col items-center gap-2">
+                        <div 
+                          className="w-16 bg-green-500 rounded-t transition-all duration-300" 
+                          style={{ height: `${applicationsHeight}px` }}
+                        ></div>
+                        <span className="text-xs text-gray-500 font-medium">{activityData.applications}</span>
+                      </div>
+                      {/* Job Views bar (blue) */}
+                      <div className="flex flex-col items-center gap-2">
+                        <div 
+                          className="w-16 bg-blue-500 rounded-t transition-all duration-300" 
+                          style={{ height: `${jobViewsHeight}px` }}
+                        ></div>
+                        <span className="text-xs text-gray-500 font-medium">{activityData.jobViews}</span>
+                      </div>
+                      {/* Job Searches bar (orange) */}
+                      <div className="flex flex-col items-center gap-2">
+                        <div 
+                          className="w-16 bg-orange-500 rounded-t transition-all duration-300" 
+                          style={{ height: `${jobSearchesHeight}px` }}
+                        ></div>
+                        <span className="text-xs text-gray-500 font-medium">{activityData.jobSearches}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
                 
                 {/* Legend */}
                 <div className="flex items-center justify-center gap-6 text-sm">

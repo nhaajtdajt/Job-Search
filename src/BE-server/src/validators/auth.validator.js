@@ -62,10 +62,13 @@ exports.forgotPassword = [
  * Reset password validation rules
  */
 exports.resetPassword = [
-  body('token')
-    .notEmpty().withMessage('Reset token is required'),
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format')
+    .normalizeEmail(),
 
-  body('new_password')
+  body('newPassword')
     .notEmpty().withMessage('New password is required')
     .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
     .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')

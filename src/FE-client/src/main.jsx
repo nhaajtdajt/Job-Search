@@ -12,6 +12,7 @@ import Companies from './pages/public/Companies.jsx'
 import JobSeekerLogin from './pages/auth/JobSeekerLogin.jsx'
 import JobSeekerRegister from './pages/auth/JobSeekerRegister.jsx'
 import AuthCallback from './pages/auth/AuthCallback.jsx'
+import ForgotPassword from './pages/auth/ForgotPassword.jsx'
 import EmployerLanding from './pages/employer/EmployerLanding.jsx'
 import EmployerDashboard from './pages/employer/EmployerDashboard.jsx'
 import EmployerLogin from './pages/auth/EmployerLogin.jsx'
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
       { path: 'login', element: <JobSeekerLogin /> },
       { path: 'register', element: <JobSeekerRegister /> },
       { path: 'auth/callback', element: <AuthCallback /> },
+      { path: 'forgot-password', element: <ForgotPassword /> },
       { path: 'profile', element: <Profile /> },
       { path: 'overview', element: <Overview /> },
     ],
