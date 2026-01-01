@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { employerService } from '../../services/employerService';
 import { 
@@ -8,14 +8,8 @@ import {
   Phone, 
   Building2,
   Briefcase,
-  FileText,
-  Settings,
-  LayoutDashboard,
-  Users,
   Edit2,
-  Camera,
-  X,
-  CheckCircle
+  Camera
 } from 'lucide-react';
 import { Modal, Input, message } from 'antd';
 
@@ -164,171 +158,131 @@ export default function EmployerProfile() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Sidebar */}
-          <div className="lg:col-span-3">
-            {/* Profile Card */}
-            <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-lg p-6 text-white shadow-lg mb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="relative mb-4">
-                  <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border-4 border-white/30">
-                    {profile?.avatar_url ? (
-                      <img 
-                        src={profile.avatar_url} 
-                        alt={profile.name || 'Employer'} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="w-12 h-12 text-white/80" />
-                    )}
-                  </div>
-                  {/* Avatar upload button */}
-                  <label className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-gray-100 transition">
-                    <Camera className="w-4 h-4 text-orange-600" />
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handleAvatarUpload}
-                      className="hidden"
-                      disabled={uploading}
-                    />
-                  </label>
-                </div>
-                <h3 className="text-xl font-bold mb-1">{profile?.name || 'Chưa cập nhật tên'}</h3>
-                <p className="text-sm text-orange-100">{profile?.position || 'Nhà tuyển dụng'}</p>
-              </div>
-            </div>
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h1 className="text-2xl font-bold text-gray-900">Hồ sơ cá nhân</h1>
+          <p className="text-gray-600 mt-1">Quản lý thông tin cá nhân của bạn</p>
+        </div>
+      </div>
 
-            {/* Navigation Menu */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <nav className="p-2">
-                <Link
-                  to="/employer/dashboard"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50"
-                >
-                  <LayoutDashboard className="w-5 h-5" />
-                  <span>Dashboard</span>
-                </Link>
-                <Link
-                  to="/employer/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-orange-600 bg-orange-50 rounded-lg font-medium transition hover:bg-orange-100 mt-1"
-                >
-                  <User className="w-5 h-5" />
-                  <span>Hồ Sơ Cá Nhân</span>
-                </Link>
-                <Link
-                  to="/employer/company"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Building2 className="w-5 h-5" />
-                  <span>Thông Tin Công Ty</span>
-                </Link>
-                <Link
-                  to="/employer/jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Briefcase className="w-5 h-5" />
-                  <span>Tin Tuyển Dụng</span>
-                </Link>
-                <Link
-                  to="/employer/applications"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Users className="w-5 h-5" />
-                  <span>Ứng Viên</span>
-                </Link>
-                <a
-                  href="#"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Settings className="w-5 h-5" />
-                  <span>Cài Đặt</span>
-                </a>
-              </nav>
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* Profile Card */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+          <div className="p-6">
+            <div className="flex items-center gap-6">
+              {/* Avatar */}
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
+                  {profile?.avatar_url ? (
+                    <img 
+                      src={profile.avatar_url} 
+                      alt={profile.name || 'Employer'} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-12 h-12 text-white" />
+                  )}
+                </div>
+                {/* Avatar upload button */}
+                <label className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-gray-100 transition border border-gray-200">
+                  <Camera className="w-4 h-4 text-orange-600" />
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    disabled={uploading}
+                  />
+                </label>
+              </div>
+              
+              {/* Name & Title */}
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {profile?.name || 'Chưa cập nhật tên'}
+                </h2>
+                <p className="text-gray-600 mt-1">
+                  {profile?.position || 'Chưa cập nhật chức vụ'}
+                  {profile?.department && ` - ${profile.department}`}
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  {authUser?.email || profile?.email}
+                </p>
+              </div>
+
+              {/* Edit Button */}
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium"
+              >
+                <Edit2 className="w-4 h-4" />
+                Chỉnh sửa
+              </button>
             </div>
           </div>
+        </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-9">
-            {/* Personal Information Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        {/* Personal Information Section */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900">Thông tin liên hệ</h3>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex items-start gap-3">
+                <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {profile?.name || 'Chưa cập nhật tên'}
-                  </h2>
-                  <p className="text-gray-600 mt-1">
-                    {profile?.position || 'Chưa cập nhật chức vụ'}
-                    {profile?.department && ` - ${profile.department}`}
-                  </p>
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="text-gray-900 font-medium">{authUser?.email || profile?.email || 'Chưa cập nhật'}</p>
                 </div>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition"
-                >
-                  <Edit2 className="w-4 h-4" />
-                  <span>Chỉnh sửa</span>
-                </button>
               </div>
 
-              <div className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 text-gray-400 mt-1" />
-                    <div>
-                      <p className="text-sm text-gray-500">Email</p>
-                      <p className="text-gray-900">{authUser?.email || profile?.email || 'Chưa cập nhật'}</p>
-                    </div>
-                  </div>
+              <div className="flex items-start gap-3">
+                <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
+                <div>
+                  <p className="text-sm text-gray-500">Điện thoại</p>
+                  <p className="text-gray-900 font-medium">{profile?.phone || 'Chưa cập nhật'}</p>
+                </div>
+              </div>
 
-                  <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-gray-400 mt-1" />
-                    <div>
-                      <p className="text-sm text-gray-500">Điện thoại</p>
-                      <p className="text-gray-900">{profile?.phone || 'Chưa cập nhật'}</p>
-                    </div>
-                  </div>
+              <div className="flex items-start gap-3">
+                <Briefcase className="w-5 h-5 text-gray-400 mt-0.5" />
+                <div>
+                  <p className="text-sm text-gray-500">Chức vụ</p>
+                  <p className="text-gray-900 font-medium">{profile?.position || 'Chưa cập nhật'}</p>
+                </div>
+              </div>
 
-                  <div className="flex items-start gap-3">
-                    <Briefcase className="w-5 h-5 text-gray-400 mt-1" />
-                    <div>
-                      <p className="text-sm text-gray-500">Chức vụ</p>
-                      <p className="text-gray-900">{profile?.position || 'Chưa cập nhật'}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <Building2 className="w-5 h-5 text-gray-400 mt-1" />
-                    <div>
-                      <p className="text-sm text-gray-500">Phòng ban</p>
-                      <p className="text-gray-900">{profile?.department || 'Chưa cập nhật'}</p>
-                    </div>
-                  </div>
+              <div className="flex items-start gap-3">
+                <Building2 className="w-5 h-5 text-gray-400 mt-0.5" />
+                <div>
+                  <p className="text-sm text-gray-500">Phòng ban</p>
+                  <p className="text-gray-900 font-medium">{profile?.department || 'Chưa cập nhật'}</p>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Account Statistics */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-6">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-gray-900">Thống kê tài khoản</h2>
+        {/* Account Statistics */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900">Thống kê tài khoản</h3>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-xl">
+                <p className="text-sm text-blue-600 mb-1">Tin tuyển dụng</p>
+                <p className="text-3xl font-bold text-blue-700">{profile?.total_jobs || 0}</p>
               </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
-                    <p className="text-sm text-blue-600 mb-1">Tin tuyển dụng</p>
-                    <p className="text-2xl font-bold text-blue-700">{profile?.total_jobs || 0}</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
-                    <p className="text-sm text-green-600 mb-1">Ứng viên</p>
-                    <p className="text-2xl font-bold text-green-700">{profile?.total_applications || 0}</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg">
-                    <p className="text-sm text-orange-600 mb-1">Lượt xem</p>
-                    <p className="text-2xl font-bold text-orange-700">{profile?.total_views || 0}</p>
-                  </div>
-                </div>
+              <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl">
+                <p className="text-sm text-green-600 mb-1">Ứng viên</p>
+                <p className="text-3xl font-bold text-green-700">{profile?.total_applications || 0}</p>
+              </div>
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-5 rounded-xl">
+                <p className="text-sm text-orange-600 mb-1">Lượt xem</p>
+                <p className="text-3xl font-bold text-orange-700">{profile?.total_views || 0}</p>
               </div>
             </div>
           </div>

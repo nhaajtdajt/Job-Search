@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { jobService } from '../../services/jobService';
 import JobStatusBadge from '../../components/employer/JobStatusBadge';
 import JobActions from '../../components/employer/JobActions';
+import EmployerSidebar from '../../components/employer/EmployerSidebar';
 import { 
   Plus, 
   Search, 
@@ -36,6 +37,7 @@ export default function JobList() {
     totalViews: 0,
     totalApplications: 0,
   });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -165,8 +167,13 @@ export default function JobList() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex">
+      <EmployerSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+      />
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -372,6 +379,7 @@ export default function JobList() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

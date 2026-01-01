@@ -5,13 +5,10 @@ import { message } from 'antd';
 import {
   User,
   Settings,
-  Briefcase,
   LogOut,
   ChevronDown,
   Building2,
   LayoutDashboard,
-  Users,
-  Heart,
 } from 'lucide-react';
 
 export default function EmployerUserDropdown() {
@@ -67,21 +64,6 @@ export default function EmployerUserDropdown() {
       to: '/employer/company',
     },
     {
-      label: 'Tin Tuyển Dụng',
-      icon: <Briefcase className="w-4 h-4" />,
-      to: '/employer/jobs',
-    },
-    {
-      label: 'Ứng Viên',
-      icon: <Users className="w-4 h-4" />,
-      to: '/employer/applications',
-    },
-    {
-      label: 'Ứng Viên Đã Lưu',
-      icon: <Heart className="w-4 h-4" />,
-      to: '/employer/saved-candidates',
-    },
-    {
       label: 'Cài Đặt',
       icon: <Settings className="w-4 h-4" />,
       to: '/employer/settings',
@@ -100,24 +82,24 @@ export default function EmployerUserDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/20 transition-all duration-200"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/20 transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95"
       >
         {user.avatar_url ? (
           <img
             src={user.avatar_url}
             alt={user.name || user.email}
-            className="w-8 h-8 rounded-full object-cover border-2 border-white/30"
+            className="w-8 h-8 rounded-full object-cover border-2 border-white/30 transition-all duration-200 hover:border-white/50 hover:shadow-md"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white/30">
-            <User className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white/30 transition-all duration-200 hover:bg-orange-600 hover:border-white/50 hover:shadow-md">
+            <User className="w-5 h-5 text-white transition-transform duration-200 hover:scale-110" />
           </div>
         )}
-        <span className="text-sm font-semibold text-gray-800 hidden sm:block">
+        <span className="text-sm font-semibold text-gray-800 hidden sm:block transition-colors duration-200 hover:text-gray-900">
           {user.name || user.email?.split('@')[0]}
         </span>
         <ChevronDown 
-          className={`w-4 h-4 text-gray-800 hidden sm:block transition-transform duration-300 ${
+          className={`w-4 h-4 text-gray-800 hidden sm:block transition-transform duration-300 ease-in-out ${
             isOpen ? 'rotate-180' : 'rotate-0'
           }`} 
         />
@@ -125,17 +107,20 @@ export default function EmployerUserDropdown() {
 
       {isOpen && (
         <div 
-          className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50"
+          className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50"
+          style={{
+            animation: 'dropdownFadeIn 0.3s ease-out'
+          }}
         >
           {/* User Info */}
           <div className="px-4 py-3 border-b border-gray-200">
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-sm font-semibold text-gray-900 transition-colors duration-200">
               {user.name || 'Nhà tuyển dụng'}
             </p>
-            <p className="text-xs text-gray-500 mt-1">{user.email}</p>
+            <p className="text-xs text-gray-500 mt-1 transition-colors duration-200">{user.email}</p>
             <Link
               to="/employer/profile"
-              className="mt-3 inline-block w-full text-center bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition"
+              className="mt-3 inline-block w-full text-center bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-lg active:scale-95"
               onClick={() => setIsOpen(false)}
             >
               Cập nhật hồ sơ
@@ -151,10 +136,12 @@ export default function EmployerUserDropdown() {
                   <Link
                     to={item.to}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 ease-in-out transform hover:translate-x-1 group"
                   >
-                    {item.icon}
-                    <span>{item.label}</span>
+                    <span className="transition-transform duration-200 group-hover:scale-110">
+                      {item.icon}
+                    </span>
+                    <span className="transition-all duration-200">{item.label}</span>
                   </Link>
                 ) : (
                   <button
@@ -162,14 +149,26 @@ export default function EmployerUserDropdown() {
                       if (item.onClick) item.onClick();
                       setIsOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition text-left"
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 ease-in-out transform hover:translate-x-1 group text-left"
                   >
-                    {item.icon}
-                    <span>{item.label}</span>
+                    <span className="transition-transform duration-200 group-hover:scale-110">
+                      {item.icon}
+                    </span>
+                    <span className="transition-all duration-200">{item.label}</span>
                   </button>
                 )}
               </div>
             ))}
+          </div>
+
+          {/* Footer */}
+          <div className="px-4 py-2 border-t border-gray-200">
+            <a
+              href="#"
+              className="text-xs text-gray-500 hover:text-gray-700 transition-all duration-200 ease-in-out hover:underline"
+            >
+              Trợ giúp & Hỗ trợ
+            </a>
           </div>
         </div>
       )}
