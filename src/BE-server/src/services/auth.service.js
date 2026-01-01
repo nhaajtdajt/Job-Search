@@ -250,6 +250,7 @@ class AuthService {
     // Determine user role based on email (admin) or employer table
     let role = ROLES.JOB_SEEKER;
     let employerId = null;
+    let avatarUrl = user.avatar_url; // Default to user's avatar
 
     // Check 1: Is email in admin list?
     if (ADMIN_EMAILS.includes(email)) {
@@ -263,6 +264,8 @@ class AuthService {
       if (employer) {
         role = ROLES.EMPLOYER;
         employerId = employer.employer_id;
+        // Use employer's avatar if available, fallback to user's avatar
+        avatarUrl = employer.avatar_url || user.avatar_url;
       }
     }
 
@@ -276,7 +279,7 @@ class AuthService {
         email: authData.user.email,
         name: user.name,
         role: role,
-        avatar_url: user.avatar_url,
+        avatar_url: avatarUrl,
         ...(employerId && { employer_id: employerId })
       },
       ...tokens
@@ -841,6 +844,8 @@ class AuthService {
     // Get user role (from employer table if exists, else job_seeker)
     let role = ROLES.JOB_SEEKER;
     let employerId = null;
+    let finalAvatarUrl = user.avatar_url || avatarUrl; // Default: user's avatar or Google avatar
+    
     const employer = await db('employer')
       .where('user_id', userId)
       .first();
@@ -848,6 +853,8 @@ class AuthService {
     if (employer) {
       role = ROLES.EMPLOYER;
       employerId = employer.employer_id;
+      // Priority for employer: employer.avatar_url > user.avatar_url > Google avatarUrl
+      finalAvatarUrl = employer.avatar_url || user.avatar_url || avatarUrl;
     }
 
     // Generate tokens using helper method
@@ -860,7 +867,7 @@ class AuthService {
         email: email,
         name: user.name || name,
         role: role,
-        avatar_url: user.avatar_url || avatarUrl,
+        avatar_url: finalAvatarUrl,
         ...(employerId && { employer_id: employerId })
       },
       ...tokens

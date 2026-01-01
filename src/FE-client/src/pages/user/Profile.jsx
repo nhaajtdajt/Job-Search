@@ -20,7 +20,7 @@ import {
 import { message } from 'antd';
 
 export default function Profile() {
-  const { user: authUser, updateUser, isAuthenticated } = useAuth();
+  const { user: authUser, updateUser, updateUserData, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -151,6 +151,8 @@ export default function Profile() {
       if (avatarUrl) {
         updatedProfile.avatar_url = avatarUrl;
         setAvatarPreview(avatarUrl);
+        // Update avatar in AuthContext immediately so nav bar shows it
+        updateUserData({ avatar_url: avatarUrl });
       }
       
       setProfile(updatedProfile);
