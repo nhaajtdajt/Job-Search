@@ -25,7 +25,7 @@ exports.seed = async function (knex) {
       full_name: 'Test Employer',
       email: 'employer11@example.com',
       role: 'HR Manager',
-      status: 'active',
+      status: 'verified',
       company_id: company.company_id,
       user_id: null
     });
