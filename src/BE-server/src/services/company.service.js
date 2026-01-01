@@ -83,6 +83,39 @@ class CompanyService {
   }
 
   /**
+   * Delete company
+   * @param {number} companyId - Company ID
+   * @returns {boolean} Success status
+   */
+  static async delete(companyId) {
+    const company = await CompanyRepository.findById(companyId);
+    
+    if (!company) {
+      throw new NotFoundError('Company not found');
+    }
+
+    // Delete logo and banner from storage if they exist
+    if (company.logo_url) {
+      try {
+        await StorageService.deleteFile(company.logo_url);
+      } catch (err) {
+        console.warn('Failed to delete company logo:', err.message);
+      }
+    }
+
+    if (company.banner_url) {
+      try {
+        await StorageService.deleteFile(company.banner_url);
+      } catch (err) {
+        console.warn('Failed to delete company banner:', err.message);
+      }
+    }
+
+    await CompanyRepository.delete(companyId);
+    return true;
+  }
+
+  /**
    * Upload company logo
    * @param {number} companyId - Company ID
    * @param {number} employerId - Employer ID (for permission check)

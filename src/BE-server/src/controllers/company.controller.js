@@ -1,4 +1,5 @@
 const CompanyService = require('../services/company.service');
+const JobService = require('../services/job.service');
 const HTTP_STATUS = require('../constants/http-status');
 const { BadRequestError } = require('../errors');
 const ResponseHandler = require('../utils/response-handler');
@@ -138,6 +139,66 @@ class CompanyController {
         status: HTTP_STATUS.OK,
         message: 'Companies retrieved successfully',
         data: companies,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Create company
+   * POST /api/companies
+   */
+  static async create(req, res, next) {
+    try {
+      const companyData = req.body;
+
+      const company = await CompanyService.create(companyData);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.CREATED,
+        message: 'Company created successfully',
+        data: company,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Delete company
+   * DELETE /api/companies/:companyId
+   */
+  static async delete(req, res, next) {
+    try {
+      const { companyId } = req.params;
+
+      await CompanyService.delete(companyId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Company deleted successfully',
+        data: null,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Get jobs by company ID
+   * GET /api/companies/:companyId/jobs
+   */
+  static async getCompanyJobs(req, res, next) {
+    try {
+      const { companyId } = req.params;
+
+      const jobs = await JobService.getJobsByCompany(companyId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Company jobs retrieved successfully',
+        data: jobs,
       });
     } catch (error) {
       return next(error);
