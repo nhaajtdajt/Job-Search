@@ -28,4 +28,5 @@ module.exports = {
   // Skills & Search
   SKILL: "skill",
   SAVED_SEARCH: "saved_search",
+  SAVED_CANDIDATE: "saved_candidate",
 };

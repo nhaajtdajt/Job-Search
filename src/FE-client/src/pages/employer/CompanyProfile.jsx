@@ -1,24 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { employerService } from '../../services/employerService';
 import { companyService } from '../../services/companyService';
 import CompanyForm from '../../components/employer/CompanyForm';
 import CompanyLogoUpload from '../../components/employer/CompanyLogoUpload';
 import { 
-  User, 
   Building2,
-  Briefcase,
-  Settings,
-  LayoutDashboard,
-  Users,
   Edit2,
   Globe,
   MapPin,
   Calendar,
   CheckCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Users
 } from 'lucide-react';
 import { Modal, message } from 'antd';
 
@@ -160,133 +156,68 @@ export default function CompanyProfile() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Sidebar */}
-          <div className="lg:col-span-3">
-            {/* Profile Card */}
-            <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-lg p-6 text-white shadow-lg mb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border-4 border-white/30 mb-4">
-                  {profile?.avatar_url ? (
-                    <img 
-                      src={profile.avatar_url} 
-                      alt={profile.name || 'Employer'} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-12 h-12 text-white/80" />
-                  )}
-                </div>
-                <h3 className="text-xl font-bold mb-1">{profile?.name || 'Chưa cập nhật tên'}</h3>
-                <p className="text-sm text-orange-100">{company?.name || 'Chưa có công ty'}</p>
-              </div>
-            </div>
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h1 className="text-2xl font-bold text-gray-900">Thông tin công ty</h1>
+          <p className="text-gray-600 mt-1">Quản lý thông tin doanh nghiệp của bạn</p>
+        </div>
+      </div>
 
-            {/* Navigation Menu */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <nav className="p-2">
-                <Link
-                  to="/employer/dashboard"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50"
-                >
-                  <LayoutDashboard className="w-5 h-5" />
-                  <span>Dashboard</span>
-                </Link>
-                <Link
-                  to="/employer/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <User className="w-5 h-5" />
-                  <span>Hồ Sơ Cá Nhân</span>
-                </Link>
-                <Link
-                  to="/employer/company"
-                  className="flex items-center gap-3 px-4 py-3 text-orange-600 bg-orange-50 rounded-lg font-medium transition hover:bg-orange-100 mt-1"
-                >
-                  <Building2 className="w-5 h-5" />
-                  <span>Thông Tin Công Ty</span>
-                </Link>
-                <Link
-                  to="/employer/jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Briefcase className="w-5 h-5" />
-                  <span>Tin Tuyển Dụng</span>
-                </Link>
-                <Link
-                  to="/employer/applications"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Users className="w-5 h-5" />
-                  <span>Ứng Viên</span>
-                </Link>
-                <a
-                  href="#"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Settings className="w-5 h-5" />
-                  <span>Cài Đặt</span>
-                </a>
-              </nav>
-            </div>
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* Company Header with Banner */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+          {/* Banner */}
+          <div className="h-40 bg-gradient-to-r from-orange-400 to-red-500 relative">
+            {company?.banner_url && (
+              <img 
+                src={company.banner_url} 
+                alt="Company banner" 
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-9">
-            {/* Company Header with Banner */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-              {/* Banner */}
-              <div className="h-40 bg-gradient-to-r from-orange-400 to-red-500 relative">
-                {company?.banner_url && (
+          
+          {/* Company Info Header */}
+          <div className="px-6 pb-6">
+            <div className="flex items-end gap-4 -mt-10 mb-4">
+              {/* Company Logo */}
+              <div className="w-24 h-24 rounded-xl bg-white border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
+                {company?.logo_url ? (
                   <img 
-                    src={company.banner_url} 
-                    alt="Company banner" 
+                    src={company.logo_url} 
+                    alt={company.name || 'Company'} 
                     className="w-full h-full object-cover"
                   />
+                ) : (
+                  <Building2 className="w-10 h-10 text-gray-400" />
                 )}
               </div>
-              
-              {/* Company Info Header */}
-              <div className="px-6 pb-6">
-                <div className="flex items-end gap-4 -mt-10 mb-4">
-                  {/* Company Logo */}
-                  <div className="w-24 h-24 rounded-lg bg-white border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
-                    {company?.logo_url ? (
-                      <img 
-                        src={company.logo_url} 
-                        alt={company.name || 'Company'} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Building2 className="w-10 h-10 text-gray-400" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h1 className="text-2xl font-bold text-gray-900">
-                        {company?.name || 'Chưa có thông tin công ty'}
-                      </h1>
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${verificationStatus.className}`}>
-                        {verificationStatus.icon}
-                        {verificationStatus.text}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mt-1">{company?.industry || 'Chưa cập nhật ngành nghề'}</p>
-                  </div>
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    <span>Chỉnh sửa</span>
-                  </button>
+              <div className="flex-1">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {company?.name || 'Chưa có thông tin công ty'}
+                  </h2>
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${verificationStatus.className}`}>
+                    {verificationStatus.icon}
+                    {verificationStatus.text}
+                  </span>
                 </div>
+                <p className="text-gray-600 mt-1">{company?.industry || 'Chưa cập nhật ngành nghề'}</p>
               </div>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium"
+              >
+                <Edit2 className="w-4 h-4" />
+                Chỉnh sửa
+              </button>
             </div>
+          </div>
+        </div>
 
-            {/* Company Details */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        {/* Company Details */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h2 className="text-xl font-bold text-gray-900">Thông tin công ty</h2>
               </div>
@@ -336,36 +267,35 @@ export default function CompanyProfile() {
                   <h3 className="text-sm font-medium text-gray-500 mb-2">Giới thiệu công ty</h3>
                   <p className="text-gray-900 whitespace-pre-line">
                     {company?.description || 'Chưa có mô tả về công ty.'}
-                  </p>
-                </div>
-              </div>
+              </p>
             </div>
+          </div>
+        </div>
 
-            {/* Logo & Banner Upload Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-gray-900">Logo & Banner</h2>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <CompanyLogoUpload
-                    title="Logo công ty"
-                    currentImage={company?.logo_url}
-                    onUpload={handleLogoUpload}
-                    aspectRatio="square"
-                  />
-                  <CompanyLogoUpload
-                    title="Banner công ty"
-                    currentImage={company?.banner_url}
-                    onUpload={handleBannerUpload}
-                    aspectRatio="wide"
-                  />
-                </div>
-              </div>
+        {/* Logo & Banner Upload Section */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900">Logo & Banner</h3>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CompanyLogoUpload
+                title="Logo công ty"
+                currentImage={company?.logo_url}
+                onUpload={handleLogoUpload}
+                aspectRatio="square"
+              />
+              <CompanyLogoUpload
+                title="Banner công ty"
+                currentImage={company?.banner_url}
+                onUpload={handleBannerUpload}
+                aspectRatio="wide"
+              />
             </div>
           </div>
         </div>
       </div>
+
 
       {/* Edit Company Modal */}
       <Modal
