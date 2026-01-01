@@ -18,7 +18,8 @@ import {
   BarChart3,
   DollarSign,
   ArrowLeft,
-  Search
+  Search,
+  Camera
 } from 'lucide-react';
 import { Modal, Input, Select, Radio, message } from 'antd';
 import { countries, vietnamProvinces } from '../../data/locationData';
@@ -64,13 +65,16 @@ export default function ProfileComplete() {
     desired_salary: '',
   });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or if user is employer
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
+    } else if (authUser && authUser.role === 'employer') {
+      navigate('/employer/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authUser, navigate]);
 
   // Load profile data
   useEffect(() => {
@@ -208,6 +212,42 @@ export default function ProfileComplete() {
     if (locationStep === 'country') return 'Chọn Quốc Gia';
     if (locationStep === 'province') return 'Chọn Tỉnh Thành';
     return 'Chọn Địa Điểm';
+  };
+
+  // Handle avatar upload
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      message.error('Chỉ hỗ trợ file ảnh (JPG, PNG, WebP)');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      message.error('File không được vượt quá 5MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const result = await userService.uploadAvatar(file);
+      setProfile(prev => ({ ...prev, avatar_url: result.avatar_url }));
+      // Update user in auth context
+      if (updateUser) {
+        await updateUser({ avatar_url: result.avatar_url });
+      }
+      message.success('Tải ảnh đại diện thành công!');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      message.error(error.response?.data?.message || 'Tải ảnh thất bại');
+    } finally {
+      setUploading(false);
+      // Reset input
+      e.target.value = '';
+    }
   };
 
   // Handle desired job change
@@ -350,6 +390,23 @@ export default function ProfileComplete() {
                       <User className="w-12 h-12 text-white/80" />
                     )}
                   </div>
+                  {/* Avatar upload button */}
+                  <label className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-gray-100 transition">
+                    <Camera className="w-4 h-4 text-blue-600" />
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
+                  {/* Loading overlay */}
+                  {uploading && (
+                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    </div>
+                  )}
                 </div>
                 <h3 className="text-xl font-bold mb-1">{profile?.name || 'Chưa cập nhật tên'}</h3>
                 <p className="text-sm text-blue-100">{profile?.job_title || 'Chưa cập nhật chức danh'}</p>

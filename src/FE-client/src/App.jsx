@@ -4,7 +4,7 @@ import UserDropdown from "./components/common/UserDropdown";
 import "./App.css";
 
 function Header() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   
   const primaryLinks = [
     { label: "Trang chủ", to: "/" },
@@ -77,12 +77,15 @@ function Header() {
               </button>
             </nav>
             <div className="flex items-center gap-4">
-              <Link 
-                to="/employer" 
-                className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 shadow-lg"
-              >
-                Nhà tuyển dụng
-              </Link>
+              {/* Only show "Nhà tuyển dụng" button when NOT authenticated */}
+              {!isAuthenticated && (
+                <Link 
+                  to="/employer" 
+                  className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 shadow-lg"
+                >
+                  Nhà tuyển dụng
+                </Link>
+              )}
               {isAuthenticated ? (
                 <UserDropdown />
               ) : (

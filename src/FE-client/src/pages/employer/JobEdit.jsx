@@ -8,7 +8,7 @@ import { message } from 'antd';
 
 export default function JobEdit() {
   const { id } = useParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,10 +16,11 @@ export default function JobEdit() {
 
   // Redirect if not authenticated
   useEffect(() => {
+    if (authLoading) return; // Don't redirect while loading
     if (!isAuthenticated) {
       navigate('/employer/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   // Load job data
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { jobService } from '../../services/jobService';
@@ -7,13 +7,20 @@ import { ArrowLeft } from 'lucide-react';
 import { message } from 'antd';
 
 export default function JobCreate() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 
   // Redirect if not authenticated
-  if (!isAuthenticated) {
-    navigate('/employer/login');
+  useEffect(() => {
+    if (authLoading) return; // Don't redirect while loading
+    if (!isAuthenticated) {
+      navigate('/employer/login');
+    }
+  }, [isAuthenticated, authLoading, navigate]);
+
+  // Show nothing while loading or if not authenticated (will redirect)
+  if (authLoading || !isAuthenticated) {
     return null;
   }
 

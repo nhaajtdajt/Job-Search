@@ -3,7 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import EmployerUserDropdown from "./EmployerUserDropdown";
 
 export default function EmployerHeader() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const primaryLinks = [
     { label: "Dashboard", to: "/employer/dashboard" },
@@ -85,19 +85,30 @@ export default function EmployerHeader() {
                 </button>
               )}
             </nav>
-            <div className="flex items-center gap-8">
-              {isAuthenticated ? (
-                <EmployerUserDropdown />
-              ) : (
-                <>
-                  <Link to="/employer/login" className="text-brand-50 font-semibold transition hover:text-white">
-                    Đăng nhập
-                  </Link>
-                  <Link to="/employer/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
-                    Đăng ký
-                  </Link>
-                </>
+            <div className="flex items-center gap-4">
+              {/* Only show "Người tìm việc" button when NOT authenticated */}
+              {!isAuthenticated && (
+                <Link 
+                  to="/" 
+                  className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-600 shadow-lg"
+                >
+                  Người tìm việc
+                </Link>
               )}
+              <div className="flex items-center gap-8">
+                {isAuthenticated ? (
+                  <EmployerUserDropdown />
+                ) : (
+                  <>
+                    <Link to="/employer/login" className="text-brand-50 font-semibold transition hover:text-white">
+                      Đăng nhập
+                    </Link>
+                    <Link to="/employer/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
+                      Đăng ký
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

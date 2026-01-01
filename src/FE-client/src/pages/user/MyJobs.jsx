@@ -26,12 +26,14 @@ export default function MyJobs() {
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or if user is employer
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
+    } else if (authUser && authUser.role === 'employer') {
+      navigate('/employer/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authUser, navigate]);
 
   // Load data based on active tab
   useEffect(() => {

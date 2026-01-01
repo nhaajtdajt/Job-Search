@@ -26,12 +26,14 @@ export default function Overview() {
     jobSearches: 0 // saved_searches count
   });
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or if user is employer
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
+    } else if (authUser && authUser.role === 'employer') {
+      navigate('/employer/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authUser, navigate]);
 
   // Load profile data and calculate completion
   useEffect(() => {
