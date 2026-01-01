@@ -83,18 +83,19 @@ class AdminController {
   }
 
   /**
-   * Verify employer
+   * Update employer status (verify/suspend)
    * PUT /api/admin/employers/:employerId/verify
    */
   static async verifyEmployer(req, res, next) {
     try {
       const { employerId } = req.params;
+      const { status } = req.body; // 'verified' or 'suspended'
 
-      const employer = await AdminService.verifyEmployer(parseInt(employerId));
+      const employer = await AdminService.updateEmployerStatus(parseInt(employerId), status);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
-        message: 'Employer verified successfully',
+        message: `Employer ${status === 'suspended' ? 'suspended' : 'verified'} successfully`,
         data: employer,
       });
     } catch (error) {

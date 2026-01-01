@@ -34,6 +34,7 @@ import JobNotifications from './pages/user/JobNotifications.jsx'
 
 // Admin imports
 import AdminLayout from './pages/admin/AdminLayout.jsx'
+import AdminLogin from './pages/admin/AdminLogin.jsx'
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import UserManagement from './pages/admin/UserManagement.jsx'
 import EmployerManagement from './pages/admin/EmployerManagement.jsx'
@@ -81,14 +82,21 @@ const router = createBrowserRouter([
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
     children: [
-      { index: true, element: <AdminDashboard /> },
-      { path: 'users', element: <UserManagement /> },
-      { path: 'employers', element: <EmployerManagement /> },
-      { path: 'companies', element: <CompanyManagement /> },
-      { path: 'jobs', element: <JobManagement /> },
-      { path: 'notifications', element: <NotificationManagement /> },
+      // Login page (standalone, no layout)
+      { index: true, element: <AdminLogin /> },
+      // Protected admin pages (with layout)
+      {
+        element: <AdminLayout />,
+        children: [
+          { path: 'dashboard', element: <AdminDashboard /> },
+          { path: 'users', element: <UserManagement /> },
+          { path: 'employers', element: <EmployerManagement /> },
+          { path: 'companies', element: <CompanyManagement /> },
+          { path: 'jobs', element: <JobManagement /> },
+          { path: 'notifications', element: <NotificationManagement /> },
+        ],
+      },
     ],
   },
 ])

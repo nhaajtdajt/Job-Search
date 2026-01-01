@@ -142,6 +142,7 @@ class UserRepository {
 
   /**
    * Find all users with pagination and filters (Admin only)
+   * Excludes employers and admins - only returns job seekers
    * @param {number} page - Page number
    * @param {number} limit - Items per page
    * @param {Object} filters - Optional filters (role, status)
@@ -149,20 +150,47 @@ class UserRepository {
    */
   static async findAll(page = 1, limit = 10, filters = {}) {
     const { parsePagination } = require('../utils/pagination.util');
+    const { ADMIN_EMAILS } = require('../constants/admin');
     const { offset } = parsePagination(page, limit);
 
-    let query = db(MODULE.USERS).select('*');
-    
-    // Note: role filter would need to be checked from auth.users table
-    // For now, we'll just paginate users table
-    
-    const [{ total }] = await query.clone().count('* as total');
-    
-    const data = await query
+    // Get employer user_ids to exclude (employers have accounts in both tables)
+    const employerUserIds = await db('employer')
+      .select('user_id')
+      .whereNotNull('user_id');
+
+    const excludeEmployerIds = employerUserIds.map(e => e.user_id);
+
+    // Get admin user_ids from auth.users by email
+    const adminUserIds = await db.raw(`
+      SELECT id FROM auth.users WHERE email = ANY(?)
+    `, [ADMIN_EMAILS]);
+
+    const excludeAdminIds = adminUserIds.rows?.map(r => r.id) || [];
+
+    // Combine all IDs to exclude
+    const allExcludeIds = [...new Set([...excludeEmployerIds, ...excludeAdminIds])];
+
+    // Base query - exclude employer and admin user_ids
+    let baseQuery = db(MODULE.USERS);
+    if (allExcludeIds.length > 0) {
+      baseQuery = baseQuery.whereNotIn('user_id', allExcludeIds);
+    }
+
+    // Apply status filter if provided
+    if (filters.status) {
+      baseQuery = baseQuery.where('status', filters.status);
+    }
+
+    // Count query
+    const [{ total }] = await baseQuery.clone().count('* as total');
+
+    // Data query
+    const data = await baseQuery.clone()
+      .select('*')
       .orderBy('user_id', 'asc')
       .limit(limit)
       .offset(offset);
-    
+
     return {
       data,
       total: parseInt(total, 10),

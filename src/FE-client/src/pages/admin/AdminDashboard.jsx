@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import {
     Users, Building2, Briefcase, AlertCircle,
     TrendingUp, TrendingDown, MoreVertical
@@ -8,8 +7,9 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     AreaChart, Area
 } from 'recharts';
+import adminService from '../../services/admin.service';
 
-// Mock data
+// Sample chart data (will be replaced when API provides)
 const userGrowthData = [
     { day: 'M', users: 120 },
     { day: 'T', users: 180 },
@@ -36,17 +36,54 @@ const jobTrends = [
     { category: 'Customer Support', percentage: 12, color: '#ef4444' },
 ];
 
-const stats = [
-    { label: 'Total Users', value: '142,050', change: '+12%', trend: 'up', icon: Users, color: 'blue' },
-    { label: 'Active Employers', value: '3,200', change: '+5%', trend: 'up', icon: Building2, color: 'purple' },
-    { label: 'Active Job Postings', value: '8,450', change: '-2%', trend: 'down', icon: Briefcase, color: 'orange' },
-    { label: 'Pending Approvals', value: '45', change: '0%', trend: 'neutral', icon: AlertCircle, color: 'yellow', subtitle: 'Require immediate action' },
-];
-
 const timeRanges = ['7 Days', '30 Days', '3 Months', 'Year'];
 
 export default function AdminDashboard() {
     const [selectedRange, setSelectedRange] = useState('7 Days');
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({
+        totalUsers: 0,
+        totalEmployers: 0,
+        totalJobs: 0,
+        pendingApprovals: 0
+    });
+
+    useEffect(() => {
+        fetchStatistics();
+    }, []);
+
+    const fetchStatistics = async () => {
+        try {
+            setLoading(true);
+            const response = await adminService.getStatistics();
+            if (response.data?.success) {
+                const data = response.data.data;
+                setStats({
+                    totalUsers: data.totalUsers || data.users || 0,
+                    totalEmployers: data.totalEmployers || data.employers || 0,
+                    totalJobs: data.totalJobs || data.jobs || 0,
+                    pendingApprovals: data.pendingApprovals || data.pending || 0
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch statistics:', error);
+            setStats({
+                totalUsers: 0,
+                totalEmployers: 0,
+                totalJobs: 0,
+                pendingApprovals: 0
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const statCards = [
+        { label: 'Total Users', value: stats.totalUsers.toLocaleString(), icon: Users, color: 'blue' },
+        { label: 'Active Employers', value: stats.totalEmployers.toLocaleString(), icon: Building2, color: 'purple' },
+        { label: 'Active Job Postings', value: stats.totalJobs.toLocaleString(), icon: Briefcase, color: 'orange' },
+        { label: 'Pending Approvals', value: stats.pendingApprovals.toString(), icon: AlertCircle, color: 'yellow', subtitle: stats.pendingApprovals > 0 ? 'Require attention' : 'All clear' },
+    ];
 
     return (
         <div className="space-y-6">
@@ -61,9 +98,7 @@ export default function AdminDashboard() {
                         <button
                             key={range}
                             onClick={() => setSelectedRange(range)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedRange === range
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-gray-400 hover:text-white'
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedRange === range ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
                                 }`}
                         >
                             {range}
@@ -74,7 +109,7 @@ export default function AdminDashboard() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {stats.map((stat) => (
+                {statCards.map((stat) => (
                     <div key={stat.label} className="bg-[#1a1f2e] rounded-xl p-5 border border-gray-700/50">
                         <div className="flex items-center justify-between mb-3">
                             <span className="text-gray-400 text-sm">{stat.label}</span>
@@ -87,17 +122,13 @@ export default function AdminDashboard() {
                             </div>
                         </div>
                         <div className="flex items-end gap-2">
-                            <span className="text-2xl font-bold">{stat.value}</span>
-                            <span className={`text-sm ${stat.trend === 'up' ? 'text-green-400' :
-                                    stat.trend === 'down' ? 'text-red-400' :
-                                        'text-gray-400'
-                                }`}>
-                                {stat.trend === 'up' && <TrendingUp size={14} className="inline mr-1" />}
-                                {stat.trend === 'down' && <TrendingDown size={14} className="inline mr-1" />}
-                                {stat.change}
-                            </span>
+                            {loading ? (
+                                <span className="text-2xl font-bold text-gray-500">...</span>
+                            ) : (
+                                <span className="text-2xl font-bold">{stat.value}</span>
+                            )}
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">{stat.subtitle || 'vs. last month'}</p>
+                        <p className="text-xs text-gray-500 mt-1">{stat.subtitle || 'Current total'}</p>
                     </div>
                 ))}
             </div>
@@ -121,10 +152,7 @@ export default function AdminDashboard() {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                                 <XAxis dataKey="day" stroke="#9ca3af" />
                                 <YAxis stroke="#9ca3af" />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px' }}
-                                    labelStyle={{ color: '#fff' }}
-                                />
+                                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px' }} />
                                 <Line type="monotone" dataKey="users" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} />
                             </LineChart>
                         </ResponsiveContainer>
@@ -138,10 +166,6 @@ export default function AdminDashboard() {
                             <h3 className="font-semibold">Job Posting Trends</h3>
                             <p className="text-sm text-gray-400">Categories with most activity</p>
                         </div>
-                        <select className="bg-[#252d3d] text-sm border border-gray-700 rounded-lg px-3 py-1.5">
-                            <option>This Week</option>
-                            <option>This Month</option>
-                        </select>
                     </div>
                     <div className="space-y-4">
                         {jobTrends.map((trend) => (
@@ -151,10 +175,7 @@ export default function AdminDashboard() {
                                     <span className="text-gray-400">{trend.percentage}%</span>
                                 </div>
                                 <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full rounded-full transition-all duration-500"
-                                        style={{ width: `${trend.percentage}%`, backgroundColor: trend.color }}
-                                    />
+                                    <div className="h-full rounded-full" style={{ width: `${trend.percentage}%`, backgroundColor: trend.color }} />
                                 </div>
                             </div>
                         ))}
@@ -183,9 +204,7 @@ export default function AdminDashboard() {
                             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                             <XAxis dataKey="month" stroke="#9ca3af" />
                             <YAxis stroke="#9ca3af" />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px' }}
-                            />
+                            <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px' }} />
                             <Area type="monotone" dataKey="total" stroke="#3b82f6" fill="#3b82f680" />
                             <Area type="monotone" dataKey="interviewed" stroke="#22c55e" fill="#22c55e80" />
                         </AreaChart>

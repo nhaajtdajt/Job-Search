@@ -131,18 +131,28 @@ class NotificationService {
 
         // Get users by role
         let users = [];
+        const db = require('../databases/knex');
+        const MODULE = require('../constants/module');
 
         if (target_role === 'all') {
-            users = await UserRepository.findAll();
+            // Get all users from users table
+            const result = await UserRepository.findAll(1, 10000);
+            users = result.data || [];
         } else if (target_role === 'job_seeker') {
-            users = await UserRepository.findByRole('job_seeker');
+            // All users in users table are job seekers (not employers)
+            const result = await UserRepository.findAll(1, 10000);
+            users = result.data || [];
         } else if (target_role === 'employer') {
-            users = await UserRepository.findByRole('employer');
+            // Get employers from employer table (they have user_id reference)
+            const employers = await db(MODULE.EMPLOYER)
+                .select('user_id')
+                .whereNotNull('user_id');
+            users = employers;
         } else {
             throw new AppError('Invalid target_role. Must be: all, job_seeker, or employer', 400);
         }
 
-        if (users.length === 0) {
+        if (!users || users.length === 0) {
             return { message: 'No users found for the target role', recipients: 0 };
         }
 

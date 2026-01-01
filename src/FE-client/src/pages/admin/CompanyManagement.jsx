@@ -1,14 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Building2, Check, X, Eye, Globe, MapPin } from 'lucide-react';
-
-// Mock data
-const mockCompanies = [
-    { id: 1, name: 'TechFlow Inc.', industry: 'Technology', location: 'Ho Chi Minh City', website: 'techflow.io', status: 'approved', employeeCount: 150, jobs: 12 },
-    { id: 2, name: 'StartupHub', industry: 'Consulting', location: 'Hanoi', website: 'startuphub.co', status: 'pending', employeeCount: 25, jobs: 0 },
-    { id: 3, name: 'Global Corp', industry: 'Finance', location: 'Da Nang', website: 'globalcorp.com', status: 'approved', employeeCount: 500, jobs: 45 },
-    { id: 4, name: 'Creative Minds', industry: 'Design', location: 'Ho Chi Minh City', website: 'creativeminds.design', status: 'rejected', employeeCount: 30, jobs: 3 },
-];
+import adminService from '../../services/admin.service';
 
 const statusStyles = {
     approved: 'bg-green-500/20 text-green-400 border-green-500/30',
@@ -17,23 +10,46 @@ const statusStyles = {
 };
 
 export default function CompanyManagement() {
+    const [companies, setCompanies] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [companies, setCompanies] = useState(mockCompanies);
+    const [page, setPage] = useState(1);
+    const [total, setTotal] = useState(0);
 
-    const filteredCompanies = companies.filter(company => {
-        const matchSearch = company.name.toLowerCase().includes(search.toLowerCase());
-        const matchStatus = statusFilter === 'all' || company.status === statusFilter;
-        return matchSearch && matchStatus;
-    });
+    const fetchCompanies = async () => {
+        try {
+            setLoading(true);
+            const params = { page, limit: 10 };
+            if (search) params.search = search;
+            if (statusFilter !== 'all') params.status = statusFilter;
 
-    const handleApprove = (id) => {
-        setCompanies(prev => prev.map(c => c.id === id ? { ...c, status: 'approved' } : c));
+            const response = await adminService.getCompanies(params);
+            console.log('Companies API response:', response.data);
+            if (response.data?.success) {
+                // API returns { data: { data: [...], total, page, limit } }
+                const result = response.data.data;
+                setCompanies(result?.data || []);
+                setTotal(result?.total || 0);
+            }
+        } catch (error) {
+            console.error('Failed to fetch companies:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleReject = (id) => {
-        setCompanies(prev => prev.map(c => c.id === id ? { ...c, status: 'rejected' } : c));
-    };
+    useEffect(() => {
+        fetchCompanies();
+    }, [page, statusFilter]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setPage(1);
+            fetchCompanies();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
 
     return (
         <div className="space-y-6">
@@ -65,7 +81,7 @@ export default function CompanyManagement() {
                     </div>
                     <select
                         value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
+                        onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
                         className="bg-[#252d3d] border border-gray-700 rounded-lg px-4 py-2.5 text-sm"
                     >
                         <option value="all">All Status</option>
@@ -78,70 +94,92 @@ export default function CompanyManagement() {
 
             {/* Table */}
             <div className="bg-[#1a1f2e] rounded-xl border border-gray-700/50 overflow-hidden">
-                <table className="w-full">
-                    <thead className="bg-[#252d3d]">
-                        <tr>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Company</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Industry</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Location</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Employees</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Jobs</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Status</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-700/50">
-                        {filteredCompanies.map((company) => (
-                            <tr key={company.id} className="hover:bg-[#252d3d]/50">
-                                <td className="py-4 px-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                                            <Building2 size={20} />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium">{company.name}</p>
-                                            <a href={`https://${company.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline flex items-center gap-1">
-                                                <Globe size={12} />
-                                                {company.website}
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="py-4 px-4 text-gray-300">{company.industry}</td>
-                                <td className="py-4 px-4 text-gray-400">
-                                    <span className="flex items-center gap-1">
-                                        <MapPin size={14} />
-                                        {company.location}
-                                    </span>
-                                </td>
-                                <td className="py-4 px-4 text-gray-300">{company.employeeCount}</td>
-                                <td className="py-4 px-4 text-gray-300">{company.jobs}</td>
-                                <td className="py-4 px-4">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusStyles[company.status]}`}>
-                                        {company.status.charAt(0).toUpperCase() + company.status.slice(1)}
-                                    </span>
-                                </td>
-                                <td className="py-4 px-4">
-                                    <div className="flex items-center gap-2">
-                                        <button className="p-2 text-gray-400 hover:text-white hover:bg-[#252d3d] rounded-lg" title="View">
-                                            <Eye size={16} />
-                                        </button>
-                                        {company.status === 'pending' && (
-                                            <>
-                                                <button onClick={() => handleApprove(company.id)} className="p-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30" title="Approve">
-                                                    <Check size={16} />
-                                                </button>
-                                                <button onClick={() => handleReject(company.id)} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30" title="Reject">
-                                                    <X size={16} />
-                                                </button>
-                                            </>
-                                        )}
-                                    </div>
-                                </td>
+                {loading ? (
+                    <div className="p-8 text-center text-gray-400">Loading...</div>
+                ) : companies.length === 0 ? (
+                    <div className="p-8 text-center text-gray-400">No companies found</div>
+                ) : (
+                    <table className="w-full">
+                        <thead className="bg-[#252d3d]">
+                            <tr>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Company</th>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Location</th>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Jobs</th>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-700/50">
+                            {companies.map((company) => (
+                                <tr key={company.company_id} className="hover:bg-[#252d3d]/50">
+                                    <td className="py-4 px-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center overflow-hidden">
+                                                {company.logo_url ? (
+                                                    <img src={company.logo_url} alt="" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <Building2 size={20} />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium">{company.company_name || company.name || 'N/A'}</p>
+                                                {company.website && (
+                                                    <a href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
+                                                        target="_blank" rel="noopener noreferrer"
+                                                        className="text-sm text-blue-400 hover:underline flex items-center gap-1">
+                                                        <Globe size={12} />
+                                                        {company.website.replace(/^https?:\/\//, '')}
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="py-4 px-4 text-gray-400">
+                                        {company.address ? (
+                                            <span className="flex items-center gap-1">
+                                                <MapPin size={14} />
+                                                {company.address}
+                                            </span>
+                                        ) : 'N/A'}
+                                    </td>
+                                    <td className="py-4 px-4 text-gray-300">{company.job_count || 0}</td>
+                                    <td className="py-4 px-4">
+                                        <Link
+                                            to={`/companies/${company.company_id}`}
+                                            className="p-2 text-gray-400 hover:text-white hover:bg-[#252d3d] rounded-lg inline-flex"
+                                            title="View"
+                                        >
+                                            <Eye size={16} />
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-700/50">
+                    <span className="text-sm text-gray-400">
+                        Showing {companies.length} of {total} companies
+                    </span>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="px-3 py-1.5 bg-[#252d3d] rounded-lg text-sm text-gray-400 hover:text-white disabled:opacity-50"
+                        >
+                            Previous
+                        </button>
+                        <span className="px-3 py-1.5 bg-blue-600 rounded-lg text-sm">{page}</span>
+                        <button
+                            onClick={() => setPage(p => p + 1)}
+                            disabled={companies.length < 10}
+                            className="px-3 py-1.5 bg-[#252d3d] rounded-lg text-sm text-gray-400 hover:text-white disabled:opacity-50"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

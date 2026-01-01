@@ -16,7 +16,7 @@ class EmployerRepository {
       .select('*')
       .where('employer_id', employerId)
       .first();
-    
+
     if (!employer) return null;
 
     // Get company info if exists
@@ -25,7 +25,7 @@ class EmployerRepository {
         .select('*')
         .where('company_id', employer.company_id)
         .first();
-      
+
       employer.company = company || null;
     }
 
@@ -42,7 +42,7 @@ class EmployerRepository {
       .select('*')
       .where('user_id', userId)
       .first();
-    
+
     return employer || null;
   }
 
@@ -74,7 +74,7 @@ class EmployerRepository {
       .where('employer_id', employerId)
       .update(filteredData)
       .returning('*');
-    
+
     return employer;
   }
 
@@ -84,10 +84,18 @@ class EmployerRepository {
    * @returns {Object} Created employer
    */
   static async create(employerData) {
+    const { DEFAULT_EMPLOYER_STATUS } = require('../constants/employer-status');
+
+    // Set default status if not provided
+    const dataWithDefaults = {
+      status: DEFAULT_EMPLOYER_STATUS,
+      ...employerData
+    };
+
     const [employer] = await db(MODULE.EMPLOYER)
-      .insert(employerData)
+      .insert(dataWithDefaults)
       .returning('*');
-    
+
     return employer;
   }
 
@@ -113,22 +121,30 @@ class EmployerRepository {
     const { parsePagination } = require('../utils/pagination.util');
     const { offset } = parsePagination(page, limit);
 
-    let query = db(MODULE.EMPLOYER).select('*');
-    
-    if (filters.status) {
-      query = query.where('status', filters.status);
-    }
-    if (filters.company_id) {
-      query = query.where('company_id', filters.company_id);
-    }
-    
-    const [{ total }] = await query.clone().count('* as total');
-    
-    const data = await query
+    // Build WHERE conditions for both queries
+    const buildConditions = (query) => {
+      if (filters.status) {
+        query = query.where('status', filters.status);
+      }
+      if (filters.company_id) {
+        query = query.where('company_id', filters.company_id);
+      }
+      return query;
+    };
+
+    // Count query (separate)
+    let countQuery = db(MODULE.EMPLOYER);
+    countQuery = buildConditions(countQuery);
+    const [{ total }] = await countQuery.count('* as total');
+
+    // Data query (separate)
+    let dataQuery = db(MODULE.EMPLOYER).select('*');
+    dataQuery = buildConditions(dataQuery);
+    const data = await dataQuery
       .orderBy('employer_id', 'asc')
       .limit(limit)
       .offset(offset);
-    
+
     return {
       data,
       total: parseInt(total, 10),
