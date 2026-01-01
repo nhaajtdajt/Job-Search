@@ -101,6 +101,41 @@ class EmployerRepository {
       .where('employer_id', employerId)
       .del();
   }
+
+  /**
+   * Find all employers with pagination and filters (Admin only)
+   * @param {number} page - Page number
+   * @param {number} limit - Items per page
+   * @param {Object} filters - Optional filters (status, company_id)
+   * @returns {Object} Paginated employers
+   */
+  static async findAll(page = 1, limit = 10, filters = {}) {
+    const { parsePagination } = require('../utils/pagination.util');
+    const { offset } = parsePagination(page, limit);
+
+    let query = db(MODULE.EMPLOYER).select('*');
+    
+    if (filters.status) {
+      query = query.where('status', filters.status);
+    }
+    if (filters.company_id) {
+      query = query.where('company_id', filters.company_id);
+    }
+    
+    const [{ total }] = await query.clone().count('* as total');
+    
+    const data = await query
+      .orderBy('employer_id', 'asc')
+      .limit(limit)
+      .offset(offset);
+    
+    return {
+      data,
+      total: parseInt(total, 10),
+      page,
+      limit
+    };
+  }
 }
 
 module.exports = EmployerRepository;

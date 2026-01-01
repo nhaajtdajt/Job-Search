@@ -91,20 +91,20 @@ export default function UserDropdown() {
           {
             label: 'Việc Làm Của Tôi',
             icon: <Briefcase className="w-4 h-4" />,
-            to: '/applications',
+            to: '/my-jobs',
             divider: false,
           },
         ]),
     {
       label: 'Thông Báo Việc Làm',
       icon: <Bell className="w-4 h-4" />,
-      to: '/notifications',
+      to: '/job-notifications',
       divider: false,
     },
     {
       label: 'Quản Lý Tài Khoản',
       icon: <Settings className="w-4 h-4" />,
-      to: '/settings',
+      to: '/account-management',
       divider: true,
     },
     {

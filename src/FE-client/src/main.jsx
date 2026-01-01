@@ -28,6 +28,9 @@ import EmployerLogin from './pages/auth/EmployerLogin.jsx'
 import EmployerRegister from './pages/auth/EmployerRegister.jsx'
 import Profile from './pages/user/ProfileComplete.jsx'
 import Overview from './pages/user/Overview.jsx'
+import AccountManagement from './pages/user/AccountManagement.jsx'
+import MyJobs from './pages/user/MyJobs.jsx'
+import JobNotifications from './pages/user/JobNotifications.jsx'
 
 const router = createBrowserRouter([
   {
@@ -44,6 +47,9 @@ const router = createBrowserRouter([
       { path: 'forgot-password', element: <ForgotPassword /> },
       { path: 'profile', element: <Profile /> },
       { path: 'overview', element: <Overview /> },
+      { path: 'account-management', element: <AccountManagement /> },
+      { path: 'my-jobs', element: <MyJobs /> },
+      { path: 'job-notifications', element: <JobNotifications /> },
     ],
   },
   {

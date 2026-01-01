@@ -26,12 +26,14 @@ export default function Overview() {
     jobSearches: 0 // saved_searches count
   });
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or if user is employer
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
+    } else if (authUser && authUser.role === 'employer') {
+      navigate('/employer/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authUser, navigate]);
 
   // Load profile data and calculate completion
   useEffect(() => {
@@ -156,27 +158,27 @@ export default function Overview() {
                   <FileText className="w-5 h-5" />
                   <span>Hồ Sơ Của Tôi</span>
                 </Link>
-                <a
-                  href="#"
+                <Link
+                  to="/my-jobs"
                   className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
                 >
                   <Briefcase className="w-5 h-5" />
                   <span>Việc Làm Của Tôi</span>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="/job-notifications"
                   className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
                 >
                   <Bell className="w-5 h-5" />
                   <span>Thông Báo Việc Làm</span>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="/account-management"
                   className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
                 >
                   <Settings className="w-5 h-5" />
                   <span>Quản Lý Tài Khoản</span>
-                </a>
+                </Link>
               </nav>
             </div>
           </div>

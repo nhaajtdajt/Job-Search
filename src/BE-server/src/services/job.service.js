@@ -261,6 +261,15 @@ class JobService {
     const jobs = await JobRepository.findByEmployerId(employerId);
     return jobs;
   }
+
+  /**
+   * Get jobs by company ID
+   * @param {number} companyId - Company ID
+   */
+  static async getJobsByCompany(companyId) {
+    const jobs = await JobRepository.findByCompanyId(companyId);
+    return jobs;
+  }
 }
 
 module.exports = JobService;

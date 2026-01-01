@@ -15,7 +15,9 @@ import vinsmart from "../../assets/logocompanies/vinsmart.png";
 import vincomretail from "../../assets/logocompanies/vincomretail.png";
 import techcombank from "../../assets/logoBank/techcombank.jpg";
 import shinhanbank from "../../assets/logoBank/shinhanbank.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const heroStats = [
   { value: "48.5K+", label: "Việc làm đang tuyển" },
@@ -361,7 +363,17 @@ const careerTools = [
 ];
 
 export default function Home() {
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [mainTool, ...otherTools] = careerTools;
+
+  // Redirect employer users to employer dashboard
+  useEffect(() => {
+    if (authLoading) return; // Don't redirect while loading
+    if (isAuthenticated && user && user.role === 'employer') {
+      navigate('/employer/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, user, authLoading, navigate]);
 
   return (
     <div className="pb-24">

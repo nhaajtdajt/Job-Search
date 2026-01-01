@@ -99,6 +99,47 @@ class EmployerController {
       return next(error);
     }
   }
+
+  /**
+   * Get public employer profile
+   * GET /api/employers/:employerId
+   */
+  static async getPublicProfile(req, res, next) {
+    try {
+      const { employerId } = req.params;
+
+      const employer = await EmployerService.getProfile(parseInt(employerId));
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Employer profile retrieved successfully',
+        data: employer,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Get jobs by employer ID
+   * GET /api/employers/:employerId/jobs
+   */
+  static async getEmployerJobs(req, res, next) {
+    try {
+      const { employerId } = req.params;
+      const JobService = require('../services/job.service');
+
+      const jobs = await JobService.getJobsByEmployer(parseInt(employerId));
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Employer jobs retrieved successfully',
+        data: jobs,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = EmployerController;

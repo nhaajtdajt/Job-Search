@@ -119,6 +119,31 @@ class UserController {
       return next(error);
     }
   }
+
+  /**
+   * Change user password
+   * POST /api/users/change-password
+   */
+  static async changePassword(req, res, next) {
+    try {
+      const userId = req.user.user_id;
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        throw new BadRequestError('Current password and new password are required');
+      }
+
+      const result = await UserService.changePassword(userId, currentPassword, newPassword);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: result.message,
+        data: null,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = UserController;

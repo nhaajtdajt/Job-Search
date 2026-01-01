@@ -103,8 +103,8 @@ export const userService = {
   },
 
   /**
-   * Save a search
-   * @param {Object} searchData - { name, filter }
+   * Save a search (job notification)
+   * @param {Object} searchData - { name, filter } (name is the search query/job title, filter contains search criteria)
    * @returns {Promise<Object>} Saved search record
    */
   async saveSearch(searchData) {
@@ -127,11 +127,25 @@ export const userService = {
 
   /**
    * Delete a saved search
-   * @param {number} searchId - Saved search ID
+   * @param {number} searchId - Saved search ID (stt field)
    * @returns {Promise<void>}
    */
   async deleteSavedSearch(searchId) {
     const response = await api.delete(`/users/saved-searches/${searchId}`);
+    return response.data;
+  },
+
+  /**
+   * Change user password
+   * @param {string} currentPassword - Current password
+   * @param {string} newPassword - New password
+   * @returns {Promise<void>}
+   */
+  async changePassword(currentPassword, newPassword) {
+    const response = await api.post('/users/change-password', {
+      currentPassword,
+      newPassword
+    });
     return response.data;
   },
 };
