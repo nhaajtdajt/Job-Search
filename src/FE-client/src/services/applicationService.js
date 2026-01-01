@@ -65,12 +65,13 @@ const applicationService = {
   },
 
   /**
-   * Get application by ID
+   * Get application by ID (for employer)
    * @param {string} applicationId - Application ID
    * @returns {Promise<Object>} Application details
    */
   async getApplicationById(applicationId) {
-    const response = await api.get(`/applications/${applicationId}`);
+    // Use employer endpoint since this is called from employer pages
+    const response = await api.get(`/applications/employer/${applicationId}`);
     return response.data.data;
   },
 
@@ -82,6 +83,73 @@ const applicationService = {
   async deleteApplication(applicationId) {
     const response = await api.delete(`/applications/${applicationId}`);
     return response.data;
+  },
+
+  /**
+   * Add note to application
+   * @param {string} applicationId - Application ID
+   * @param {string} note - Note content
+   * @returns {Promise<Object>} Created note
+   */
+  async addNote(applicationId, note) {
+    const response = await api.post(`/applications/${applicationId}/notes`, { note });
+    return response.data.data;
+  },
+
+  /**
+   * Get notes for application
+   * @param {string} applicationId - Application ID
+   * @returns {Promise<Array>} Notes list
+   */
+  async getNotes(applicationId) {
+    try {
+      const response = await api.get(`/applications/${applicationId}/notes`);
+      return response.data.data || [];
+    } catch {
+      return [];
+    }
+  },
+
+  /**
+   * Bulk update application status
+   * @param {Array} applicationIds - Array of application IDs
+   * @param {string} status - New status
+   * @returns {Promise<Object>} Update result
+   */
+  async bulkUpdateStatus(applicationIds, status) {
+    const response = await api.put('/applications/bulk-status', { 
+      application_ids: applicationIds, 
+      status 
+    });
+    return response.data.data;
+  },
+
+  /**
+   * Get candidate profile by user ID
+   * @param {string} userId - User ID
+   * @returns {Promise<Object>} Candidate profile with resume and history
+   */
+  async getCandidateProfile(userId) {
+    try {
+      const response = await api.get(`/users/${userId}/profile`);
+      return response.data.data;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Get candidate's application history
+   * @param {string} userId - User ID
+   * @returns {Promise<Array>} Application history
+   */
+  async getCandidateHistory(userId) {
+    try {
+      const response = await api.get(`/users/${userId}/applications`);
+      return response.data.data || [];
+    } catch {
+      return [];
+    }
   },
 };
 

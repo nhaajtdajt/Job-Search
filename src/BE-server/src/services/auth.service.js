@@ -34,6 +34,17 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 });
 
+// Separate Supabase client with ANON_KEY for user token verification
+// This is needed for social login callback where we verify user tokens
+const supabaseAnonKey = environment.SUPABASE_ANON_KEY || environment.SUPABASE_KEY;
+const supabaseForUserAuth = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false
+  }
+});
+
 // In-memory token storage for password reset tokens
 // Format: { email: { token: string, expiresAt: timestamp, createdAt: timestamp } }
 const resetTokens = new Map();
@@ -150,22 +161,31 @@ class AuthService {
     let employerId = null;
     if (role === ROLES.EMPLOYER) {
       try {
-        const employerData = {
-          user_id: userId,
-          full_name: name || 'Employer',
-          email: email,
-          role: additionalData.employer_role || 'HR Manager',
-          status: additionalData.status || 'Active',
-          company_id: additionalData.company_id || null  // Nullable now
-        };
+        // Check if employer already exists for this user
+        const existingEmployer = await db('employer')
+          .where('user_id', userId)
+          .first();
 
-        const [employer] = await db('employer')
-          .insert(employerData)
-          .returning('employer_id');
+        if (existingEmployer) {
+          // Employer already exists, use existing ID
+          employerId = existingEmployer.employer_id;
+        } else {
+          // Create new employer record
+          const employerData = {
+            user_id: userId,
+            full_name: name || 'Employer',
+            email: email,
+            role: additionalData.employer_role || 'HR Manager',
+            status: additionalData.status || 'Active',
+            company_id: additionalData.company_id || null  // Nullable now
+          };
 
-        employerId = employer.employer_id;
+          const [employer] = await db('employer')
+            .insert(employerData)
+            .returning('employer_id');
 
-        console.log(`✅ Created employer record with ID: ${employerId} for user: ${userId}`);
+          employerId = employer.employer_id;
+        }
       } catch (employerError) {
         console.error('Failed to create employer record:', employerError);
 
@@ -418,20 +438,11 @@ class AuthService {
     // Clean up expired tokens (optional cleanup)
     this.cleanupExpiredTokens();
 
-    console.log(`🔐 Password reset requested for: ${email}`);
-
     // Send custom email with token displayed in email content
     const emailSent = await EmailService.sendPasswordResetEmail(email, resetToken);
 
     if (!emailSent) {
-      // If email config is not set, still return token in response
       console.warn('⚠️  Email not sent. Token returned in response only.');
-      console.warn('⚠️  Please check:');
-      console.warn('   1. EMAIL_USER and EMAIL_PASSWORD in .env.development');
-      console.warn('   2. For Gmail: Use App Password, not regular password');
-      console.warn('   3. Check console logs above for detailed error messages');
-    } else {
-      console.log(`✅ Password reset email sent successfully to: ${email}\n`);
     }
 
     return {
@@ -719,17 +730,11 @@ class AuthService {
     // Clean up expired tokens
     this.cleanupExpiredTokens();
 
-    console.log(`\n📧 Verification email resend requested for: ${email}`);
-    console.log(`📧 Generated token: ${verificationToken}`);
-    console.log(`📧 Token expires at: ${new Date(expiresAt).toISOString()}`);
-
     // Send custom email with token displayed in email content
     const emailSent = await EmailUtil.sendPasswordResetEmail(email, verificationToken);
 
     if (!emailSent) {
       console.warn('⚠️  Email not sent. Token returned in response only.');
-    } else {
-      console.log(`✅ Verification email sent successfully to: ${email}\n`);
     }
 
     return {
@@ -753,10 +758,12 @@ class AuthService {
       throw new BadRequestError('Access token is required');
     }
 
-    // Verify token with Supabase and get user info
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(accessToken);
+    // Verify token with Supabase using ANON_KEY client (required for user token verification)
+    // Service role key cannot verify user tokens from OAuth flow
+    const { data: { user: authUser }, error: authError } = await supabaseForUserAuth.auth.getUser(accessToken);
 
     if (authError || !authUser) {
+      console.error('Social login token verification error:', authError);
       throw new UnauthorizedError('Invalid or expired access token');
     }
 
@@ -784,16 +791,6 @@ class AuthService {
       (authUser.identities && authUser.identities[0]?.identity_data?.picture) ||
       null;
 
-    // Log for debugging (only in development)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 Google OAuth Debug:');
-      console.log('  - Avatar URL found:', avatarUrl);
-      console.log('  - User Metadata keys:', Object.keys(userMetadata));
-      console.log('  - Auth User keys:', Object.keys(authUser));
-      if (authUser.identities) {
-        console.log('  - Identities:', JSON.stringify(authUser.identities, null, 2));
-      }
-    }
 
     // Check if user profile exists in database
     let user = await db('users')

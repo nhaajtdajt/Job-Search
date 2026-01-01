@@ -1,5 +1,7 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import EmployerHeader from "../components/employer/EmployerHeader";
+import { useAuth } from "../contexts/AuthContext";
 
 function EmployerFooter() {
   return (
@@ -99,6 +101,30 @@ function EmployerFooter() {
 }
 
 export default function EmployerLayout() {
+  const { isAuthenticated, user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Allow access to login and register pages without authentication/role check
+  const publicPaths = ['/employer/login', '/employer/register', '/employer'];
+  const isPublicPath = publicPaths.includes(location.pathname);
+
+  useEffect(() => {
+    // Don't redirect while loading authentication state
+    if (loading) return;
+
+    // Only check role for protected paths (not login, register, or landing page)
+    if (!isPublicPath) {
+      if (isAuthenticated && user && user.role !== 'employer') {
+        // User is authenticated but not an employer - redirect to home
+        navigate('/', { replace: true });
+      } else if (!isAuthenticated) {
+        // User is not authenticated - redirect to employer login
+        navigate('/employer/login', { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, loading, navigate, location.pathname, isPublicPath]);
+
   return (
     <div className="min-h-dvh flex flex-col bg-white text-slate-900">
       <EmployerHeader />

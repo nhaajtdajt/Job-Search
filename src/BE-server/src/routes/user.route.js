@@ -25,6 +25,13 @@ router.put(
   UserController.updateProfile
 );
 
+// Change password
+router.post(
+  '/change-password',
+  authMiddleware.authenticate,
+  UserController.changePassword
+);
+
 // Upload avatar
 router.post(
   '/avatar',

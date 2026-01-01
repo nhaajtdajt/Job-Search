@@ -47,4 +47,16 @@ router.get(
   ApplicationController.getEmployerApplications
 );
 
+// Get public employer profile (no auth required) - must be after /profile route
+router.get(
+  '/:employerId',
+  EmployerController.getPublicProfile
+);
+
+// Get jobs by employer ID (no auth required)
+router.get(
+  '/:employerId/jobs',
+  EmployerController.getEmployerJobs
+);
+
 module.exports = router;

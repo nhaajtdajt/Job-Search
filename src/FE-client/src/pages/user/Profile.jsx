@@ -37,12 +37,14 @@ export default function Profile() {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or if user is employer
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
+    } else if (authUser && authUser.role === 'employer') {
+      navigate('/employer/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authUser, navigate]);
 
   // Load profile data
   useEffect(() => {

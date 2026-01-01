@@ -20,7 +20,7 @@ import {
 import { Modal, Input, message } from 'antd';
 
 export default function EmployerProfile() {
-  const { user: authUser, isAuthenticated } = useAuth();
+  const { user: authUser, isAuthenticated, updateUserData, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,10 +37,11 @@ export default function EmployerProfile() {
 
   // Redirect if not authenticated
   useEffect(() => {
+    if (authLoading) return; // Don't redirect while loading
     if (!isAuthenticated) {
       navigate('/employer/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   // Load employer profile
   useEffect(() => {
@@ -130,13 +131,23 @@ export default function EmployerProfile() {
     try {
       setUploading(true);
       const result = await employerService.uploadAvatar(file);
+      
+      // Update local profile state
       setProfile(prev => ({ ...prev, avatar_url: result.avatar_url }));
+      
+      // Update user in auth context immediately with the new avatar_url
+      if (updateUserData && result.avatar_url) {
+        updateUserData({ avatar_url: result.avatar_url });
+      }
+      
       message.success('Tải ảnh đại diện thành công!');
     } catch (error) {
       console.error('Error uploading avatar:', error);
       message.error('Tải ảnh thất bại');
     } finally {
       setUploading(false);
+      // Reset input
+      e.target.value = '';
     }
   };
 

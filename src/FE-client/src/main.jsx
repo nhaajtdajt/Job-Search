@@ -21,10 +21,16 @@ import CompanyProfile from './pages/employer/CompanyProfile.jsx'
 import JobList from './pages/employer/JobList.jsx'
 import JobCreate from './pages/employer/JobCreate.jsx'
 import JobEdit from './pages/employer/JobEdit.jsx'
+import ApplicationList from './pages/employer/ApplicationList.jsx'
+import ApplicationDetail from './pages/employer/ApplicationDetail.jsx'
+import CandidateProfile from './pages/employer/CandidateProfile.jsx'
 import EmployerLogin from './pages/auth/EmployerLogin.jsx'
 import EmployerRegister from './pages/auth/EmployerRegister.jsx'
 import Profile from './pages/user/ProfileComplete.jsx'
 import Overview from './pages/user/Overview.jsx'
+import AccountManagement from './pages/user/AccountManagement.jsx'
+import MyJobs from './pages/user/MyJobs.jsx'
+import JobNotifications from './pages/user/JobNotifications.jsx'
 
 // Admin imports
 import AdminLayout from './pages/admin/AdminLayout.jsx'
@@ -50,6 +56,9 @@ const router = createBrowserRouter([
       { path: 'forgot-password', element: <ForgotPassword /> },
       { path: 'profile', element: <Profile /> },
       { path: 'overview', element: <Overview /> },
+      { path: 'account-management', element: <AccountManagement /> },
+      { path: 'my-jobs', element: <MyJobs /> },
+      { path: 'job-notifications', element: <JobNotifications /> },
     ],
   },
   {
@@ -63,6 +72,9 @@ const router = createBrowserRouter([
       { path: 'jobs', element: <JobList /> },
       { path: 'jobs/create', element: <JobCreate /> },
       { path: 'jobs/:id/edit', element: <JobEdit /> },
+      { path: 'applications', element: <ApplicationList /> },
+      { path: 'applications/:id', element: <ApplicationDetail /> },
+      { path: 'candidates/:id', element: <CandidateProfile /> },
       { path: 'login', element: <EmployerLogin /> },
       { path: 'register', element: <EmployerRegister /> },
     ],

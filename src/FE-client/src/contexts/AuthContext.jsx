@@ -75,8 +75,6 @@ export const AuthProvider = ({ children }) => {
       // Mark recent login to prevent immediate redirects
       markRecentLogin();
 
-      console.log('Login successful, tokens saved');
-
       return result;
     } catch (error) {
       console.error('Login error:', error);
@@ -116,9 +114,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // Call logout API
       await authService.logout();
-      console.log('[Auth] Logout API call successful');
     } catch (error) {
-      console.error('[Auth] Logout API error (continuing with local cleanup):', error);
       // Continue with local cleanup even if API call fails
     } finally {
       // Always clear state and localStorage (authService.logout already clears localStorage, but ensure it)
@@ -134,15 +130,9 @@ export const AuthProvider = ({ children }) => {
       try {
         const { supabase } = await import('../config/supabase');
         await supabase.auth.signOut();
-        console.log('[Auth] Supabase session cleared');
       } catch (supabaseError) {
         // Ignore Supabase errors (might not be logged in via Supabase)
-        console.log('[Auth] Supabase signOut skipped (not logged in via Supabase)');
       }
-      
-      // Log successful logout
-      console.log('[Auth] ✅ Logout completed successfully - User logged out');
-      console.log('[Auth] All tokens and user data cleared from localStorage');
     }
   };
 
@@ -184,6 +174,26 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       throw error;
     }
+  };
+
+  /**
+   * Update user data directly (without API call)
+   * Useful for updating user state after operations like avatar upload
+   */
+  const updateUserData = (updateData) => {
+    if (!user) {
+      return null;
+    }
+    
+    const updatedUser = {
+      ...user,
+      ...updateData,
+    };
+    
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    
+    return updatedUser;
   };
 
   /**
@@ -253,8 +263,6 @@ export const AuthProvider = ({ children }) => {
       setUser(result.user);
       setIsAuthenticated(true);
 
-      console.log('Social login tokens saved and recent login marked');
-
       // Clear Supabase session (we're using our own JWT tokens)
       await supabase.auth.signOut();
 
@@ -274,6 +282,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateUser,
     refreshUser,
+    updateUserData,
     socialLogin,
     handleSocialCallback,
   };

@@ -23,7 +23,7 @@ import {
 import { Modal, message } from 'antd';
 
 export default function CompanyProfile() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [company, setCompany] = useState(null);
@@ -33,10 +33,11 @@ export default function CompanyProfile() {
 
   // Redirect if not authenticated
   useEffect(() => {
+    if (authLoading) return; // Don't redirect while loading
     if (!isAuthenticated) {
       navigate('/employer/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   // Load employer profile and company data
   useEffect(() => {

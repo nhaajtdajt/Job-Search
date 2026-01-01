@@ -236,6 +236,7 @@ export default function EmployerDashboard() {
           <div className="space-y-6">
             {/* Application Status Chart (Donut) */}
             <ApplicationStatusChart 
+              statusData={stats.statusBreakdown}
               totalApplications={stats.totalApplications}
               isLoading={loading}
             />

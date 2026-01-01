@@ -241,6 +241,32 @@ class ApplicationService {
   }
 
   /**
+   * Get application detail for employer
+   * @param {number} applicationId - Application ID
+   * @param {number} employerId - Employer ID (for permission check)
+   * @returns {Object} Application detail with user and job info
+   */
+  static async getApplicationByIdForEmployer(applicationId, employerId) {
+    const application = await ApplicationRepository.findById(applicationId);
+
+    if (!application) {
+      throw new NotFoundError(`Application with ID ${applicationId} not found`);
+    }
+
+    // Check if employer owns the job this application is for
+    const job = await JobRepository.findById(application.job_id);
+    if (!job) {
+      throw new NotFoundError('Associated job not found');
+    }
+
+    if (job.employer_id !== employerId) {
+      throw new ForbiddenError('You can only view applications for your own jobs');
+    }
+
+    return application;
+  }
+
+  /**
    * Update application status (employer only)
    * @param {number} applicationId - Application ID
    * @param {number} employerId - Employer ID (for permission check)
@@ -248,8 +274,8 @@ class ApplicationService {
    * @returns {Object} Updated application
    */
   static async updateApplicationStatus(applicationId, employerId, status) {
-    // Validate status
-    const validStatuses = ['pending', 'reviewing', 'interview', 'offer', 'rejected', 'accepted'];
+    // Validate status - include all statuses used in frontend
+    const validStatuses = ['pending', 'reviewing', 'shortlisted', 'interview', 'offer', 'hired', 'rejected', 'withdrawn', 'accepted'];
     if (!validStatuses.includes(status)) {
       throw new BadRequestError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }
@@ -290,6 +316,105 @@ class ApplicationService {
     });
 
     return updatedApplication;
+  }
+
+  /**
+   * Bulk update application status (employer only)
+   * @param {Array} applicationIds - Array of Application IDs
+   * @param {number} employerId - Employer ID (for permission check)
+   * @param {string} status - New status
+   * @returns {Object} Result with updated count
+   */
+  static async bulkUpdateStatus(applicationIds, employerId, status) {
+    // Validate status
+    const validStatuses = ['pending', 'reviewing', 'shortlisted', 'interview', 'offer', 'hired', 'rejected', 'withdrawn', 'accepted'];
+    if (!validStatuses.includes(status)) {
+      throw new BadRequestError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+    }
+
+    let updated = 0;
+    let failed = 0;
+    const errors = [];
+
+    for (const applicationId of applicationIds) {
+      try {
+        const application = await ApplicationRepository.findById(applicationId);
+        if (!application) {
+          failed++;
+          errors.push({ id: applicationId, error: 'Application not found' });
+          continue;
+        }
+
+        // Check if employer owns the job this application is for
+        const job = await JobRepository.findById(application.job_id);
+        if (!job) {
+          failed++;
+          errors.push({ id: applicationId, error: 'Associated job not found' });
+          continue;
+        }
+
+        if (job.employer_id !== employerId) {
+          failed++;
+          errors.push({ id: applicationId, error: 'Permission denied' });
+          continue;
+        }
+
+        // Update status
+        await ApplicationRepository.updateStatus(applicationId, status);
+        updated++;
+
+        // Send status update email (async, don't block)
+        this.sendStatusUpdateEmail(application.user_id, job, application.status, status).catch(err => {
+          console.error(`Failed to send status update email for application ${applicationId}:`, err.message);
+        });
+      } catch (error) {
+        failed++;
+        errors.push({ id: applicationId, error: error.message });
+      }
+    }
+
+    return {
+      updated,
+      failed,
+      total: applicationIds.length,
+      errors: errors.length > 0 ? errors : undefined
+    };
+  }
+
+  /**
+   * Get notes for an application (employer only)
+   * @param {number} applicationId - Application ID
+   * @param {number} employerId - Employer ID (for permission check)
+   * @returns {Array} Notes array (currently just the notes field as array)
+   */
+  static async getApplicationNotes(applicationId, employerId) {
+    const application = await ApplicationRepository.findById(applicationId);
+    if (!application) {
+      throw new NotFoundError(`Application with ID ${applicationId} not found`);
+    }
+
+    // Check if employer owns the job
+    const job = await JobRepository.findById(application.job_id);
+    if (!job) {
+      throw new NotFoundError('Associated job not found');
+    }
+
+    if (job.employer_id !== employerId) {
+      throw new ForbiddenError('You can only view notes for applications to your own jobs');
+    }
+
+    // Return notes as array format for frontend
+    // Currently notes is a single string field, convert to array format
+    if (!application.notes) {
+      return [];
+    }
+    
+    return [{
+      id: applicationId,
+      content: application.notes,
+      created_at: application.updated_at,
+      created_by: 'Nhà tuyển dụng'
+    }];
   }
 
   /**

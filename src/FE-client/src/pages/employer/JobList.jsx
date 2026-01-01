@@ -18,7 +18,7 @@ import {
 import { message, Modal } from 'antd';
 
 export default function JobList() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,10 +39,11 @@ export default function JobList() {
 
   // Redirect if not authenticated
   useEffect(() => {
+    if (authLoading) return; // Don't redirect while loading
     if (!isAuthenticated) {
       navigate('/employer/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   // Load jobs
   useEffect(() => {

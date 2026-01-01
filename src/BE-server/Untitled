@@ -1,0 +1,1 @@
+SUPABASE_STORAGE_BUCKET=job-search-storage  # Tên bucket bạn vừa tạo (optional, mặc định là 'job-search-storage')
