@@ -11,6 +11,7 @@ import {
   Building2,
   LayoutDashboard,
   Users,
+  Heart,
 } from 'lucide-react';
 
 export default function EmployerUserDropdown() {
@@ -74,6 +75,11 @@ export default function EmployerUserDropdown() {
       label: 'Ứng Viên',
       icon: <Users className="w-4 h-4" />,
       to: '/employer/applications',
+    },
+    {
+      label: 'Ứng Viên Đã Lưu',
+      icon: <Heart className="w-4 h-4" />,
+      to: '/employer/saved-candidates',
     },
     {
       label: 'Cài Đặt',

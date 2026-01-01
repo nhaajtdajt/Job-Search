@@ -181,6 +181,81 @@ class UserRepository {
       .select('user_id', 'name')
       .where('role', role);
   }
+
+  /**
+   * Get candidate profile with resume details (for employer viewing)
+   * @param {string} userId - User UUID
+   * @returns {Object} Candidate profile with resume info
+   */
+  static async getCandidateWithResume(userId) {
+    const user = await this.findById(userId);
+    if (!user) return null;
+
+    // Get latest resume
+    const resume = await db(MODULE.RESUME)
+      .where('user_id', userId)
+      .orderBy('updated_at', 'desc')
+      .first();
+
+    // Get resume details if exists
+    let experiences = [];
+    let educations = [];
+    let skills = [];
+
+    if (resume) {
+      experiences = await db(MODULE.RES_EXPERIENCE)
+        .where('resume_id', resume.resume_id)
+        .orderBy('start_date', 'desc');
+
+      educations = await db(MODULE.RES_EDUCATION)
+        .where('resume_id', resume.resume_id)
+        .orderBy('start_year', 'desc');
+
+      skills = await db(MODULE.RESUME_SKILL)
+        .join(MODULE.SKILL, 'resume_skill.skill_id', 'skill.skill_id')
+        .where('resume_id', resume.resume_id)
+        .select('skill.skill_name as name', 'resume_skill.level');
+    }
+
+    return {
+      ...user,
+      summary: resume?.summary || null,
+      title: resume?.resume_title || null,
+      resume: resume ? {
+        resume_id: resume.resume_id,
+        resume_title: resume.resume_title,
+        summary: resume.summary,
+        resume_url: resume.resume_url,
+        experiences,
+        educations,
+        skills
+      } : null
+    };
+  }
+
+  /**
+   * Get candidate's applications for a specific employer
+   * @param {string} userId - User UUID
+   * @param {number} employerId - Employer ID
+   * @returns {Array} Applications list
+   */
+  static async getCandidateApplicationsForEmployer(userId, employerId) {
+    const applications = await db(MODULE.APPLICATION)
+      .join(MODULE.JOB, 'application.job_id', 'job.job_id')
+      .where('application.user_id', userId)
+      .where('job.employer_id', employerId)
+      .select(
+        'application.application_id',
+        'application.status',
+        'application.apply_date as applied_at',
+        'application.notes',
+        'job.job_id',
+        'job.job_title'
+      )
+      .orderBy('application.apply_date', 'desc');
+
+    return applications;
+  }
 }
 
 module.exports = UserRepository;
