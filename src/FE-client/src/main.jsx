@@ -26,6 +26,15 @@ import EmployerRegister from './pages/auth/EmployerRegister.jsx'
 import Profile from './pages/user/ProfileComplete.jsx'
 import Overview from './pages/user/Overview.jsx'
 
+// Admin imports
+import AdminLayout from './pages/admin/AdminLayout.jsx'
+import AdminDashboard from './pages/admin/AdminDashboard.jsx'
+import UserManagement from './pages/admin/UserManagement.jsx'
+import EmployerManagement from './pages/admin/EmployerManagement.jsx'
+import CompanyManagement from './pages/admin/CompanyManagement.jsx'
+import JobManagement from './pages/admin/JobManagement.jsx'
+import NotificationManagement from './pages/admin/NotificationManagement.jsx'
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -58,6 +67,18 @@ const router = createBrowserRouter([
       { path: 'register', element: <EmployerRegister /> },
     ],
   },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      { index: true, element: <AdminDashboard /> },
+      { path: 'users', element: <UserManagement /> },
+      { path: 'employers', element: <EmployerManagement /> },
+      { path: 'companies', element: <CompanyManagement /> },
+      { path: 'jobs', element: <JobManagement /> },
+      { path: 'notifications', element: <NotificationManagement /> },
+    ],
+  },
 ])
 
 createRoot(document.getElementById('root')).render(
@@ -67,3 +88,4 @@ createRoot(document.getElementById('root')).render(
     </AuthProvider>
   </StrictMode>
 )
+

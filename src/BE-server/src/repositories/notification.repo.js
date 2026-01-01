@@ -22,7 +22,7 @@ class NotificationRepository {
 
     /**
      * Create a notification
-     * @param {Object} data - { user_id, note }
+     * @param {Object} data - { user_id, title, note }
      * @returns {Object} Created notification
      */
     static async create(data) {
@@ -30,6 +30,7 @@ class NotificationRepository {
             .insert({
                 notification_id: this.generateId(),
                 user_id: data.user_id,
+                title: data.title || null,
                 note: data.note,
                 seen: false,
                 created_at: new Date()
@@ -41,13 +42,14 @@ class NotificationRepository {
 
     /**
      * Create multiple notifications (bulk insert for broadcast)
-     * @param {Array} notifications - Array of { user_id, note }
+     * @param {Array} notifications - Array of { user_id, title, note }
      * @returns {number} Number of inserted rows
      */
     static async createBulk(notifications) {
         const records = notifications.map(n => ({
             notification_id: this.generateId(),
             user_id: n.user_id,
+            title: n.title || null,
             note: n.note,
             seen: false,
             created_at: new Date()

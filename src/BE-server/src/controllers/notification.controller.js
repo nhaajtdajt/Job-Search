@@ -117,9 +117,10 @@ class NotificationController {
      */
     static async sendAdminNotification(req, res, next) {
         try {
-            const { message, target_role, target_user_id } = req.body;
+            const { title, message, target_role, target_user_id } = req.body;
 
             const result = await NotificationService.createAdminNotification({
+                title,
                 message,
                 target_role,
                 target_user_id

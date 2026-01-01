@@ -838,7 +838,7 @@ npm install bull ioredis node-cron
 - Application trends
 - Top companies
 - Top jobs
-- Revenue (if payment integrated)
+
 
 ---
 

@@ -84,23 +84,25 @@ class NotificationService {
     /**
      * Create notification for a user (internal use)
      * @param {string} userId - User ID
+     * @param {string} title - Notification title
      * @param {string} message - Notification message
      * @returns {Object} Created notification
      */
-    static async createNotification(userId, message) {
+    static async createNotification(userId, title, message) {
         return await NotificationRepository.create({
             user_id: userId,
+            title: title,
             note: message
         });
     }
 
     /**
      * Send notification from Admin
-     * @param {Object} data - { message, target_role, target_user_id }
+     * @param {Object} data - { title, message, target_role, target_user_id }
      * @returns {Object} Result
      */
     static async createAdminNotification(data) {
-        const { message, target_role, target_user_id } = data;
+        const { title, message, target_role, target_user_id } = data;
 
         // Validate message
         if (!message || !message.trim()) {
@@ -116,6 +118,7 @@ class NotificationService {
 
             const notification = await NotificationRepository.create({
                 user_id: target_user_id,
+                title: title ? title.trim() : null,
                 note: message.trim()
             });
 
@@ -146,6 +149,7 @@ class NotificationService {
         // Create notifications for all users
         const notifications = users.map(user => ({
             user_id: user.user_id,
+            title: title ? title.trim() : null,
             note: message.trim()
         }));
 
