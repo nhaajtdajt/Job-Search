@@ -11,18 +11,13 @@ class UserController {
   /**
    * Upload user avatar
    * POST /api/users/avatar
-   * @param {Object} req - Express request
-   * @param {Object} res - Express response
-   * @param {Function} next - Express next function
    */
   static async uploadAvatar(req, res, next) {
     try {
-      // Check if file exists
       if (!req.file) {
         throw new BadRequestError('No avatar file provided');
       }
 
-      // Get user ID from authenticated user
       const userId = req.user.user_id;
 
       if (!userId) {
@@ -72,7 +67,7 @@ class UserController {
     try {
       const userId = req.user.user_id;
 
-      const user = await UserService.getUserById(userId);
+      const user = await UserService.getProfile(userId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -93,7 +88,7 @@ class UserController {
       const userId = req.user.user_id;
       const updateData = req.body;
 
-      const user = await UserService.updateUser(userId, updateData);
+      const user = await UserService.updateProfile(userId, updateData);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,

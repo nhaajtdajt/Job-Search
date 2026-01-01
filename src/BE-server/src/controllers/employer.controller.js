@@ -67,7 +67,7 @@ class EmployerController {
     try {
       const employerId = req.user.employer_id;
 
-      const employer = await EmployerService.getEmployerById(employerId);
+      const employer = await EmployerService.getProfile(employerId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -88,7 +88,7 @@ class EmployerController {
       const employerId = req.user.employer_id;
       const updateData = req.body;
 
-      const employer = await EmployerService.updateEmployer(employerId, updateData);
+      const employer = await EmployerService.updateProfile(employerId, updateData);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -108,7 +108,7 @@ class EmployerController {
     try {
       const { employerId } = req.params;
 
-      const employer = await EmployerService.getEmployerById(parseInt(employerId));
+      const employer = await EmployerService.getProfile(parseInt(employerId));
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,

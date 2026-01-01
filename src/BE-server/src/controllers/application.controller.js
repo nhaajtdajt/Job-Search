@@ -206,7 +206,21 @@ class ApplicationController {
    */
   static async getEmployerApplications(req, res, next) {
     try {
-      const employerId = req.user.employer_id;
+      let employerId = req.user.employer_id;
+      
+      // If employer_id not in token, try to look it up from database
+      if (!employerId && req.user.user_id) {
+        const db = require('../databases/knex');
+        const employer = await db('employer')
+          .where('user_id', req.user.user_id)
+          .first();
+        employerId = employer?.employer_id;
+      }
+
+      if (!employerId) {
+        throw new BadRequestError('Employer ID not found. Please ensure you are logged in as an employer.');
+      }
+
       const page = req.query.page ? parseInt(req.query.page, 10) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
 
@@ -244,6 +258,43 @@ class ApplicationController {
   }
 
   /**
+   * GET /api/applications/employer/:applicationId
+   * Get application detail (employer only)
+   */
+  static async getApplicationByIdForEmployer(req, res, next) {
+    try {
+      const { applicationId } = req.params;
+      let employerId = req.user.employer_id;
+      
+      // If employer_id not in token, try to look it up from database
+      if (!employerId && req.user.user_id) {
+        const db = require('../databases/knex');
+        const employer = await db('employer')
+          .where('user_id', req.user.user_id)
+          .first();
+        employerId = employer?.employer_id;
+      }
+
+      if (!employerId) {
+        throw new BadRequestError('Employer ID not found');
+      }
+
+      const application = await ApplicationService.getApplicationByIdForEmployer(
+        applicationId,
+        employerId
+      );
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Application retrieved successfully',
+        data: application
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
    * PUT /api/applications/:applicationId/status
    * Update application status (employer only)
    * Body: { status }
@@ -251,7 +302,21 @@ class ApplicationController {
   static async updateApplicationStatus(req, res, next) {
     try {
       const { applicationId } = req.params;
-      const employerId = req.user.employer_id;
+      let employerId = req.user.employer_id;
+      
+      // If employer_id not in token, try to look it up from database
+      if (!employerId && req.user.user_id) {
+        const db = require('../databases/knex');
+        const employer = await db('employer')
+          .where('user_id', req.user.user_id)
+          .first();
+        employerId = employer?.employer_id;
+      }
+
+      if (!employerId) {
+        throw new BadRequestError('Employer ID not found');
+      }
+
       const { status } = req.body;
 
       if (!status) {
@@ -268,6 +333,91 @@ class ApplicationController {
         status: HTTP_STATUS.OK,
         message: 'Application status updated successfully',
         data: application
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * PUT /api/applications/bulk-status
+   * Bulk update application status (employer only)
+   * Body: { application_ids: [], status }
+   */
+  static async bulkUpdateStatus(req, res, next) {
+    try {
+      let employerId = req.user.employer_id;
+      
+      // If employer_id not in token, try to look it up from database
+      if (!employerId && req.user.user_id) {
+        const db = require('../databases/knex');
+        const employer = await db('employer')
+          .where('user_id', req.user.user_id)
+          .first();
+        employerId = employer?.employer_id;
+      }
+
+      if (!employerId) {
+        throw new BadRequestError('Employer ID not found');
+      }
+
+      const { application_ids, status } = req.body;
+
+      if (!application_ids || !Array.isArray(application_ids) || application_ids.length === 0) {
+        throw new BadRequestError('Application IDs array is required');
+      }
+
+      if (!status) {
+        throw new BadRequestError('Status is required');
+      }
+
+      const result = await ApplicationService.bulkUpdateStatus(
+        application_ids,
+        employerId,
+        status
+      );
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: `Successfully updated ${result.updated} applications`,
+        data: result
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * GET /api/applications/:applicationId/notes
+   * Get notes for an application (employer only)
+   */
+  static async getApplicationNotes(req, res, next) {
+    try {
+      const { applicationId } = req.params;
+      let employerId = req.user.employer_id;
+      
+      // If employer_id not in token, try to look it up from database
+      if (!employerId && req.user.user_id) {
+        const db = require('../databases/knex');
+        const employer = await db('employer')
+          .where('user_id', req.user.user_id)
+          .first();
+        employerId = employer?.employer_id;
+      }
+
+      if (!employerId) {
+        throw new BadRequestError('Employer ID not found');
+      }
+
+      const notes = await ApplicationService.getApplicationNotes(
+        applicationId,
+        employerId
+      );
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Notes retrieved successfully',
+        data: notes
       });
     } catch (error) {
       return next(error);

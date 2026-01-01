@@ -7,6 +7,8 @@ const employerRoutes = require('./employer.route');
 const companyRoutes = require('./company.route');
 const resumeRoutes = require('./resume.route');
 const applicationRoutes = require('./application.route');
+const searchRoutes = require('./search.route');
+const notificationRoutes = require('./notification.route');
 const adminRoutes = require('./admin.route');
 
 const initRoute = (app) => {
@@ -39,6 +41,10 @@ const initRoute = (app) => {
         companies: "/api/companies",
         resumes: "/api/resumes",
         applications: "/api/applications",
+        savedJobs: "/api/saved-jobs",
+        searches: "/api/searches",
+        notifications: "/api/notifications",
+        admin: "/api/admin",
         docs: "GET /docs"
       },
     });
@@ -52,6 +58,8 @@ const initRoute = (app) => {
   app.use("/api/companies", companyRoutes);
   app.use("/api/resumes", resumeRoutes);
   app.use("/api/applications", applicationRoutes);
+  app.use("/api/searches", searchRoutes);
+  app.use("/api/notifications", notificationRoutes);
   app.use("/api/admin", adminRoutes);
 
   // 404 handler - must be after all routes

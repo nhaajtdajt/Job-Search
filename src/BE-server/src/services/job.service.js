@@ -1,5 +1,6 @@
 const JobRepository = require('../repositories/job.repo');
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../errors');
+const JobMatchService = require('./job-match.service');
 
 /**
  * Job Service
@@ -56,6 +57,7 @@ class JobService {
       salary_max: jobData.salary_max,
       job_type: jobData.job_type,
       expired_at: jobData.expired_at,
+      status: jobData.status || 'draft',
       views: 0
     };
 
@@ -71,9 +73,17 @@ class JobService {
       await JobRepository.addLocations(job.job_id, jobData.location_ids);
     }
 
-    if (jobData.skill_ids && jobData.skill_ids.length > 0) {
-      await JobRepository.addSkills(job.job_id, jobData.skill_ids);
-    }
+    // Check for matching saved searches and notify users (async, don't block response)
+    // Pass extra data (tags, skills) for similarity matching
+    const jobForMatch = {
+      ...job,
+      tag_ids: jobData.tag_ids || [],
+      skill_ids: jobData.skill_ids || []
+    };
+
+    JobMatchService.checkAndNotifyMatches(jobForMatch).catch(err => {
+      console.error('Failed to check job matches:', err.message);
+    });
 
     return job;
   }
@@ -106,7 +116,8 @@ class JobService {
       'salary_min',
       'salary_max',
       'job_type',
-      'expired_at'
+      'expired_at',
+      'status'
     ];
 
     const jobUpdateData = {};
@@ -191,9 +202,10 @@ class JobService {
       throw new ForbiddenError('You do not have permission to publish this job');
     }
 
-    // Update posted_at to now
+    // Update posted_at to now and set status to published
     const updatedJob = await JobRepository.update(jobId, {
-      posted_at: new Date()
+      posted_at: new Date(),
+      status: 'published'
     });
 
     return updatedJob;
@@ -217,9 +229,10 @@ class JobService {
       throw new ForbiddenError('You do not have permission to expire this job');
     }
 
-    // Set expired_at to now
+    // Set expired_at to now and set status to expired
     const updatedJob = await JobRepository.update(jobId, {
-      expired_at: new Date()
+      expired_at: new Date(),
+      status: 'expired'
     });
 
     return updatedJob;

@@ -1,3 +1,8 @@
+/**
+ * User Service
+ * Business logic for user profile management
+ */
+
 const UserRepository = require('../repositories/user.repo');
 const ApplicationRepository = require('../repositories/application.repo');
 const SavedJobRepository = require('../repositories/saved_job.repo');
@@ -19,50 +24,52 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 });
 
-/**
- * User Service
- * Business logic for User operations
- */
 class UserService {
   /**
-   * Get user by ID
-   * @param {string} userId - User UUID
+   * Get user profile by ID
+   * @param {string} userId - User ID
+   * @returns {Object} User profile
    */
-  static async getUserById(userId) {
+  static async getProfile(userId) {
     const user = await UserRepository.findById(userId);
+    
     if (!user) {
       throw new NotFoundError('User not found');
     }
+    
     return user;
   }
 
   /**
    * Update user profile
-   * @param {string} userId - User UUID
+   * @param {string} userId - User ID
    * @param {Object} updateData - Data to update
+   * @returns {Object} Updated user
    */
-  static async updateUser(userId, updateData) {
+  static async updateProfile(userId, updateData) {
     const user = await UserRepository.update(userId, updateData);
+    
     if (!user) {
       throw new NotFoundError('User not found');
     }
+    
     return user;
   }
 
   /**
    * Upload user avatar
-   * @param {string} userId - User UUID
-   * @param {Buffer} fileBuffer - File buffer
+   * @param {string} userId - User ID
+   * @param {Buffer} fileBuffer - Image buffer
+   * @returns {Object} Upload result with URL
    */
   static async uploadAvatar(userId, fileBuffer) {
-    // Get current user to check for existing avatar
-    const user = await UserRepository.findById(userId);
-    if (!user) {
-      throw new NotFoundError('User not found');
+    if (!fileBuffer) {
+      throw new BadRequestError('No avatar file provided');
     }
 
-    // Delete old avatar if exists
-    if (user.avatar_url) {
+    // Get old avatar URL to delete
+    const user = await UserRepository.findById(userId);
+    if (user && user.avatar_url) {
       try {
         await StorageService.deleteFile(user.avatar_url);
       } catch (err) {
@@ -71,11 +78,7 @@ class UserService {
     }
 
     // Upload new avatar
-    const result = await StorageService.uploadAvatar(
-      fileBuffer,
-      userId,
-      'user'
-    );
+    const result = await StorageService.uploadAvatar(fileBuffer, userId, 'user');
 
     // Update database
     await UserRepository.update(userId, { avatar_url: result.url });
@@ -85,19 +88,16 @@ class UserService {
 
   /**
    * Delete user avatar
-   * @param {string} userId - User UUID
+   * @param {string} userId - User ID
    */
   static async deleteAvatar(userId) {
     const user = await UserRepository.findById(userId);
-    if (!user) {
-      throw new NotFoundError('User not found');
-    }
-
-    if (!user.avatar_url) {
+    
+    if (!user || !user.avatar_url) {
       throw new NotFoundError('No avatar found');
     }
 
-    // Delete file from storage
+    // Delete from storage
     await StorageService.deleteFile(user.avatar_url);
 
     // Update database
@@ -105,19 +105,19 @@ class UserService {
   }
 
   /**
-   * Get user statistics (applications, saved jobs, saved searches)
-   * @param {string} userId - User UUID
+   * Get user statistics for overview page
+   * @param {string} userId - User ID
+   * @returns {Object} Statistics object
    */
   static async getStatistics(userId) {
-    // Get counts for applications, saved jobs, and saved searches
-    const [applicationsCount, savedJobsCount, savedSearchesCount] = await Promise.all([
-      ApplicationRepository.getStatistics(userId).then(stats => stats.total),
+    const [applicationsStats, savedJobsCount, savedSearchesCount] = await Promise.all([
+      ApplicationRepository.getStatistics(userId),
       SavedJobRepository.countByUserId(userId),
       SavedSearchRepository.countByUserId(userId)
     ]);
 
     return {
-      applications: applicationsCount || 0,
+      applications: applicationsStats?.total || 0,
       saved_jobs: savedJobsCount || 0,
       saved_searches: savedSearchesCount || 0
     };
@@ -184,4 +184,3 @@ class UserService {
 }
 
 module.exports = UserService;
-

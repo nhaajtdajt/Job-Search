@@ -1,3 +1,4 @@
+import '@ant-design/v5-patch-for-react-19';
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
@@ -15,6 +16,14 @@ import AuthCallback from './pages/auth/AuthCallback.jsx'
 import ForgotPassword from './pages/auth/ForgotPassword.jsx'
 import EmployerLanding from './pages/employer/EmployerLanding.jsx'
 import EmployerDashboard from './pages/employer/EmployerDashboard.jsx'
+import EmployerProfile from './pages/employer/EmployerProfile.jsx'
+import CompanyProfile from './pages/employer/CompanyProfile.jsx'
+import JobList from './pages/employer/JobList.jsx'
+import JobCreate from './pages/employer/JobCreate.jsx'
+import JobEdit from './pages/employer/JobEdit.jsx'
+import ApplicationList from './pages/employer/ApplicationList.jsx'
+import ApplicationDetail from './pages/employer/ApplicationDetail.jsx'
+import CandidateProfile from './pages/employer/CandidateProfile.jsx'
 import EmployerLogin from './pages/auth/EmployerLogin.jsx'
 import EmployerRegister from './pages/auth/EmployerRegister.jsx'
 import Profile from './pages/user/ProfileComplete.jsx'
@@ -49,6 +58,14 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <EmployerLanding /> },
       { path: 'dashboard', element: <EmployerDashboard /> },
+      { path: 'profile', element: <EmployerProfile /> },
+      { path: 'company', element: <CompanyProfile /> },
+      { path: 'jobs', element: <JobList /> },
+      { path: 'jobs/create', element: <JobCreate /> },
+      { path: 'jobs/:id/edit', element: <JobEdit /> },
+      { path: 'applications', element: <ApplicationList /> },
+      { path: 'applications/:id', element: <ApplicationDetail /> },
+      { path: 'candidates/:id', element: <CandidateProfile /> },
       { path: 'login', element: <EmployerLogin /> },
       { path: 'register', element: <EmployerRegister /> },
     ],

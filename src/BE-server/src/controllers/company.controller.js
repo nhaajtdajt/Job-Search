@@ -1,9 +1,6 @@
-const StorageService = require('../services/storage.service');
 const CompanyService = require('../services/company.service');
-const CompanyRepository = require('../repositories/company.repo');
-const JobService = require('../services/job.service');
 const HTTP_STATUS = require('../constants/http-status');
-const { BadRequestError, NotFoundError, ForbiddenError } = require('../errors');
+const { BadRequestError } = require('../errors');
 const ResponseHandler = require('../utils/response-handler');
 
 /**
@@ -22,27 +19,9 @@ class CompanyController {
       }
 
       const { companyId } = req.params;
+      const employerId = req.user.employer_id;
 
-      // TODO: Check if user has permission to update this company
-      // const employer = await EmployerRepository.findById(req.user.employer_id);
-      // if (employer.company_id !== parseInt(companyId)) {
-      //   throw new ForbiddenError('Not authorized to update this company');
-      // }
-
-// TODO: Delete old logo
-      // const company = await CompanyRepository.findById(companyId);
-      // if (company && company.logo_url) {
-      //   await StorageService.deleteOldFile(company.logo_url);
-      // }
-
-      // Upload new logo
-      const result = await StorageService.uploadCompanyLogo(
-        req.file.buffer,
-        companyId
-      );
-
-      // TODO: Update database
-      // await CompanyRepository.update(companyId, { logo_url: result.url });
+      const result = await CompanyService.uploadLogo(companyId, employerId, req.file.buffer);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -68,18 +47,9 @@ class CompanyController {
       }
 
       const { companyId } = req.params;
+      const employerId = req.user.employer_id;
 
-      // TODO: Check permission
-      // TODO: Delete old banner
-      
-      // Upload new banner
-      const result = await StorageService.uploadCompanyBanner(
-        req.file.buffer,
-        companyId
-      );
-
-      // TODO: Update database (need to add banner_url column to company table)
-      // await CompanyRepository.update(companyId, { banner_url: result.url });
+      const result = await CompanyService.uploadBanner(companyId, employerId, req.file.buffer);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -101,10 +71,9 @@ class CompanyController {
   static async deleteLogo(req, res, next) {
     try {
       const { companyId } = req.params;
+      const employerId = req.user.employer_id;
 
-      // TODO: Check permission
-      // TODO: Get logo URL and delete
-      // TODO: Update database
+      await CompanyService.deleteLogo(companyId, employerId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -123,8 +92,9 @@ class CompanyController {
   static async deleteBanner(req, res, next) {
     try {
       const { companyId } = req.params;
+      const employerId = req.user.employer_id;
 
-      // TODO: Implement
+      await CompanyService.deleteBanner(companyId, employerId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -144,11 +114,7 @@ class CompanyController {
     try {
       const { companyId } = req.params;
 
-      const company = await CompanyService.getCompanyById(parseInt(companyId));
-
-      if (!company) {
-        throw new NotFoundError('Company not found');
-      }
+      const company = await CompanyService.getById(companyId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -166,31 +132,12 @@ class CompanyController {
    */
   static async getAll(req, res, next) {
     try {
-      const companies = await CompanyService.getAllCompanies();
+      const companies = await CompanyService.getAll();
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Companies retrieved successfully',
         data: companies,
-      });
-    } catch (error) {
-      return next(error);
-    }
-  }
-
-  /**
-   * Create company
-   * POST /api/companies
-   */
-  static async create(req, res, next) {
-    try {
-      const companyData = req.body;
-
-      const company = await CompanyService.createCompany(companyData);
-
-      return ResponseHandler.created(res, {
-        message: 'Company created successfully',
-        data: company,
       });
     } catch (error) {
       return next(error);
@@ -204,68 +151,15 @@ class CompanyController {
   static async update(req, res, next) {
     try {
       const { companyId } = req.params;
+      const employerId = req.user.employer_id;
       const updateData = req.body;
 
-      const company = await CompanyService.updateCompany(parseInt(companyId), updateData);
-
-      if (!company) {
-        throw new NotFoundError('Company not found');
-      }
+      const company = await CompanyService.update(companyId, employerId, updateData);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
         message: 'Company updated successfully',
         data: company,
-      });
-    } catch (error) {
-      return next(error);
-    }
-  }
-
-  /**
-   * Delete company
-   * DELETE /api/companies/:companyId
-   */
-  static async delete(req, res, next) {
-    try {
-      const { companyId } = req.params;
-
-      const deletedCount = await CompanyService.deleteCompany(parseInt(companyId));
-
-      if (deletedCount === 0) {
-        throw new NotFoundError('Company not found');
-      }
-
-      return ResponseHandler.success(res, {
-        status: HTTP_STATUS.OK,
-        message: 'Company deleted successfully',
-        data: null,
-      });
-    } catch (error) {
-      return next(error);
-    }
-  }
-
-  /**
-   * Get jobs by company ID
-   * GET /api/companies/:companyId/jobs
-   */
-  static async getCompanyJobs(req, res, next) {
-    try {
-      const { companyId } = req.params;
-
-      // Check if company exists
-      const company = await CompanyService.getCompanyById(parseInt(companyId));
-      if (!company) {
-        throw new NotFoundError('Company not found');
-      }
-
-      const jobs = await JobService.getJobsByCompany(parseInt(companyId));
-
-      return ResponseHandler.success(res, {
-        status: HTTP_STATUS.OK,
-        message: 'Company jobs retrieved successfully',
-        data: jobs,
       });
     } catch (error) {
       return next(error);

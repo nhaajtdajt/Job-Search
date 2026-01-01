@@ -1,7 +1,7 @@
 # ============================================
 # JOB SEARCH API - Complete OpenAPI 3.0 Spec
 # ============================================
-# All 37 endpoints in a single file for swagger-jsdoc compatibility
+# All 55 endpoints in a single file for swagger-jsdoc compatibility
 
 openapi: 3.0.3
 
@@ -43,9 +43,15 @@ tags:
     description: Company information
   - name: Resumes
     description: Resume/CV management
+  - name: Applications
+    description: Job application management (job seekers & employers)
+  - name: Saved Jobs
+    description: Save and manage favorite jobs
+  - name: Searches
+    description: Saved search queries
 
 # ============================================
-# PATHS - All 37 Endpoints
+# PATHS - All 55 Endpoints
 # ============================================
 
 paths:
@@ -325,6 +331,11 @@ paths:
                 expired_at:
                   type: string
                   format: date-time
+                status:
+                  type: string
+                  enum: [draft, published, expired]
+                  default: draft
+                  description: Job status (draft, published, expired)
       responses:
         "201":
           $ref: "#/components/responses/Success"
@@ -373,6 +384,10 @@ paths:
                   type: string
                 description:
                   type: string
+                status:
+                  type: string
+                  enum: [draft, published, expired]
+                  description: Job status (draft, published, expired)
       responses:
         "200":
           $ref: "#/components/responses/Success"
@@ -831,6 +846,623 @@ paths:
         "403":
           $ref: "#/components/responses/Forbidden"
 
+  # ==================== APPLICATIONS (10) ====================
+  
+  /api/applications:
+    post:
+      tags: [Applications]
+      summary: Submit job application
+      description: |
+        Submit application for a job.
+        
+        **Validations:**
+        - Job must exist and not expired
+        - Resume must belong to user
+        - Prevents duplicate applications
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [job_id, resume_id]
+              properties:
+                job_id:
+                  type: integer
+                  example: 1
+                resume_id:
+                  type: string
+                  example: "RES0001"
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      application_id:
+                        type: integer
+                      user_id:
+                        type: string
+                        format: uuid
+                      job_id:
+                        type: integer
+                      resume_id:
+                        type: string
+                      status:
+                        type: string
+                        enum: [pending, reviewing, interview, offer, rejected, accepted]
+                      apply_date:
+                        type: string
+                        format: date-time
+        "400":
+          description: Validation error (duplicate, expired job, etc.)
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Job or resume not found
+
+    get:
+      tags: [Applications]
+      summary: Get user's application history
+      description: Get paginated list of user's applications with filters
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, reviewing, interview, offer, rejected, accepted]
+          description: Filter by status
+      responses:
+        "200":
+          description: Applications retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+
+  /api/applications/statistics:
+    get:
+      tags: [Applications]
+      summary: Get application statistics
+      description: Get statistics of user's applications grouped by status
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 25
+                      by_status:
+                        type: object
+                        properties:
+                          pending:
+                            type: integer
+                          reviewing:
+                            type: integer
+                          interview:
+                            type: integer
+                          offer:
+                            type: integer
+                          rejected:
+                            type: integer
+                          accepted:
+                            type: integer
+
+  /api/applications/{applicationId}:
+    get:
+      tags: [Applications]
+      summary: Get application detail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Application retrieved
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [Applications]
+      summary: Update application
+      description: |
+        Update application (change resume).
+        Only allowed when status is 'pending'.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resume_id:
+                  type: string
+                  example: "RES0002"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: Cannot update (status not pending)
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+    delete:
+      tags: [Applications]
+      summary: Withdraw application
+      description: |
+        Withdraw application.
+        Only allowed when status is 'pending' or 'reviewing'.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: Cannot withdraw (invalid status)
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/applications/{applicationId}/status:
+    put:
+      tags: [Applications]
+      summary: Update application status
+      description: |
+        Update application status (employer only).
+        
+        **Valid statuses:**
+        - pending, reviewing, interview, offer, rejected, accepted
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [pending, reviewing, interview, offer, rejected, accepted]
+                  example: "interview"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          description: Invalid status transition
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/applications/{applicationId}/notes:
+    post:
+      tags: [Applications]
+      summary: Add notes to application
+      description: Add or update notes for an application (employer only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [notes]
+              properties:
+                notes:
+                  type: string
+                  example: "Strong candidate! Great technical skills."
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/jobs/{jobId}/applications:
+    get:
+      tags: [Applications]
+      summary: Get applications for a job
+      description: Get all applications for a specific job (employer only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Applications retrieved
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api/employers/applications:
+    get:
+      tags: [Applications]
+      summary: Get all employer's applications
+      description: Get applications for all jobs posted by employer
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: job_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by specific job
+      responses:
+        "200":
+          description: Applications retrieved
+
+  # ==================== SAVED JOBS (4) ====================
+  
+  /api/saved-jobs/{jobId}:
+    post:
+      tags: [Saved Jobs]
+      summary: Save job to favorites
+      description: |
+        Save job to user's saved list.
+        
+        **Validations:**
+        - Job must exist
+        - Prevents duplicate saves
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Job saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: string
+                        format: uuid
+                      job_id:
+                        type: integer
+                      saved_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Job already saved
+        "404":
+          description: Job not found
+
+    delete:
+      tags: [Saved Jobs]
+      summary: Unsave job
+      description: Remove job from user's saved list
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          description: Job not in saved list
+
+  /api/saved-jobs:
+    get:
+      tags: [Saved Jobs]
+      summary: Get saved jobs
+      description: Get user's saved jobs with pagination
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Saved jobs retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user_id:
+                              type: string
+                            job_id:
+                              type: integer
+                            saved_at:
+                              type: string
+                            job_title:
+                              type: string
+                            job_type:
+                              type: string
+                            salary_min:
+                              type: number
+                            salary_max:
+                              type: number
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+
+  /api/saved-jobs/check/{jobId}:
+    get:
+      tags: [Saved Jobs]
+      summary: Check if job is saved
+      description: Check if a job is in user's saved list (for UI)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Check completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      is_saved:
+                        type: boolean
+                        example: true
+
+  # ==================== SEARCHES (4) ====================
+  
+  /api/searches:
+    post:
+      tags: [Searches]
+      summary: Create saved search
+      description: |
+        Save search criteria for job alerts.
+        Filters are stored as JSON.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [search_name, filters]
+              properties:
+                search_name:
+                  type: string
+                  example: "NodeJS Jobs in HCM"
+                filters:
+                  type: object
+                  properties:
+                    keyword:
+                      type: string
+                      example: "nodejs"
+                    location:
+                      type: string
+                      example: "Hồ Chí Minh"
+                    salary_min:
+                      type: number
+                      example: 1000
+                    job_type:
+                      type: string
+                      example: "full-time"
+      responses:
+        "201":
+          description: Search saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      search_id:
+                        type: integer
+                      search_name:
+                        type: string
+                      filters:
+                        type: object
+                      created_at:
+                        type: string
+                        format: date-time
+
+    get:
+      tags: [Searches]
+      summary: Get saved searches
+      description: Get all saved searches for the user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Searches retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        search_id:
+                          type: integer
+                        search_name:
+                          type: string
+                        filters:
+                          type: object
+                        created_at:
+                          type: string
+
+  /api/searches/{searchId}:
+    put:
+      tags: [Searches]
+      summary: Update saved search
+      description: Update search name and/or filters (owner only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: searchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                search_name:
+                  type: string
+                filters:
+                  type: object
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Searches]
+      summary: Delete saved search
+      description: Delete a saved search (owner only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: searchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
 # ============================================
 # COMPONENTS - Reusable
 # ============================================
@@ -953,3 +1585,528 @@ components:
               status:
                 type: integer
                 example: 409
+
+  # ============================================
+  # DATABASE SCHEMAS
+  # ============================================
+  
+  schemas:
+    # ==================== USERS TABLE ====================
+    User:
+      type: object
+      description: User profile (references Supabase auth.users)
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: User ID (references auth.users.id)
+        name:
+          type: string
+          description: Full name
+        gender:
+          type: string
+          maxLength: 10
+          description: Gender
+        date_of_birth:
+          type: string
+          format: date
+          description: Date of birth
+        phone:
+          type: string
+          maxLength: 15
+          description: Phone number
+        address:
+          type: string
+          description: Address
+        avatar_url:
+          type: string
+          description: Avatar URL (Supabase Storage)
+
+    # ==================== COMPANY TABLE ====================
+    Company:
+      type: object
+      description: Company information
+      required:
+        - company_name
+        - address
+      properties:
+        company_id:
+          type: integer
+          description: Company ID (auto-increment)
+        company_name:
+          type: string
+          description: Company name (unique)
+        website:
+          type: string
+          description: Company website (unique)
+        address:
+          type: string
+          description: Company address
+        description:
+          type: string
+          description: Company description
+        logo_url:
+          type: string
+          description: Company logo URL
+        created_at:
+          type: string
+          format: date-time
+          description: Created timestamp
+
+    # ==================== EMPLOYER TABLE ====================
+    Employer:
+      type: object
+      description: Employer profile (HR, recruiter, etc.)
+      required:
+        - full_name
+        - role
+        - company_id
+      properties:
+        employer_id:
+          type: integer
+          description: Employer ID (auto-increment)
+        full_name:
+          type: string
+          description: Full name
+        email:
+          type: string
+          description: Email
+        role:
+          type: string
+          maxLength: 50
+          description: Role in company (HR Manager, Recruiter, etc.)
+        status:
+          type: string
+          maxLength: 50
+          description: Status (Active, Inactive)
+        created_at:
+          type: string
+          format: date-time
+        avatar_url:
+          type: string
+          description: Avatar URL
+        user_id:
+          type: string
+          format: uuid
+          description: References users.user_id (nullable)
+        company_id:
+          type: integer
+          description: References company.company_id
+
+    # ==================== JOB TABLE ====================
+    Job:
+      type: object
+      description: Job posting
+      required:
+        - employer_id
+        - job_title
+        - job_type
+      properties:
+        job_id:
+          type: integer
+          description: Job ID (auto-increment)
+        employer_id:
+          type: integer
+          description: References employer.employer_id
+        job_title:
+          type: string
+          description: Job title
+        description:
+          type: string
+          description: Job description
+        requirements:
+          type: string
+          description: Job requirements
+        benefits:
+          type: string
+          description: Benefits
+        salary_min:
+          type: number
+          format: decimal
+          description: Minimum salary
+        salary_max:
+          type: number
+          format: decimal
+          description: Maximum salary
+        job_type:
+          type: string
+          maxLength: 50
+          description: Job type (full-time, part-time, contract, etc.)
+        posted_at:
+          type: string
+          format: date-time
+          description: Posted timestamp
+        expired_at:
+          type: string
+          format: date-time
+          description: Expiry date-time
+        status:
+          type: string
+          enum: [draft, published, expired]
+          default: draft
+          description: Job status (draft, published, expired)
+        views:
+          type: integer
+          default: 0
+          description: View count
+
+    # ==================== TAG TABLE ====================
+    Tag:
+      type: object
+      description: Job tags (WorkType, Level, Priority)
+      properties:
+        tag_id:
+          type: integer
+          description: Tag ID (auto-increment)
+        tag_name:
+          type: string
+          maxLength: 50
+          description: Tag name
+        type:
+          type: string
+          maxLength: 50
+          description: Tag type (WorkType, Level, Priority)
+
+    # ==================== LOCATION TABLE ====================
+    Location:
+      type: object
+      description: Job locations (cities, provinces)
+      properties:
+        location_id:
+          type: integer
+          description: Location ID (auto-increment)
+        location_name:
+          type: string
+          maxLength: 100
+          description: Location name
+
+    # ==================== SKILL TABLE ====================
+    Skill:
+      type: object
+      description: Technical skills
+      properties:
+        skill_id:
+          type: string
+          maxLength: 5
+          description: Skill ID (e.g., JS001)
+        skill_name:
+          type: string
+          description: Skill name
+
+    # ==================== RESUME TABLE ====================
+    Resume:
+      type: object
+      description: User resume/CV
+      required:
+        - user_id
+        - resume_title
+        - summary
+      properties:
+        resume_id:
+          type: string
+          maxLength: 7
+          description: Resume ID (e.g., RES0001)
+        user_id:
+          type: string
+          format: uuid
+          description: References users.user_id
+        resume_title:
+          type: string
+          description: Resume title
+        summary:
+          type: string
+          description: Professional summary
+        resume_url:
+          type: string
+          description: Resume file URL (PDF)
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ==================== EDUCATION TABLE ====================
+    Education:
+      type: object
+      description: Education history in resume
+      required:
+        - school_name
+        - major
+        - degree
+      properties:
+        education_id:
+          type: integer
+          description: Education ID (auto-increment)
+        resume_id:
+          type: string
+          maxLength: 7
+          description: References resume.resume_id
+        school_name:
+          type: string
+          description: School/University name
+        major:
+          type: string
+          description: Major/Field of study
+        degree:
+          type: string
+          description: Degree
+        start_year:
+          type: integer
+          description: Start year
+        end_year:
+          type: integer
+          description: End year (>= start_year)
+
+    # ==================== EXPERIENCE TABLE ====================
+    Experience:
+      type: object
+      description: Work experience in resume
+      required:
+        - resume_id
+        - job_title
+        - company_name
+      properties:
+        experience_id:
+          type: integer
+          description: Experience ID (auto-increment)
+        resume_id:
+          type: string
+          maxLength: 7
+          description: References resume.resume_id
+        job_title:
+          type: string
+          description: Job title
+        company_name:
+          type: string
+          description: Company name
+        start_date:
+          type: string
+          format: date
+          description: Start date
+        end_date:
+          type: string
+          format: date
+          description: End date (> start_date)
+        description:
+          type: string
+          description: Job description
+
+    # ==================== APPLICATION TABLE ====================
+    Application:
+      type: object
+      description: Job application
+      required:
+        - resume_id
+        - user_id
+        - job_id
+        - status
+      properties:
+        application_id:
+          type: integer
+          description: Application ID (auto-increment)
+        resume_id:
+          type: string
+          maxLength: 7
+          description: References resume.resume_id
+        user_id:
+          type: string
+          format: uuid
+          description: References users.user_id
+        job_id:
+          type: integer
+          description: References job.job_id
+        apply_date:
+          type: string
+          format: date-time
+          description: Application date
+        status:
+          type: string
+          maxLength: 50
+          enum: [pending, reviewing, interview, offer, rejected, accepted]
+          description: Application status
+        notes:
+          type: string
+          description: Employer notes
+        updated_at:
+          type: string
+          format: date-time
+
+    # ==================== SAVED JOB TABLE ====================
+    SavedJob:
+      type: object
+      description: User's saved jobs
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: References users.user_id
+        job_id:
+          type: integer
+          description: References job.job_id
+        saved_at:
+          type: string
+          format: date-time
+          description: Saved timestamp
+
+    # ==================== SAVED SEARCH TABLE ====================
+    SavedSearch:
+      type: object
+      description: User's saved search queries
+      required:
+        - user_id
+        - name
+      properties:
+        stt:
+          type: integer
+          description: Search ID (auto-increment)
+        user_id:
+          type: string
+          format: uuid
+          description: References users.user_id
+        name:
+          type: string
+          description: Search name
+        filter:
+          type: string
+          description: Search filters (JSON)
+        created_at:
+          type: string
+          format: date-time
+
+    # ==================== NOTIFICATION TABLE ====================
+    Notification:
+      type: object
+      description: User notifications
+      required:
+        - note
+      properties:
+        notification_id:
+          type: string
+          maxLength: 10
+          description: Notification ID
+        user_id:
+          type: string
+          format: uuid
+          description: References users.user_id
+        note:
+          type: string
+          description: Notification message
+        seen:
+          type: boolean
+          default: false
+          description: Read status
+        created_at:
+          type: string
+          format: date-time
+
+    # ==================== RESUME VIEW TABLE ====================
+    ResumeView:
+      type: object
+      description: Employer resume views tracking
+      properties:
+        resume_id:
+          type: string
+          maxLength: 7
+          description: References resume.resume_id
+        employer_id:
+          type: integer
+          description: References employer.employer_id
+        view_date:
+          type: string
+          format: date-time
+          description: View timestamp
+
+    # ==================== JUNCTION TABLES ====================
+    
+    JobTag:
+      type: object
+      description: Many-to-many relationship between jobs and tags
+      properties:
+        stt:
+          type: integer
+          description: Primary key
+        job_id:
+          type: integer
+          description: References job.job_id
+        tag_id:
+          type: integer
+          description: References tag.tag_id
+
+    JobLocation:
+      type: object
+      description: Many-to-many relationship between jobs and locations
+      properties:
+        stt:
+          type: integer
+          description: Primary key
+        job_id:
+          type: integer
+          description: References job.job_id
+        location_id:
+          type: integer
+          description: References location.location_id
+
+    JobSkill:
+      type: object
+      description: Many-to-many relationship between jobs and skills
+      properties:
+        skill_id:
+          type: string
+          description: References skill.skill_id
+        job_id:
+          type: integer
+          description: References job.job_id
+
+    ResumeSkill:
+      type: object
+      description: Skills in resume with proficiency level
+      required:
+        - level
+      properties:
+        skill_id:
+          type: string
+          description: References skill.skill_id
+        resume_id:
+          type: string
+          description: References resume.resume_id
+        level:
+          type: string
+          maxLength: 50
+          description: Proficiency level (Beginner, Intermediate, Advanced, Expert)
+
+# ============================================
+# DATABASE RELATIONSHIPS
+# ============================================
+# 
+# users.user_id → employer.user_id (nullable)
+# users.user_id → resume.user_id
+# users.user_id → application.user_id
+# users.user_id → saved_job.user_id
+# users.user_id → saved_search.user_id
+# users.user_id → notification.user_id
+# 
+# company.company_id → employer.company_id
+# employer.employer_id → job.employer_id
+# employer.employer_id → resume_view.employer_id
+# 
+# job.job_id → job_tag.job_id
+# job.job_id → job_location.job_id
+# job.job_id → job_skill.job_id
+# job.job_id → application.job_id
+# job.job_id → saved_job.job_id
+# 
+# tag.tag_id → job_tag.tag_id
+# location.location_id → job_location.location_id
+# skill.skill_id → job_skill.skill_id
+# skill.skill_id → resume_skill.skill_id
+# 
+# resume.resume_id → res_education.resume_id
+# resume.resume_id → res_experience.resume_id
+# resume.resume_id → resume_skill.resume_id
+# resume.resume_id → application.resume_id
+# resume.resume_id → resume_view.resume_id
+#
+# ============================================
+# TOTAL: 19 Tables
+# ============================================

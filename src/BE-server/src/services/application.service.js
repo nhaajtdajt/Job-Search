@@ -2,7 +2,10 @@ const ApplicationRepository = require('../repositories/application.repo');
 const JobRepository = require('../repositories/job.repo');
 const ResumeRepository = require('../repositories/resume.repo');
 const EmployerRepository = require('../repositories/employer.repo');
+const UserRepository = require('../repositories/user.repo');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors');
+const EmailService = require('./email.service');
+const { getUserEmailById } = require('../utils/supabase.util');
 
 /**
  * Application Service
@@ -62,8 +65,10 @@ class ApplicationService {
 
     const application = await ApplicationRepository.create(applicationToCreate);
 
-    // TODO: Send notification to employer
-    // TODO: Send confirmation email to user
+    // Send email notifications (async, don't block response)
+    this.sendApplicationEmails(userId, job, resume).catch(err => {
+      console.error('Failed to send application emails:', err.message);
+    });
 
     return application;
   }
@@ -236,6 +241,32 @@ class ApplicationService {
   }
 
   /**
+   * Get application detail for employer
+   * @param {number} applicationId - Application ID
+   * @param {number} employerId - Employer ID (for permission check)
+   * @returns {Object} Application detail with user and job info
+   */
+  static async getApplicationByIdForEmployer(applicationId, employerId) {
+    const application = await ApplicationRepository.findById(applicationId);
+
+    if (!application) {
+      throw new NotFoundError(`Application with ID ${applicationId} not found`);
+    }
+
+    // Check if employer owns the job this application is for
+    const job = await JobRepository.findById(application.job_id);
+    if (!job) {
+      throw new NotFoundError('Associated job not found');
+    }
+
+    if (job.employer_id !== employerId) {
+      throw new ForbiddenError('You can only view applications for your own jobs');
+    }
+
+    return application;
+  }
+
+  /**
    * Update application status (employer only)
    * @param {number} applicationId - Application ID
    * @param {number} employerId - Employer ID (for permission check)
@@ -243,8 +274,8 @@ class ApplicationService {
    * @returns {Object} Updated application
    */
   static async updateApplicationStatus(applicationId, employerId, status) {
-    // Validate status
-    const validStatuses = ['pending', 'reviewing', 'interview', 'offer', 'rejected', 'accepted'];
+    // Validate status - include all statuses used in frontend
+    const validStatuses = ['pending', 'reviewing', 'shortlisted', 'interview', 'offer', 'hired', 'rejected', 'withdrawn', 'accepted'];
     if (!validStatuses.includes(status)) {
       throw new BadRequestError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }
@@ -279,9 +310,111 @@ class ApplicationService {
 
     const updatedApplication = await ApplicationRepository.updateStatus(applicationId, status);
 
-    // TODO: Send notification to user about status change
+    // Send status update email to user (async, don't block response)
+    this.sendStatusUpdateEmail(application.user_id, job, currentStatus, status).catch(err => {
+      console.error('Failed to send status update email:', err.message);
+    });
 
     return updatedApplication;
+  }
+
+  /**
+   * Bulk update application status (employer only)
+   * @param {Array} applicationIds - Array of Application IDs
+   * @param {number} employerId - Employer ID (for permission check)
+   * @param {string} status - New status
+   * @returns {Object} Result with updated count
+   */
+  static async bulkUpdateStatus(applicationIds, employerId, status) {
+    // Validate status
+    const validStatuses = ['pending', 'reviewing', 'shortlisted', 'interview', 'offer', 'hired', 'rejected', 'withdrawn', 'accepted'];
+    if (!validStatuses.includes(status)) {
+      throw new BadRequestError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+    }
+
+    let updated = 0;
+    let failed = 0;
+    const errors = [];
+
+    for (const applicationId of applicationIds) {
+      try {
+        const application = await ApplicationRepository.findById(applicationId);
+        if (!application) {
+          failed++;
+          errors.push({ id: applicationId, error: 'Application not found' });
+          continue;
+        }
+
+        // Check if employer owns the job this application is for
+        const job = await JobRepository.findById(application.job_id);
+        if (!job) {
+          failed++;
+          errors.push({ id: applicationId, error: 'Associated job not found' });
+          continue;
+        }
+
+        if (job.employer_id !== employerId) {
+          failed++;
+          errors.push({ id: applicationId, error: 'Permission denied' });
+          continue;
+        }
+
+        // Update status
+        await ApplicationRepository.updateStatus(applicationId, status);
+        updated++;
+
+        // Send status update email (async, don't block)
+        this.sendStatusUpdateEmail(application.user_id, job, application.status, status).catch(err => {
+          console.error(`Failed to send status update email for application ${applicationId}:`, err.message);
+        });
+      } catch (error) {
+        failed++;
+        errors.push({ id: applicationId, error: error.message });
+      }
+    }
+
+    return {
+      updated,
+      failed,
+      total: applicationIds.length,
+      errors: errors.length > 0 ? errors : undefined
+    };
+  }
+
+  /**
+   * Get notes for an application (employer only)
+   * @param {number} applicationId - Application ID
+   * @param {number} employerId - Employer ID (for permission check)
+   * @returns {Array} Notes array (currently just the notes field as array)
+   */
+  static async getApplicationNotes(applicationId, employerId) {
+    const application = await ApplicationRepository.findById(applicationId);
+    if (!application) {
+      throw new NotFoundError(`Application with ID ${applicationId} not found`);
+    }
+
+    // Check if employer owns the job
+    const job = await JobRepository.findById(application.job_id);
+    if (!job) {
+      throw new NotFoundError('Associated job not found');
+    }
+
+    if (job.employer_id !== employerId) {
+      throw new ForbiddenError('You can only view notes for applications to your own jobs');
+    }
+
+    // Return notes as array format for frontend
+    // Currently notes is a single string field, convert to array format
+    if (!application.notes) {
+      return [];
+    }
+    
+    return [{
+      id: applicationId,
+      content: application.notes,
+      created_at: application.updated_at,
+      created_by: 'Nhà tuyển dụng'
+    }];
   }
 
   /**
@@ -314,6 +447,85 @@ class ApplicationService {
     const updatedApplication = await ApplicationRepository.addNotes(applicationId, notes);
     return updatedApplication;
   }
+
+  // ==========================================
+  // Private Helper Methods for Email
+  // ==========================================
+
+  /**
+   * Send application confirmation emails
+   * @private
+   * @param {string} userId - User ID
+   * @param {Object} job - Job object with employer info
+   * @param {Object} resume - Resume object
+   */
+  static async sendApplicationEmails(userId, job, resume) {
+    // Get user info
+    const user = await UserRepository.findById(userId);
+    const userEmail = await getUserEmailById(userId);
+
+    if (!userEmail) {
+      console.warn(`⚠️  Cannot send email: User ${userId} email not found`);
+      return;
+    }
+
+    // Get company name
+    const companyName = job.employer?.company?.company_name || 'Công ty';
+
+    // 1. Send confirmation to job seeker
+    await EmailService.sendApplicationReceivedEmail(userEmail, {
+      userName: user?.name || 'Ứng viên',
+      jobTitle: job.job_title,
+      companyName: companyName,
+      applyDate: new Date().toLocaleDateString('vi-VN')
+    });
+
+    // 2. Send notification to employer
+    if (job.employer?.email) {
+      await EmailService.sendNewApplicationEmail(job.employer.email, {
+        employerName: job.employer.full_name || 'Nhà tuyển dụng',
+        applicantName: user?.name || 'Ứng viên',
+        jobTitle: job.job_title,
+        resumeTitle: resume?.resume_title || 'CV',
+        applyDate: new Date().toLocaleDateString('vi-VN')
+      });
+    }
+
+    console.log(`📧 Application emails sent for job ${job.job_id} by user ${userId}`);
+  }
+
+  /**
+   * Send status update email to user
+   * @private
+   * @param {string} userId - User ID
+   * @param {Object} job - Job object
+   * @param {string} oldStatus - Previous status
+   * @param {string} newStatus - New status
+   */
+  static async sendStatusUpdateEmail(userId, job, oldStatus, newStatus) {
+    // Get user info
+    const user = await UserRepository.findById(userId);
+    const userEmail = await getUserEmailById(userId);
+
+    if (!userEmail) {
+      console.warn(`⚠️  Cannot send email: User ${userId} email not found`);
+      return;
+    }
+
+    // Get company name
+    const companyName = job.employer?.company?.company_name || 'Công ty';
+
+    await EmailService.sendStatusUpdateEmail(userEmail, {
+      userName: user?.name || 'Ứng viên',
+      jobTitle: job.job_title,
+      companyName: companyName,
+      oldStatus: oldStatus,
+      newStatus: newStatus
+    });
+
+    console.log(`📧 Status update email sent to user ${userId}: ${oldStatus} -> ${newStatus}`);
+  }
 }
 
 module.exports = ApplicationService;
+

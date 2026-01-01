@@ -61,10 +61,11 @@ class ApplicationRepository {
       .where('resume_id', application.resume_id)
       .first();
 
-    // Get user info
+    // Get user info with email from auth.users
     const user = await db(MODULE.USERS)
-      .select('user_id', 'name', 'phone', 'avatar_url')
-      .where('user_id', application.user_id)
+      .leftJoin('auth.users as au', 'users.user_id', 'au.id')
+      .select('users.user_id', 'users.name', 'au.email', 'users.phone', 'users.avatar_url')
+      .where('users.user_id', application.user_id)
       .first();
 
     application.job = job || null;
@@ -143,9 +144,11 @@ class ApplicationRepository {
 
     // Enrich with user and resume info
     for (const application of data) {
+      // Get user with email from auth.users
       const user = await db(MODULE.USERS)
-        .select('user_id', 'name', 'phone')
-        .where('user_id', application.user_id)
+        .leftJoin('auth.users as au', 'users.user_id', 'au.id')
+        .select('users.user_id', 'users.name', 'au.email', 'users.phone')
+        .where('users.user_id', application.user_id)
         .first();
       
       const resume = await db(MODULE.RESUME)
@@ -211,9 +214,11 @@ class ApplicationRepository {
         .where('job_id', application.job_id)
         .first();
       
+      // Get user with email from auth.users
       const user = await db(MODULE.USERS)
-        .select('user_id', 'name', 'phone')
-        .where('user_id', application.user_id)
+        .leftJoin('auth.users as au', 'users.user_id', 'au.id')
+        .select('users.user_id', 'users.name', 'au.email', 'users.phone')
+        .where('users.user_id', application.user_id)
         .first();
       
       const resume = await db(MODULE.RESUME)

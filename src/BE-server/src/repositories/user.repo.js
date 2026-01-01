@@ -38,7 +38,7 @@ class UserRepository {
       )
       .where('user_id', userId)
       .first();
-    
+
     return user || null;
   }
 
@@ -85,7 +85,7 @@ class UserRepository {
     await db(MODULE.USERS)
       .where('user_id', userId)
       .update(filteredData);
-    
+
     // Fetch updated user with formatted date using raw SQL to avoid timezone issues
     const user = await db(MODULE.USERS)
       .select(
@@ -112,7 +112,7 @@ class UserRepository {
       )
       .where('user_id', userId)
       .first();
-    
+
     return user || null;
   }
 
@@ -125,7 +125,7 @@ class UserRepository {
     const [user] = await db(MODULE.USERS)
       .insert(userData)
       .returning('*');
-    
+
     return user;
   }
 
@@ -169,6 +169,17 @@ class UserRepository {
       page,
       limit
     };
+  }
+
+  /**
+   * Find users by role
+   * @param {string} role - User role (job_seeker, employer)
+   * @returns {Array} List of users
+   */
+  static async findByRole(role) {
+    return await db(MODULE.USERS)
+      .select('user_id', 'name')
+      .where('role', role);
   }
 }
 

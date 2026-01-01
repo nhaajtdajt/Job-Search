@@ -4,9 +4,10 @@ const db = require('../databases/knex');
 const JWTUtil = require('../utils/jwt.util');
 const HashUtil = require('../utils/hash.util');
 const SupabaseErrorUtil = require('../utils/supabase-error.util');
-const EmailUtil = require('../utils/email.util');
+const EmailService = require('./email.service');
 const { BadRequestError, UnauthorizedError, NotFoundError, DuplicateError } = require('../errors');
 const ROLES = require('../constants/role');
+const { ADMIN_EMAILS } = require('../constants/admin');
 
 // Initialize Supabase client
 const supabaseUrl = environment.SUPABASE_URL;
@@ -85,11 +86,12 @@ class AuthService {
     try {
       // Define allowed fields for users table (based on migration schema)
       const allowedFields = ['name', 'gender', 'date_of_birth', 'phone', 'address', 'avatar_url'];
-      
+
       // Filter additionalData to only include allowed fields
       const userProfileData = {};
+
       if (userName) userProfileData.name = userName;
-      
+
       Object.keys(additionalData).forEach(key => {
         if (allowedFields.includes(key)) {
           userProfileData[key] = additionalData[key];
@@ -98,7 +100,7 @@ class AuthService {
 
       // Check if user profile already exists (created by trigger)
       const existingUser = await db('users').where('user_id', userId).first();
-      
+
       if (existingUser) {
         // Update existing profile with additional data
         // Only update fields that are provided and different
@@ -108,7 +110,7 @@ class AuthService {
             updateData[key] = userProfileData[key];
           }
         });
-        
+
         if (Object.keys(updateData).length > 0) {
           await db('users')
             .where('user_id', userId)
@@ -131,14 +133,14 @@ class AuthService {
         userId: userId,
         additionalData: additionalData
       });
-      
+
       // Rollback: delete auth user if profile creation fails
       try {
         await supabase.auth.admin.deleteUser(userId);
       } catch (deleteError) {
         console.error('Failed to rollback auth user:', deleteError);
       }
-      
+
       // Provide more detailed error message
       const errorMessage = dbError.detail || dbError.message || 'Failed to create user profile';
       throw new BadRequestError(`Failed to create user profile: ${errorMessage}`);
@@ -160,13 +162,13 @@ class AuthService {
         const [employer] = await db('employer')
           .insert(employerData)
           .returning('employer_id');
-        
+
         employerId = employer.employer_id;
-        
+
         console.log(`✅ Created employer record with ID: ${employerId} for user: ${userId}`);
       } catch (employerError) {
         console.error('Failed to create employer record:', employerError);
-        
+
         // Rollback: delete user profile and auth user
         try {
           await db('users').where('user_id', userId).delete();
@@ -174,7 +176,7 @@ class AuthService {
         } catch (rollbackError) {
           console.error('Failed to rollback user profile and auth:', rollbackError);
         }
-        
+
         throw new BadRequestError(`Failed to create employer profile: ${employerError.message}`);
       }
     }
@@ -225,16 +227,23 @@ class AuthService {
       throw new NotFoundError('User profile not found');
     }
 
-    // Get user role (from employer table if exists, else job_seeker)
+    // Determine user role based on email (admin) or employer table
     let role = ROLES.JOB_SEEKER;
     let employerId = null;
-    const employer = await db('employer')
-      .where('user_id', userId)
-      .first();
 
-    if (employer) {
-      role = ROLES.EMPLOYER;
-      employerId = employer.employer_id;
+    // Check 1: Is email in admin list?
+    if (ADMIN_EMAILS.includes(email)) {
+      role = ROLES.ADMIN;
+    } else {
+      // Check 2: Is user an employer?
+      const employer = await db('employer')
+        .where('user_id', userId)
+        .first();
+
+      if (employer) {
+        role = ROLES.EMPLOYER;
+        employerId = employer.employer_id;
+      }
     }
 
     // Generate tokens using helper method
@@ -299,12 +308,12 @@ class AuthService {
       email: decoded.email,
       role: role
     };
-    
+
     // Add employer_id to token if user is employer
     if (employerId) {
       tokenPayload.employer_id = employerId;
     }
-    
+
     const tokens = JWTUtil.generateTokenPair(tokenPayload);
 
     return tokens;
@@ -341,7 +350,7 @@ class AuthService {
 
     const emailLower = email.toLowerCase();
     const authUser = usersList.users.find(user => user.email && user.email.toLowerCase() === emailLower);
-    
+
     if (!authUser) {
       // User not found - throw error to inform that email is not registered
       throw new NotFoundError('Email này chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại email hoặc đăng ký tài khoản mới.');
@@ -358,38 +367,38 @@ class AuthService {
     } catch (error) {
       // Continue with authUser from list if getUserById fails
     }
-    
+
     // Use userDetails if available, otherwise use authUser from list
     const userToCheck = userDetails || authUser;
-    
+
     // Check if user has password (can reset password)
     // In Supabase, email/password users should have either:
     // 1. encrypted_password field (might not be available via Admin API for security)
     // 2. identity with provider = 'email' 
     // 3. app_metadata.provider = 'email' or no provider (default email/password)
-    
+
     const hasPassword = userToCheck.encrypted_password && userToCheck.encrypted_password.length > 0;
     const hasEmailProvider = userToCheck.identities && Array.isArray(userToCheck.identities) && userToCheck.identities.some(
       identity => identity.provider === 'email'
     );
-    
+
     // Check app_metadata for provider info
     const appMetadata = userToCheck.app_metadata || {};
     const provider = appMetadata.provider;
-    
+
     // Check identities for social providers
     const hasSocialProvider = userToCheck.identities && Array.isArray(userToCheck.identities) && userToCheck.identities.some(
       identity => ['google', 'facebook', 'github', 'twitter', 'azure', 'linkedin'].includes(identity.provider)
     );
-    
+
     // Social providers that don't have passwords
     const socialProviders = ['google', 'facebook', 'github', 'twitter', 'azure', 'linkedin'];
     const isSocialOnly = (provider && socialProviders.includes(provider.toLowerCase())) || (hasSocialProvider && !hasEmailProvider && !hasPassword);
-    
+
     // Since Supabase Admin API might not return encrypted_password for security reasons,
     // we'll be more permissive: if user exists and is not clearly a social-only account, allow reset
     // Block only if we're CERTAIN it's social-only (has social provider AND no email provider AND no password)
-    
+
     if (isSocialOnly) {
       // User is definitely social-only (has social provider and no email provider/password)
       throw new BadRequestError('Tài khoản này được đăng nhập bằng tài khoản xã hội (Google/Facebook) và không có mật khẩu để đặt lại. Vui lòng đăng nhập bằng tài khoản xã hội của bạn.');
@@ -397,7 +406,7 @@ class AuthService {
 
     // Generate random 6-digit reset token
     const resetToken = this.generateResetToken();
-    
+
     // Store token in memory with expiry time
     const expiresAt = Date.now() + TOKEN_EXPIRY_TIME;
     resetTokens.set(email.toLowerCase(), {
@@ -405,14 +414,14 @@ class AuthService {
       expiresAt: expiresAt,
       createdAt: Date.now()
     });
-    
+
     // Clean up expired tokens (optional cleanup)
     this.cleanupExpiredTokens();
 
     console.log(`🔐 Password reset requested for: ${email}`);
 
     // Send custom email with token displayed in email content
-    const emailSent = await EmailUtil.sendPasswordResetEmail(email, resetToken);
+    const emailSent = await EmailService.sendPasswordResetEmail(email, resetToken);
 
     if (!emailSent) {
       // If email config is not set, still return token in response
@@ -427,8 +436,8 @@ class AuthService {
 
     return {
       token: resetToken,
-      message: emailSent 
-        ? 'Password reset token has been sent to your email.' 
+      message: emailSent
+        ? 'Password reset token has been sent to your email.'
         : 'Password reset token generated. Please check email configuration.',
       email: email
     };
@@ -447,7 +456,7 @@ class AuthService {
     }
 
     const emailLower = email.toLowerCase();
-    
+
     // Check if email has been verified (token was verified successfully)
     const verifiedData = verifiedEmails.get(emailLower);
     if (!verifiedData || verifiedData.expiresAt < Date.now()) {
@@ -474,7 +483,7 @@ class AuthService {
     if (!authUser) {
       throw new NotFoundError('User with this email not found');
     }
-    
+
     // Remove verified email after password reset (one-time use)
     verifiedEmails.delete(emailLower);
 
@@ -592,14 +601,14 @@ class AuthService {
       if (this.verifyResetToken(emailLower, token)) {
         // Token is valid, remove it (one-time use)
         resetTokens.delete(emailLower);
-        
+
         // Mark email as verified (allows reset password for next 10 minutes)
         const verifiedExpiresAt = Date.now() + VERIFIED_EMAIL_EXPIRY_TIME;
         verifiedEmails.set(emailLower, {
           verifiedAt: Date.now(),
           expiresAt: verifiedExpiresAt
         });
-        
+
         // Also verify email in Supabase if user exists
         try {
           const { data: usersList } = await supabase.auth.admin.listUsers();
@@ -614,25 +623,25 @@ class AuthService {
           console.warn('Failed to update email confirmation in Supabase:', error.message);
           // Continue anyway as token verification succeeded
         }
-        
+
         return true;
       }
     } else {
       // Search for token across all stored tokens
       this.cleanupExpiredTokens();
-      
+
       for (const [storedEmail, tokenData] of resetTokens.entries()) {
         if (tokenData.token === token && tokenData.expiresAt >= Date.now()) {
           // Token found and valid, remove it (one-time use)
           resetTokens.delete(storedEmail);
-          
+
           // Mark email as verified (allows reset password for next 10 minutes)
           const verifiedExpiresAt = Date.now() + VERIFIED_EMAIL_EXPIRY_TIME;
           verifiedEmails.set(storedEmail, {
             verifiedAt: Date.now(),
             expiresAt: verifiedExpiresAt
           });
-          
+
           // Also verify email in Supabase if user exists
           try {
             const { data: usersList } = await supabase.auth.admin.listUsers();
@@ -645,7 +654,7 @@ class AuthService {
           } catch (error) {
             console.warn('Failed to update email confirmation in Supabase:', error.message);
           }
-          
+
           return true;
         }
       }
@@ -698,7 +707,7 @@ class AuthService {
 
     // Generate random 6-digit verification token (same as forgot password)
     const verificationToken = this.generateResetToken();
-    
+
     // Store token in memory with expiry time (same storage as forgot password)
     const expiresAt = Date.now() + TOKEN_EXPIRY_TIME;
     resetTokens.set(email.toLowerCase(), {
@@ -706,7 +715,7 @@ class AuthService {
       expiresAt: expiresAt,
       createdAt: Date.now()
     });
-    
+
     // Clean up expired tokens
     this.cleanupExpiredTokens();
 
@@ -725,8 +734,8 @@ class AuthService {
 
     return {
       token: verificationToken,
-      message: emailSent 
-        ? 'Verification email has been sent to your email.' 
+      message: emailSent
+        ? 'Verification email has been sent to your email.'
         : 'Verification token generated. Please check email configuration.',
       email: email
     };
@@ -758,12 +767,12 @@ class AuthService {
 
     // Extract user info from metadata
     const name = userMetadata.full_name || userMetadata.name || userMetadata.display_name || email?.split('@')[0];
-    
+
     // Get avatar URL from multiple possible locations in Google OAuth response
     // Google OAuth may store avatar in different fields depending on configuration
-    const avatarUrl = 
-      userMetadata.avatar_url || 
-      userMetadata.picture || 
+    const avatarUrl =
+      userMetadata.avatar_url ||
+      userMetadata.picture ||
       userMetadata.photo_url ||
       userMetadata.avatar ||
       authUser.user_metadata?.avatar_url ||
@@ -774,7 +783,7 @@ class AuthService {
       (authUser.identities && authUser.identities[0]?.identity_data?.avatar_url) ||
       (authUser.identities && authUser.identities[0]?.identity_data?.picture) ||
       null;
-    
+
     // Log for debugging (only in development)
     if (process.env.NODE_ENV === 'development') {
       console.log('🔍 Google OAuth Debug:');
@@ -809,7 +818,7 @@ class AuthService {
         user = await db('users')
           .where('user_id', userId)
           .first();
-        
+
         if (!user) {
           throw new BadRequestError('Failed to create user profile');
         }
@@ -822,7 +831,7 @@ class AuthService {
           .update({ avatar_url: avatarUrl });
         user.avatar_url = avatarUrl;
       }
-      
+
       // Update name if available and different
       if (name && user.name !== name) {
         await db('users')

@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const AdminController = require('../controllers/admin.controller');
+const NotificationController = require('../controllers/notification.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const RoleMiddleware = require('../middlewares/role.middleware');
+const { authenticate, authorize } = require('../middlewares/auth.middleware');
 
 /**
  * Admin Routes
@@ -73,5 +75,11 @@ router.get(
   AdminController.getStatistics
 );
 
-module.exports = router;
+// POST /api/admin/notifications - Send notification to users
+router.post('/notifications',
+    authenticate,
+    authorize(['admin']),
+    NotificationController.sendAdminNotification
+);
 
+module.exports = router;
