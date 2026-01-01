@@ -19,9 +19,9 @@ export default function StatCard({ icon, label, value, change, color = 'from-blu
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-6 border border-gray-100">
+    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 card-smooth">
       <div className="flex items-center justify-between mb-4">
-        <div className={`p-3 rounded-lg bg-gradient-to-br ${color} text-white`}>
+        <div className={`p-3 rounded-lg bg-gradient-to-br ${color} text-white transition-transform duration-200 hover:scale-110`}>
           {icon}
         </div>
       </div>

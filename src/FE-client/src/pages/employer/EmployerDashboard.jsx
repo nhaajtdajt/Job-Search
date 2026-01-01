@@ -152,9 +152,9 @@ export default function EmployerDashboard() {
               />
               <Link
                 to="/employer/jobs/create"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl btn-smooth transform hover:scale-105 active:scale-95"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-5 h-5 transition-transform duration-200" />
                 Đăng tin mới
               </Link>
             </div>
@@ -167,7 +167,7 @@ export default function EmployerDashboard() {
         {stats.pendingApplications > 0 && (
           <div 
             onClick={handlePendingClick}
-            className="mb-6 p-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl shadow-lg cursor-pointer hover:from-orange-600 hover:to-red-600 transition transform hover:scale-[1.01]"
+            className="mb-6 p-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl shadow-lg cursor-pointer hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-[1.02] card-smooth"
           >
             <div className="flex items-center justify-between text-white">
               <div className="flex items-center gap-3">

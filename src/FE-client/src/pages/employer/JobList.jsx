@@ -175,18 +175,18 @@ export default function JobList() {
           </div>
           <Link
             to="/employer/jobs/create"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-all duration-200 btn-smooth transform hover:scale-105 active:scale-95"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5 transition-transform duration-200" />
             Tạo tin mới
           </Link>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 card-smooth">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
+              <div className="p-2 bg-blue-100 rounded-lg transition-transform duration-200 hover:scale-110">
                 <Briefcase className="w-6 h-6 text-blue-600" />
               </div>
               <div>
@@ -195,9 +195,9 @@ export default function JobList() {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 card-smooth">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
+              <div className="p-2 bg-green-100 rounded-lg transition-transform duration-200 hover:scale-110">
                 <TrendingUp className="w-6 h-6 text-green-600" />
               </div>
               <div>
@@ -206,9 +206,9 @@ export default function JobList() {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 card-smooth">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-100 rounded-lg">
+              <div className="p-2 bg-orange-100 rounded-lg transition-transform duration-200 hover:scale-110">
                 <Eye className="w-6 h-6 text-orange-600" />
               </div>
               <div>
@@ -217,9 +217,9 @@ export default function JobList() {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 card-smooth">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
+              <div className="p-2 bg-purple-100 rounded-lg transition-transform duration-200 hover:scale-110">
                 <Users className="w-6 h-6 text-purple-600" />
               </div>
               <div>
@@ -294,21 +294,21 @@ export default function JobList() {
                       <p className="text-gray-500">Chưa có tin tuyển dụng nào</p>
                       <Link
                         to="/employer/jobs/create"
-                        className="inline-flex items-center gap-2 mt-4 text-orange-600 hover:text-orange-700 font-medium"
+                        className="inline-flex items-center gap-2 mt-4 text-orange-600 hover:text-orange-700 font-medium transition-all duration-200 link-smooth"
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-4 h-4 transition-transform duration-200" />
                         Tạo tin đầu tiên
                       </Link>
                     </td>
                   </tr>
                 ) : (
                   filteredJobs.map((job) => (
-                    <tr key={job.job_id} className="hover:bg-gray-50">
+                    <tr key={job.job_id} className="hover:bg-gray-50 transition-colors duration-200">
                       <td className="px-6 py-4">
                         <div>
                           <Link
                             to={`/employer/jobs/${job.job_id}/edit`}
-                            className="text-sm font-medium text-gray-900 hover:text-orange-600"
+                            className="text-sm font-medium text-gray-900 hover:text-orange-600 transition-all duration-200 link-smooth"
                           >
                             {job.job_title}
                           </Link>

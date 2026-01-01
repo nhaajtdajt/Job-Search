@@ -205,44 +205,44 @@ export default function EmployerProfile() {
               <nav className="p-2">
                 <Link
                   to="/employer/dashboard"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 link-smooth"
                 >
-                  <LayoutDashboard className="w-5 h-5" />
+                  <LayoutDashboard className="w-5 h-5 transition-transform duration-200" />
                   <span>Dashboard</span>
                 </Link>
                 <Link
                   to="/employer/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-orange-600 bg-orange-50 rounded-lg font-medium transition hover:bg-orange-100 mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-orange-600 bg-orange-50 rounded-lg font-medium transition-all duration-200 hover:bg-orange-100 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <User className="w-5 h-5" />
+                  <User className="w-5 h-5 transition-transform duration-200" />
                   <span>Hồ Sơ Cá Nhân</span>
                 </Link>
                 <Link
                   to="/employer/company"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Building2 className="w-5 h-5" />
+                  <Building2 className="w-5 h-5 transition-transform duration-200" />
                   <span>Thông Tin Công Ty</span>
                 </Link>
                 <Link
                   to="/employer/jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Briefcase className="w-5 h-5" />
+                  <Briefcase className="w-5 h-5 transition-transform duration-200" />
                   <span>Tin Tuyển Dụng</span>
                 </Link>
                 <Link
                   to="/employer/applications"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Users className="w-5 h-5" />
+                  <Users className="w-5 h-5 transition-transform duration-200" />
                   <span>Ứng Viên</span>
                 </Link>
                 <a
                   href="#"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-5 h-5 transition-transform duration-200" />
                   <span>Cài Đặt</span>
                 </a>
               </nav>
@@ -265,9 +265,9 @@ export default function EmployerProfile() {
                 </div>
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition"
+                  className="flex items-center gap-2 px-4 py-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-all duration-200 btn-smooth transform hover:scale-105 active:scale-95"
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="w-4 h-4 transition-transform duration-200" />
                   <span>Chỉnh sửa</span>
                 </button>
               </div>

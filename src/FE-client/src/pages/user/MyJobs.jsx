@@ -149,11 +149,11 @@ export default function MyJobs() {
     return (
       <div className="space-y-4">
         {applications.map((app) => (
-          <Link
-            key={app.application_id}
-            to={`/jobs/${app.job_id}`}
-            className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
-          >
+            <Link
+              key={app.application_id}
+              to={`/jobs/${app.job_id}`}
+              className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 cursor-pointer card-smooth"
+            >
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
@@ -214,7 +214,7 @@ export default function MyJobs() {
           return (
             <div
               key={savedJob.job_id}
-              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200"
+              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 card-smooth"
             >
               <div className="flex items-start justify-between">
                 <Link to={`/jobs/${job.job_id}`} className="flex-1 cursor-pointer">
@@ -290,7 +290,7 @@ export default function MyJobs() {
             <Link
               key={viewedJob.job_id}
               to={`/jobs/${job.job_id}`}
-              className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
+              className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 cursor-pointer card-smooth"
             >
               <h3 className="text-lg font-semibold text-gray-900 mb-2">{job.job_title}</h3>
               {job.location && (
@@ -373,37 +373,37 @@ export default function MyJobs() {
               <nav className="p-2">
                 <Link
                   to="/overview"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer link-smooth"
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5 transition-transform duration-200" />
                   <span>Tổng Quan</span>
                 </Link>
                 <Link
                   to="/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5 transition-transform duration-200" />
                   <span>Hồ Sơ Của Tôi</span>
                 </Link>
                 <Link
                   to="/my-jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-100 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-all duration-200 hover:bg-blue-100 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <Briefcase className="w-5 h-5" />
+                  <Briefcase className="w-5 h-5 transition-transform duration-200" />
                   <span>Việc Làm Của Tôi</span>
                 </Link>
                 <Link
                   to="/job-notifications"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <Bell className="w-5 h-5" />
+                  <Bell className="w-5 h-5 transition-transform duration-200" />
                   <span>Thông Báo Việc Làm</span>
                 </Link>
                 <Link
                   to="/account-management"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-5 h-5 transition-transform duration-200" />
                   <span>Quản Lý Tài Khoản</span>
                 </Link>
               </nav>
@@ -420,7 +420,7 @@ export default function MyJobs() {
                 <div className="flex -mb-px">
                 <button
                   onClick={() => setActiveTab('applications')}
-                  className={`px-6 py-4 font-medium text-sm transition-colors duration-200 cursor-pointer ${
+                  className={`px-6 py-4 font-medium text-sm transition-all duration-200 cursor-pointer relative ${
                       activeTab === 'applications'
                         ? 'text-blue-600 border-b-2 border-blue-600'
                         : 'text-gray-600 hover:text-gray-900'
@@ -430,7 +430,7 @@ export default function MyJobs() {
                   </button>
                   <button
                     onClick={() => setActiveTab('saved')}
-                    className={`px-6 py-4 font-medium text-sm transition-colors duration-200 cursor-pointer ${
+                    className={`px-6 py-4 font-medium text-sm transition-all duration-200 cursor-pointer relative ${
                       activeTab === 'saved'
                         ? 'text-blue-600 border-b-2 border-blue-600'
                         : 'text-gray-600 hover:text-gray-900'
@@ -440,7 +440,7 @@ export default function MyJobs() {
                   </button>
                   <button
                     onClick={() => setActiveTab('viewed')}
-                    className={`px-6 py-4 font-medium text-sm transition-colors duration-200 cursor-pointer ${
+                    className={`px-6 py-4 font-medium text-sm transition-all duration-200 cursor-pointer relative ${
                       activeTab === 'viewed'
                         ? 'text-blue-600 border-b-2 border-blue-600'
                         : 'text-gray-600 hover:text-gray-900'
@@ -450,7 +450,7 @@ export default function MyJobs() {
                   </button>
                   <button
                     onClick={() => setActiveTab('invitations')}
-                    className={`px-6 py-4 font-medium text-sm transition-colors duration-200 cursor-pointer ${
+                    className={`px-6 py-4 font-medium text-sm transition-all duration-200 cursor-pointer relative ${
                       activeTab === 'invitations'
                         ? 'text-blue-600 border-b-2 border-blue-600'
                         : 'text-gray-600 hover:text-gray-900'
