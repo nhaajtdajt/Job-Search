@@ -176,7 +176,7 @@ class AuthService {
             full_name: name || 'Employer',
             email: email,
             role: additionalData.employer_role || 'HR Manager',
-            status: additionalData.status || 'Active',
+            status: additionalData.status || 'verified',  // Default to 'verified' (valid values: 'verified' or 'suspended')
             company_id: additionalData.company_id || null  // Nullable now
           };
 
