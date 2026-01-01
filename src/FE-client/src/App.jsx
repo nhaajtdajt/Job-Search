@@ -1,6 +1,7 @@
 import { Outlet, Link } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import UserDropdown from "./components/common/UserDropdown";
+import NotificationBell from "./components/notifications/NotificationBell";
 import "./App.css";
 
 function Header() {
@@ -72,9 +73,7 @@ function Header() {
                   {item.label}
                 </Link>
               ))}
-              <button className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition hover:bg-white/15 hover:text-white">
-                Thông báo
-              </button>
+<NotificationBell />
             </nav>
             <div className="flex items-center gap-4">
               {/* Only show "Nhà tuyển dụng" button when NOT authenticated */}

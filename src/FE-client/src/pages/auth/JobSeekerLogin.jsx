@@ -83,60 +83,20 @@ export default function JobSeekerLogin() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleSocialLogin = async (provider) => {
     try {
-      setSocialLoading(prev => ({ ...prev, google: true }));
+      setSocialLoading(prev => ({ ...prev, [provider]: true }));
       setApiError("");
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      // Redirect will happen automatically
+      await socialLogin(provider);
+      // Redirect handled by specific provider flow or default callback
     } catch (error) {
-      console.error('Google login error:', error);
-      setApiError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+      console.error(`${provider} login error:`, error);
+      setApiError(`Đăng nhập bằng ${provider} thất bại. Vui lòng thử lại.`);
     } finally {
-      setSocialLoading(prev => ({ ...prev, google: false }));
+      setSocialLoading(prev => ({ ...prev, [provider]: false }));
     }
   };
-
-  // Facebook login - temporarily disabled
-  // const handleFacebookLogin = async () => {
-  //   try {
-  //     setSocialLoading(prev => ({ ...prev, facebook: true }));
-  //     setApiError("");
-  //     
-  //     const { data, error } = await supabase.auth.signInWithOAuth({
-  //       provider: 'facebook',
-  //       options: {
-  //         redirectTo: `${window.location.origin}/auth/callback`,
-  //       },
-  //     });
-
-  //     if (error) {
-  //       throw error;
-  //     }
-
-  //     // Redirect will happen automatically
-  //   } catch (error) {
-  //     console.error('Facebook login error:', error);
-  //     setApiError('Đăng nhập bằng Facebook thất bại. Vui lòng thử lại.');
-  //   } finally {
-  //     setSocialLoading(prev => ({ ...prev, facebook: false }));
-  //   }
-  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -370,7 +330,7 @@ export default function JobSeekerLogin() {
                 {/* Google Login Button */}
                 <button
                   type="button"
-                  onClick={handleGoogleLogin}
+                  onClick={() => handleSocialLogin('google')}
                   disabled={isLoading || socialLoading.google}
                   className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -395,12 +355,12 @@ export default function JobSeekerLogin() {
                   Google
                 </button>
 
-                {/* Facebook Login Button - Display Only (No Functionality) */}
+                {/* Facebook Login Button */}
                 <button
                   type="button"
-                  disabled
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 opacity-60 cursor-not-allowed transition-all duration-200"
-                  title="Đăng nhập bằng Facebook đang được phát triển"
+                  onClick={() => handleSocialLogin('facebook')}
+                  disabled={isLoading || socialLoading.facebook}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     className="w-5 h-5 mr-2"

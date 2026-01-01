@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { userService } from '../../services/user.service';
 import { useNavigate, Link } from 'react-router-dom';
+import { notificationService } from '../../services/notificationService';
+import applicationService from '../../services/applicationService';
 import { 
   User, 
   Briefcase,
@@ -11,7 +13,11 @@ import {
   Eye,
   Search,
   Paperclip,
-  BarChart3
+  BarChart3,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle
 } from 'lucide-react';
 
 export default function Overview() {
@@ -25,6 +31,8 @@ export default function Overview() {
     jobViews: 0, // saved_jobs count
     jobSearches: 0 // saved_searches count
   });
+  const [recentNotifications, setRecentNotifications] = useState([]);
+  const [recentApplications, setRecentApplications] = useState([]);
 
   // Redirect if not authenticated or if user is employer
   useEffect(() => {
@@ -75,6 +83,22 @@ export default function Overview() {
           });
         } catch (statsError) {
           console.error('Error loading statistics:', statsError);
+        }
+
+        // Load recent notifications
+        try {
+            const notifResponse = await notificationService.getNotifications(1, 4);
+            setRecentNotifications(notifResponse.data || []);
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+        }
+
+        // Load recent applications
+        try {
+            const appResponse = await applicationService.getMyApplications({ page: 1, limit: 4 });
+            setRecentApplications(appResponse.data || appResponse || []);
+        } catch (error) {
+            console.error('Error loading applications:', error);
         }
         
       } catch (error) {
@@ -330,6 +354,79 @@ export default function Overview() {
                   </div>
                   <Search className="w-6 h-6 text-gray-400" />
                 </Link>
+              </div>
+            </div>
+
+            {/* Recent Activity Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Recent Notifications Widget */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-gray-900">Thông báo mới</h2>
+                    <Link to="/user/notifications" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        Xem tất cả
+                    </Link>
+                </div>
+                <div className="space-y-4">
+                    {recentNotifications.length > 0 ? (
+                        recentNotifications.map((notification) => (
+                            <div key={notification.notification_id || Math.random()} className={`flex gap-3 p-3 rounded-lg ${!notification.seen ? 'bg-blue-50' : 'hover:bg-gray-50'} transition`}>
+                                <div className="mt-1">
+                                    <Bell className={`w-4 h-4 ${!notification.seen ? 'text-blue-600' : 'text-gray-400'}`} />
+                                </div>
+                                <div className="flex-1">
+                                    <p className={`text-sm ${!notification.seen ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                                        {notification.title || notification.note}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        {new Date(notification.created_at).toLocaleDateString()}
+                                    </p>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-500 text-sm text-center py-4">Không có thông báo nào</p>
+                    )}
+                </div>
+              </div>
+
+              {/* Recent Applications Widget */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-gray-900">Ứng tuyển gần đây</h2>
+                    <Link to="/user/applications" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        Xem tất cả
+                    </Link>
+                </div>
+                <div className="space-y-4">
+                    {recentApplications.length > 0 ? (
+                        recentApplications.map((app) => (
+                            <div key={app.application_id || Math.random()} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:border-gray-200 hover:shadow-sm transition">
+                                <div>
+                                    <p className="text-sm font-bold text-gray-900 line-clamp-1">
+                                        {app.job_title}
+                                    </p>
+                                    <p className="text-xs text-gray-600 mt-1">
+                                        {app.company_name}
+                                    </p>
+                                </div>
+                                <div>
+                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                      ${app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                        app.status === 'accepted' || app.status === 'hired' ? 'bg-green-100 text-green-800' : 
+                                        app.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
+                                        {app.status === 'pending' ? 'Đang chờ' :
+                                         app.status === 'reviewing' ? 'Đang xem xét' :
+                                         app.status === 'hired' || app.status === 'accepted' ? 'Đã nhận' :
+                                         app.status === 'rejected' ? 'Từ chối' : app.status}
+                                    </span>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-500 text-sm text-center py-4">Chưa ứng tuyển công việc nào</p>
+                    )}
+                </div>
               </div>
             </div>
 

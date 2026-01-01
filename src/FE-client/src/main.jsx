@@ -14,6 +14,8 @@ import JobSeekerLogin from './pages/auth/JobSeekerLogin.jsx'
 import JobSeekerRegister from './pages/auth/JobSeekerRegister.jsx'
 import AuthCallback from './pages/auth/AuthCallback.jsx'
 import ForgotPassword from './pages/auth/ForgotPassword.jsx'
+import VerifyEmail from './pages/auth/VerifyEmail.jsx'
+import ResetPassword from './pages/auth/ResetPassword.jsx'
 import EmployerLanding from './pages/employer/EmployerLanding.jsx'
 import EmployerDashboard from './pages/employer/EmployerDashboard.jsx'
 import EmployerProfile from './pages/employer/EmployerProfile.jsx'
@@ -33,6 +35,15 @@ import Overview from './pages/user/Overview.jsx'
 import AccountManagement from './pages/user/AccountManagement.jsx'
 import MyJobs from './pages/user/MyJobs.jsx'
 import JobNotifications from './pages/user/JobNotifications.jsx'
+import ResumeList from './pages/user/ResumeList.jsx'
+import ResumeCreate from './pages/user/ResumeCreate.jsx'
+import ResumeEdit from './pages/user/ResumeEdit.jsx'
+import ResumePreview from './pages/user/ResumePreview.jsx'
+import SavedJobs from './pages/user/SavedJobs.jsx'
+import SavedSearches from './pages/user/SavedSearches.jsx'
+import UserApplicationDetail from './pages/user/ApplicationDetail.jsx'
+import Notifications from './pages/user/Notifications.jsx'
+import ErrorBoundary from './components/common/ErrorBoundary.jsx'
 
 // Admin imports
 import AdminLayout from './pages/admin/AdminLayout.jsx'
@@ -57,11 +68,28 @@ const router = createBrowserRouter([
       { path: 'register', element: <JobSeekerRegister /> },
       { path: 'auth/callback', element: <AuthCallback /> },
       { path: 'forgot-password', element: <ForgotPassword /> },
+      { path: 'reset-password', element: <ResetPassword /> },
+      { path: 'verify-email', element: <VerifyEmail /> },
       { path: 'profile', element: <Profile /> },
       { path: 'overview', element: <Overview /> },
       { path: 'account-management', element: <AccountManagement /> },
       { path: 'my-jobs', element: <MyJobs /> },
       { path: 'job-notifications', element: <JobNotifications /> },
+      // User dashboard routes
+      { path: 'user/overview', element: <Overview /> },
+      { path: 'user/profile', element: <Profile /> },
+      { path: 'user/resumes', element: <ResumeList /> },
+      { path: 'user/resumes/create', element: <ResumeCreate /> },
+      { path: 'user/resumes/:resumeId', element: <ResumeEdit /> },
+      { path: 'user/resumes/:resumeId/edit', element: <ResumeEdit /> },
+      { path: 'user/resumes/:resumeId/preview', element: <ResumePreview /> },
+      { path: 'user/my-jobs', element: <MyJobs /> },
+      { path: 'user/saved-jobs', element: <SavedJobs /> },
+      { path: 'user/saved-searches', element: <SavedSearches /> },
+      { path: 'user/applications/:applicationId', element: <UserApplicationDetail /> },
+      { path: 'user/job-notifications', element: <JobNotifications /> },
+      { path: 'user/notifications', element: <Notifications /> },
+      { path: 'user/account', element: <AccountManagement /> },
     ],
   },
   {
@@ -107,9 +135,11 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </ErrorBoundary>
   </StrictMode>
 )
 

@@ -50,8 +50,8 @@ class ResumeService {
       throw new BadRequestError('Resume title is required');
     }
 
-    // Generate resume ID
-    const resumeId = 'RES' + Date.now().toString().slice(-6);
+    // Generate resume ID (max 7 chars to fit DB varchar(7))
+    const resumeId = 'R' + Date.now().toString().slice(-6);
 
     // Create resume
     const resume = await ResumeRepository.create({
