@@ -251,41 +251,41 @@ export default function Profile() {
             {/* Navigation Menu */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <nav className="p-2">
-                <a
-                  href="#"
-                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition hover:bg-blue-100"
+                <Link
+                  to="/overview"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 link-smooth"
                 >
-                  <User className="w-5 h-5" />
+                  <User className="w-5 h-5 transition-transform duration-200" />
                   <span>Tổng Quan</span>
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                </Link>
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-all duration-200 hover:bg-blue-100 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5 transition-transform duration-200" />
                   <span>Hồ Sơ Của Tôi</span>
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                </Link>
+                <Link
+                  to="/my-jobs"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Briefcase className="w-5 h-5" />
+                  <Briefcase className="w-5 h-5 transition-transform duration-200" />
                   <span>Việc Làm Của Tôi</span>
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                </Link>
+                <Link
+                  to="/job-notifications"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Bell className="w-5 h-5" />
+                  <Bell className="w-5 h-5 transition-transform duration-200" />
                   <span>Thông Báo Việc Làm</span>
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                </Link>
+                <Link
+                  to="/account-management"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-5 h-5 transition-transform duration-200" />
                   <span>Quản Lý Tài Khoản</span>
-                </a>
+                </Link>
               </nav>
             </div>
           </div>
@@ -304,26 +304,26 @@ export default function Profile() {
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium"
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200 font-medium btn-smooth transform hover:scale-105 active:scale-95"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-4 h-4 transition-transform duration-200" />
                     <span>Chỉnh Sửa</span>
                   </button>
                 ) : (
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleCancel}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium btn-smooth transform hover:scale-105 active:scale-95"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-4 h-4 transition-transform duration-200" />
                       <span>Hủy</span>
                     </button>
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium disabled:opacity-50"
+                      className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200 font-medium disabled:opacity-50 btn-smooth transform hover:scale-105 active:scale-95 disabled:transform-none"
                     >
-                      <Save className="w-4 h-4" />
+                      <Save className="w-4 h-4 transition-transform duration-200" />
                       <span>{saving ? 'Đang lưu...' : 'Lưu'}</span>
                     </button>
                   </div>

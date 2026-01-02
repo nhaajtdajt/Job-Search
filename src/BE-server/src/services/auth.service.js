@@ -171,20 +171,39 @@ class AuthService {
           employerId = existingEmployer.employer_id;
         } else {
           // Create new employer record
+          // Use raw SQL with ON CONFLICT to handle race conditions
           const employerData = {
             user_id: userId,
             full_name: name || 'Employer',
             email: email,
             role: additionalData.employer_role || 'HR Manager',
-            status: additionalData.status || 'Active',
+            status: additionalData.status || 'verified',  // Default to 'verified' (valid values: 'verified' or 'suspended')
             company_id: additionalData.company_id || null  // Nullable now
           };
 
-          const [employer] = await db('employer')
-            .insert(employerData)
-            .returning('employer_id');
+          // Try insert, if fails due to duplicate, try to get existing record
+          try {
+            const [employer] = await db('employer')
+              .insert(employerData)
+              .returning('employer_id');
 
-          employerId = employer.employer_id;
+            employerId = employer.employer_id;
+          } catch (insertError) {
+            // If insert fails due to duplicate key, try to get existing record
+            if (insertError.code === '23505' || insertError.message.includes('duplicate key')) {
+              const existing = await db('employer')
+                .where('user_id', userId)
+                .first();
+              
+              if (existing) {
+                employerId = existing.employer_id;
+              } else {
+                throw insertError;
+              }
+            } else {
+              throw insertError;
+            }
+          }
         }
       } catch (employerError) {
         console.error('Failed to create employer record:', employerError);
@@ -237,14 +256,37 @@ class AuthService {
     }
 
     const userId = authData.user.id;
+    const userMetadata = authData.user.user_metadata || {};
+    const name = userMetadata.full_name || userMetadata.name || email?.split('@')[0];
 
     // Get user profile from database
-    const user = await db('users')
+    let user = await db('users')
       .where('user_id', userId)
       .first();
 
+    // If user profile doesn't exist, create it automatically
+    // This handles cases where user was created before trigger was set up, or trigger failed
     if (!user) {
-      throw new NotFoundError('User profile not found');
+      try {
+        await db('users').insert({
+          user_id: userId,
+          name: name,
+          // Other fields can be null
+        });
+        user = await db('users')
+          .where('user_id', userId)
+          .first();
+      } catch (dbError) {
+        console.error('Error creating user profile:', dbError);
+        // If insert fails (e.g., trigger already created it), try to fetch again
+        user = await db('users')
+          .where('user_id', userId)
+          .first();
+
+        if (!user) {
+          throw new NotFoundError('User profile not found and could not be created');
+        }
+      }
     }
 
     // Determine user role based on email (admin) or employer table

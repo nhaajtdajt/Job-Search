@@ -43,7 +43,7 @@ export default function EmployerHeader() {
             ))}
             <Link
               to="/employer/contact"
-              className="hidden sm:inline rounded-full bg-orange-500 px-4 py-2 text-white font-semibold text-xs uppercase tracking-wider hover:bg-orange-600 transition"
+              className="hidden sm:inline rounded-full bg-orange-500 px-4 py-2 text-white font-semibold text-xs uppercase tracking-wider hover:bg-orange-600 transition-all duration-200 btn-smooth transform hover:scale-105 active:scale-95"
             >
               Liên hệ tư vấn
             </Link>
@@ -74,13 +74,13 @@ export default function EmployerHeader() {
                 <Link
                   key={item.label}
                   to={item.to}
-                  className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition hover:bg-white/15 hover:text-white"
+                  className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition-all duration-200 hover:bg-white/15 hover:text-white link-smooth transform hover:scale-105"
                 >
                   {item.label}
                 </Link>
               ))}
               {isAuthenticated && (
-                <button className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition hover:bg-white/15 hover:text-white">
+                <button className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition-all duration-200 hover:bg-white/15 hover:text-white link-smooth transform hover:scale-105">
                   Thông báo
                 </button>
               )}
@@ -90,7 +90,7 @@ export default function EmployerHeader() {
               {!isAuthenticated && (
                 <Link 
                   to="/" 
-                  className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-600 shadow-lg"
+                  className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-blue-600 shadow-lg btn-smooth transform hover:scale-105 active:scale-95"
                 >
                   Người tìm việc
                 </Link>
@@ -100,10 +100,10 @@ export default function EmployerHeader() {
                   <EmployerUserDropdown />
                 ) : (
                   <>
-                    <Link to="/employer/login" className="text-brand-50 font-semibold transition hover:text-white">
+                    <Link to="/employer/login" className="text-brand-50 font-semibold transition-all duration-200 hover:text-white link-smooth">
                       Đăng nhập
                     </Link>
-                    <Link to="/employer/register" className="text-sm font-semibold text-brand-50 transition hover:text-white">
+                    <Link to="/employer/register" className="text-sm font-semibold text-brand-50 transition-all duration-200 hover:text-white link-smooth">
                       Đăng ký
                     </Link>
                   </>

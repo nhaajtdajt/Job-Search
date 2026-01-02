@@ -49,14 +49,14 @@ export default function JobActions({ job, onPublish, onExpire, onDelete }) {
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
-        className="p-2 hover:bg-gray-100 rounded-lg transition"
+        className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 btn-smooth transform hover:scale-110 active:scale-95"
       >
-        <MoreVertical className="w-5 h-5 text-gray-500" />
+        <MoreVertical className="w-5 h-5 text-gray-500 transition-transform duration-200" />
       </button>
 
       {isOpen && (
         <div 
-          className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
+          className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 dropdown-enter"
           style={{ zIndex: 9999 }}
         >
           {/* View job */}
@@ -64,9 +64,9 @@ export default function JobActions({ job, onPublish, onExpire, onDelete }) {
             to={`/jobs/${jobId}`}
             target="_blank"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition"
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 ease-in-out transform hover:translate-x-1 group link-smooth"
           >
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
             Xem tin
           </Link>
 
@@ -74,9 +74,9 @@ export default function JobActions({ job, onPublish, onExpire, onDelete }) {
           <Link
             to={`/employer/jobs/${jobId}/edit`}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition"
+            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 ease-in-out transform hover:translate-x-1 group link-smooth"
           >
-            <Edit className="w-4 h-4" />
+            <Edit className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
             Chỉnh sửa
           </Link>
 
@@ -89,9 +89,9 @@ export default function JobActions({ job, onPublish, onExpire, onDelete }) {
                 e.stopPropagation();
                 handleAction(onPublish);
               }}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-green-600 hover:bg-green-50 transition text-left"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-green-600 hover:bg-green-50 transition-all duration-200 ease-in-out transform hover:translate-x-1 group text-left link-smooth"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
               Đăng lại
             </button>
           )}
@@ -103,9 +103,9 @@ export default function JobActions({ job, onPublish, onExpire, onDelete }) {
                 e.stopPropagation();
                 handleAction(onExpire);
               }}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 transition text-left"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 transition-all duration-200 ease-in-out transform hover:translate-x-1 group text-left link-smooth"
             >
-              <EyeOff className="w-4 h-4" />
+              <EyeOff className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
               Tạm dừng tuyển
             </button>
           )}
@@ -117,9 +117,9 @@ export default function JobActions({ job, onPublish, onExpire, onDelete }) {
                 e.stopPropagation();
                 handleAction(onPublish);
               }}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-green-600 hover:bg-green-50 transition text-left"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-green-600 hover:bg-green-50 transition-all duration-200 ease-in-out transform hover:translate-x-1 group text-left link-smooth"
             >
-              <Eye className="w-4 h-4" />
+              <Eye className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
               Đăng tin
             </button>
           )}
@@ -132,9 +132,9 @@ export default function JobActions({ job, onPublish, onExpire, onDelete }) {
               e.stopPropagation();
               handleAction(onDelete);
             }}
-            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition text-left"
+            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 ease-in-out transform hover:translate-x-1 group text-left link-smooth"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
             Xóa tin
           </button>
         </div>
