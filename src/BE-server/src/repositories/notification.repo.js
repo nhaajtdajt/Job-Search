@@ -22,7 +22,7 @@ class NotificationRepository {
 
     /**
      * Create a notification
-     * @param {Object} data - { user_id, title, note }
+     * @param {Object} data - { user_id, title, note, metadata }
      * @returns {Object} Created notification
      */
     static async create(data) {
@@ -32,6 +32,7 @@ class NotificationRepository {
                 user_id: data.user_id,
                 title: data.title || null,
                 note: data.note,
+                metadata: data.metadata ? JSON.stringify(data.metadata) : null,
                 seen: false,
                 created_at: new Date()
             })

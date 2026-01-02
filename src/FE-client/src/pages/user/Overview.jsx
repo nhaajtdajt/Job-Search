@@ -170,37 +170,37 @@ export default function Overview() {
               <nav className="p-2">
                 <Link
                   to="/overview"
-                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition hover:bg-blue-100"
+                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-all duration-200 hover:bg-blue-100 hover:translate-x-1 link-smooth"
                 >
-                  <BarChart3 className="w-5 h-5" />
+                  <BarChart3 className="w-5 h-5 transition-transform duration-200" />
                   <span>Tổng Quan</span>
                 </Link>
                 <Link
                   to="/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5 transition-transform duration-200" />
                   <span>Hồ Sơ Của Tôi</span>
                 </Link>
                 <Link
                   to="/my-jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Briefcase className="w-5 h-5" />
+                  <Briefcase className="w-5 h-5 transition-transform duration-200" />
                   <span>Việc Làm Của Tôi</span>
                 </Link>
                 <Link
                   to="/job-notifications"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Bell className="w-5 h-5" />
+                  <Bell className="w-5 h-5 transition-transform duration-200" />
                   <span>Thông Báo Việc Làm</span>
                 </Link>
                 <Link
                   to="/account-management"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-5 h-5 transition-transform duration-200" />
                   <span>Quản Lý Tài Khoản</span>
                 </Link>
               </nav>
@@ -236,7 +236,7 @@ export default function Overview() {
                 </div>
                 <Link
                   to="/profile"
-                  className="ml-6 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium whitespace-nowrap"
+                  className="ml-6 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200 font-medium whitespace-nowrap btn-smooth transform hover:scale-105 active:scale-95"
                 >
                   Cập nhật hồ sơ
                 </Link>
@@ -326,33 +326,33 @@ export default function Overview() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
                 <Link
                   to="#"
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 card-smooth"
                 >
                   <div>
                     <p className="text-2xl font-bold text-gray-900">{activityData.applications}</p>
                     <p className="text-sm text-gray-600">Việc đã ứng tuyển</p>
                   </div>
-                  <Briefcase className="w-6 h-6 text-gray-400" />
+                  <Briefcase className="w-6 h-6 text-gray-400 transition-transform duration-200 hover:scale-110" />
                 </Link>
                 <Link
                   to="#"
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 card-smooth"
                 >
                   <div>
                     <p className="text-2xl font-bold text-gray-900">{activityData.jobViews}</p>
                     <p className="text-sm text-gray-600">Lượt xem việc làm</p>
                   </div>
-                  <Eye className="w-6 h-6 text-gray-400" />
+                  <Eye className="w-6 h-6 text-gray-400 transition-transform duration-200 hover:scale-110" />
                 </Link>
                 <Link
                   to="#"
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 card-smooth"
                 >
                   <div>
                     <p className="text-2xl font-bold text-gray-900">{activityData.jobSearches}</p>
                     <p className="text-sm text-gray-600">Lượt tìm việc làm</p>
                   </div>
-                  <Search className="w-6 h-6 text-gray-400" />
+                  <Search className="w-6 h-6 text-gray-400 transition-transform duration-200 hover:scale-110" />
                 </Link>
               </div>
             </div>

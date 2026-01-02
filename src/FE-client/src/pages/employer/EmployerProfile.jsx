@@ -1,20 +1,25 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { employerService } from '../../services/employerService';
-import { 
-  User, 
-  Mail, 
-  Phone, 
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { employerService } from "../../services/employerService";
+import {
+  User,
+  Mail,
+  Phone,
   Building2,
   Briefcase,
   Edit2,
-  Camera
-} from 'lucide-react';
-import { Modal, Input, message } from 'antd';
+  Camera,
+} from "lucide-react";
+import { Modal, Input, message } from "antd";
 
 export default function EmployerProfile() {
-  const { user: authUser, isAuthenticated, updateUserData, loading: authLoading } = useAuth();
+  const {
+    user: authUser,
+    isAuthenticated,
+    updateUserData,
+    loading: authLoading,
+  } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,18 +27,18 @@ export default function EmployerProfile() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    position: '',
-    department: '',
+    name: "",
+    email: "",
+    phone: "",
+    position: "",
+    department: "",
   });
 
   // Redirect if not authenticated
   useEffect(() => {
     if (authLoading) return; // Don't redirect while loading
     if (!isAuthenticated) {
-      navigate('/employer/login');
+      navigate("/employer/login");
     }
   }, [isAuthenticated, authLoading, navigate]);
 
@@ -44,18 +49,18 @@ export default function EmployerProfile() {
         setLoading(true);
         const profileData = await employerService.getProfile();
         setProfile(profileData);
-        
+
         // Initialize form data
         setFormData({
-          name: profileData.name || '',
-          email: authUser?.email || profileData.email || '',
-          phone: profileData.phone || '',
-          position: profileData.position || '',
-          department: profileData.department || '',
+          name: profileData.name || "",
+          email: authUser?.email || profileData.email || "",
+          phone: profileData.phone || "",
+          position: profileData.position || "",
+          department: profileData.department || "",
         });
       } catch (error) {
-        console.error('Error loading profile:', error);
-        message.error('Không thể tải thông tin profile');
+        console.error("Error loading profile:", error);
+        message.error("Không thể tải thông tin profile");
       } finally {
         setLoading(false);
       }
@@ -68,9 +73,9 @@ export default function EmployerProfile() {
 
   // Handle form input change
   const handleChange = (name, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -78,7 +83,7 @@ export default function EmployerProfile() {
   const handleSaveProfile = async () => {
     try {
       setSaving(true);
-      
+
       const updateData = {
         name: formData.name,
         phone: formData.phone,
@@ -87,19 +92,19 @@ export default function EmployerProfile() {
       };
 
       // Remove empty fields
-      Object.keys(updateData).forEach(key => {
+      Object.keys(updateData).forEach((key) => {
         if (!updateData[key]) {
           delete updateData[key];
         }
       });
 
       const updatedProfile = await employerService.updateProfile(updateData);
-      setProfile(prev => ({ ...prev, ...updatedProfile }));
+      setProfile((prev) => ({ ...prev, ...updatedProfile }));
       setIsModalOpen(false);
-      message.success('Cập nhật thông tin thành công!');
+      message.success("Cập nhật thông tin thành công!");
     } catch (error) {
-      console.error('Error updating profile:', error);
-      message.error(error.response?.data?.message || 'Cập nhật thất bại');
+      console.error("Error updating profile:", error);
+      message.error(error.response?.data?.message || "Cập nhật thất bại");
     } finally {
       setSaving(false);
     }
@@ -111,37 +116,37 @@ export default function EmployerProfile() {
     if (!file) return;
 
     // Validate file type
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      message.error('Chỉ hỗ trợ file ảnh (JPG, PNG, WebP)');
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      message.error("Chỉ hỗ trợ file ảnh (JPG, PNG, WebP)");
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      message.error('File không được vượt quá 5MB');
+      message.error("File không được vượt quá 5MB");
       return;
     }
 
     try {
       setUploading(true);
       const result = await employerService.uploadAvatar(file);
-      
+
       // Update local profile state
-      setProfile(prev => ({ ...prev, avatar_url: result.avatar_url }));
-      
+      setProfile((prev) => ({ ...prev, avatar_url: result.avatar_url }));
+
       // Update user in auth context immediately with the new avatar_url
       if (updateUserData && result.avatar_url) {
         updateUserData({ avatar_url: result.avatar_url });
       }
-      
-      message.success('Tải ảnh đại diện thành công!');
+
+      message.success("Tải ảnh đại diện thành công!");
     } catch (error) {
-      console.error('Error uploading avatar:', error);
-      message.error('Tải ảnh thất bại');
+      console.error("Error uploading avatar:", error);
+      message.error("Tải ảnh thất bại");
     } finally {
       setUploading(false);
       // Reset input
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
@@ -162,7 +167,9 @@ export default function EmployerProfile() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h1 className="text-2xl font-bold text-gray-900">Hồ sơ cá nhân</h1>
-          <p className="text-gray-600 mt-1">Quản lý thông tin cá nhân của bạn</p>
+          <p className="text-gray-600 mt-1">
+            Quản lý thông tin cá nhân của bạn
+          </p>
         </div>
       </div>
 
@@ -175,9 +182,9 @@ export default function EmployerProfile() {
               <div className="relative">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
                   {profile?.avatar_url ? (
-                    <img 
-                      src={profile.avatar_url} 
-                      alt={profile.name || 'Employer'} 
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.name || "Employer"}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -196,14 +203,14 @@ export default function EmployerProfile() {
                   />
                 </label>
               </div>
-              
+
               {/* Name & Title */}
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {profile?.name || 'Chưa cập nhật tên'}
+                  {profile?.name || "Chưa cập nhật tên"}
                 </h2>
                 <p className="text-gray-600 mt-1">
-                  {profile?.position || 'Chưa cập nhật chức vụ'}
+                  {profile?.position || "Chưa cập nhật chức vụ"}
                   {profile?.department && ` - ${profile.department}`}
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
@@ -226,7 +233,9 @@ export default function EmployerProfile() {
         {/* Personal Information Section */}
         <div className="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900">Thông tin liên hệ</h3>
+            <h3 className="text-lg font-bold text-gray-900">
+              Thông tin liên hệ
+            </h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -234,7 +243,9 @@ export default function EmployerProfile() {
                 <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="text-gray-900 font-medium">{authUser?.email || profile?.email || 'Chưa cập nhật'}</p>
+                  <p className="text-gray-900 font-medium">
+                    {authUser?.email || profile?.email || "Chưa cập nhật"}
+                  </p>
                 </div>
               </div>
 
@@ -242,7 +253,9 @@ export default function EmployerProfile() {
                 <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Điện thoại</p>
-                  <p className="text-gray-900 font-medium">{profile?.phone || 'Chưa cập nhật'}</p>
+                  <p className="text-gray-900 font-medium">
+                    {profile?.phone || "Chưa cập nhật"}
+                  </p>
                 </div>
               </div>
 
@@ -250,7 +263,9 @@ export default function EmployerProfile() {
                 <Briefcase className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Chức vụ</p>
-                  <p className="text-gray-900 font-medium">{profile?.position || 'Chưa cập nhật'}</p>
+                  <p className="text-gray-900 font-medium">
+                    {profile?.position || "Chưa cập nhật"}
+                  </p>
                 </div>
               </div>
 
@@ -258,7 +273,9 @@ export default function EmployerProfile() {
                 <Building2 className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Phòng ban</p>
-                  <p className="text-gray-900 font-medium">{profile?.department || 'Chưa cập nhật'}</p>
+                  <p className="text-gray-900 font-medium">
+                    {profile?.department || "Chưa cập nhật"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -268,21 +285,29 @@ export default function EmployerProfile() {
         {/* Account Statistics */}
         <div className="bg-white rounded-xl shadow-md border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900">Thống kê tài khoản</h3>
+            <h3 className="text-lg font-bold text-gray-900">
+              Thống kê tài khoản
+            </h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-xl">
                 <p className="text-sm text-blue-600 mb-1">Tin tuyển dụng</p>
-                <p className="text-3xl font-bold text-blue-700">{profile?.total_jobs || 0}</p>
+                <p className="text-3xl font-bold text-blue-700">
+                  {profile?.total_jobs || 0}
+                </p>
               </div>
               <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl">
                 <p className="text-sm text-green-600 mb-1">Ứng viên</p>
-                <p className="text-3xl font-bold text-green-700">{profile?.total_applications || 0}</p>
+                <p className="text-3xl font-bold text-green-700">
+                  {profile?.total_applications || 0}
+                </p>
               </div>
               <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-5 rounded-xl">
                 <p className="text-sm text-orange-600 mb-1">Lượt xem</p>
-                <p className="text-3xl font-bold text-orange-700">{profile?.total_views || 0}</p>
+                <p className="text-3xl font-bold text-orange-700">
+                  {profile?.total_views || 0}
+                </p>
               </div>
             </div>
           </div>
@@ -298,7 +323,7 @@ export default function EmployerProfile() {
         confirmLoading={saving}
         okText="Lưu thay đổi"
         cancelText="Hủy"
-        okButtonProps={{ className: 'bg-orange-500 hover:bg-orange-600' }}
+        okButtonProps={{ className: "bg-orange-500 hover:bg-orange-600" }}
       >
         <div className="py-4 space-y-4">
           <div>
@@ -307,7 +332,7 @@ export default function EmployerProfile() {
             </label>
             <Input
               value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
+              onChange={(e) => handleChange("name", e.target.value)}
               placeholder="Nhập họ và tên"
             />
           </div>
@@ -316,11 +341,7 @@ export default function EmployerProfile() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Email
             </label>
-            <Input
-              value={formData.email}
-              disabled
-              className="bg-gray-100"
-            />
+            <Input value={formData.email} disabled className="bg-gray-100" />
           </div>
 
           <div>
@@ -329,7 +350,7 @@ export default function EmployerProfile() {
             </label>
             <Input
               value={formData.phone}
-              onChange={(e) => handleChange('phone', e.target.value)}
+              onChange={(e) => handleChange("phone", e.target.value)}
               placeholder="Nhập số điện thoại"
             />
           </div>
@@ -340,7 +361,7 @@ export default function EmployerProfile() {
             </label>
             <Input
               value={formData.position}
-              onChange={(e) => handleChange('position', e.target.value)}
+              onChange={(e) => handleChange("position", e.target.value)}
               placeholder="VD: HR Manager, Trưởng phòng nhân sự..."
             />
           </div>
@@ -351,7 +372,7 @@ export default function EmployerProfile() {
             </label>
             <Input
               value={formData.department}
-              onChange={(e) => handleChange('department', e.target.value)}
+              onChange={(e) => handleChange("department", e.target.value)}
               placeholder="VD: Phòng nhân sự, Phòng tuyển dụng..."
             />
           </div>

@@ -141,37 +141,37 @@ export default function AccountManagement() {
               <nav className="p-2">
                 <Link
                   to="/overview"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer link-smooth"
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5 transition-transform duration-200" />
                   <span>Tổng Quan</span>
                 </Link>
                 <Link
                   to="/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5 transition-transform duration-200" />
                   <span>Hồ Sơ Của Tôi</span>
                 </Link>
                 <Link
                   to="/my-jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <Briefcase className="w-5 h-5" />
+                  <Briefcase className="w-5 h-5 transition-transform duration-200" />
                   <span>Việc Làm Của Tôi</span>
                 </Link>
                 <Link
                   to="/job-notifications"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <Bell className="w-5 h-5" />
+                  <Bell className="w-5 h-5 transition-transform duration-200" />
                   <span>Thông Báo Việc Làm</span>
                 </Link>
                 <Link
                   to="/account-management"
-                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-100 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-all duration-200 hover:bg-blue-100 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-5 h-5 transition-transform duration-200" />
                   <span>Quản Lý Tài Khoản</span>
                 </Link>
               </nav>
@@ -192,7 +192,7 @@ export default function AccountManagement() {
                   </p>
                   <button
                     onClick={() => setShowChangePasswordModal(true)}
-                    className="text-blue-600 hover:text-blue-700 font-medium text-sm cursor-pointer transition-colors duration-200"
+                    className="text-blue-600 hover:text-blue-700 font-medium text-sm cursor-pointer transition-all duration-200 link-smooth"
                   >
                     Thay đổi mật khẩu
                   </button>
@@ -205,7 +205,7 @@ export default function AccountManagement() {
                 <p className="text-gray-600 text-sm mb-4">
                   Thông báo hỗ trợ bạn có việc làm phù hợp: theo dõi trạng thái ứng tuyển, nhà tuyển dụng xem hồ sơ,...
                 </p>
-                <button className="text-blue-600 hover:text-blue-700 font-medium text-sm cursor-pointer transition-colors duration-200">
+                <button className="text-blue-600 hover:text-blue-700 font-medium text-sm cursor-pointer transition-all duration-200 link-smooth">
                   Thiết lập
                 </button>
               </div>
@@ -354,14 +354,14 @@ export default function AccountManagement() {
                     setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
                     setErrors({});
                   }}
-                  className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+                  className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 cursor-pointer btn-smooth transform hover:scale-105 active:scale-95"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer btn-smooth transform hover:scale-105 active:scale-95 disabled:transform-none"
                 >
                   {loading ? 'Đang xử lý...' : 'Thay đổi'}
                 </button>

@@ -29,6 +29,7 @@ import ApplicationDetail from './pages/employer/ApplicationDetail.jsx'
 import CandidateProfile from './pages/employer/CandidateProfile.jsx'
 import SavedCandidates from './pages/employer/SavedCandidates.jsx'
 import Analytics from './pages/employer/Analytics.jsx'
+import EmployerNotifications from './pages/employer/EmployerNotifications.jsx'
 import EmployerLogin from './pages/auth/EmployerLogin.jsx'
 import EmployerRegister from './pages/auth/EmployerRegister.jsx'
 import Profile from './pages/user/ProfileComplete.jsx'
@@ -110,6 +111,7 @@ const router = createBrowserRouter([
       { path: 'candidates/:id', element: <CandidateProfile /> },
       { path: 'saved-candidates', element: <SavedCandidates /> },
       { path: 'analytics', element: <Analytics /> },
+      { path: 'notifications', element: <EmployerNotifications /> },
       { path: 'login', element: <EmployerLogin /> },
       { path: 'register', element: <EmployerRegister /> },
     ],

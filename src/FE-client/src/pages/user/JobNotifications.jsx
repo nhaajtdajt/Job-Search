@@ -186,37 +186,37 @@ export default function JobNotifications() {
               <nav className="p-2">
                 <Link
                   to="/overview"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer link-smooth"
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5 transition-transform duration-200" />
                   <span>Tổng Quan</span>
                 </Link>
                 <Link
                   to="/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5 transition-transform duration-200" />
                   <span>Hồ Sơ Của Tôi</span>
                 </Link>
                 <Link
                   to="/my-jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <Briefcase className="w-5 h-5" />
+                  <Briefcase className="w-5 h-5 transition-transform duration-200" />
                   <span>Việc Làm Của Tôi</span>
                 </Link>
                 <Link
                   to="/job-notifications"
-                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-colors duration-200 hover:bg-blue-100 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-all duration-200 hover:bg-blue-100 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <Bell className="w-5 h-5" />
+                  <Bell className="w-5 h-5 transition-transform duration-200" />
                   <span>Thông Báo Việc Làm</span>
                 </Link>
                 <Link
                   to="/account-management"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer mt-1"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 cursor-pointer mt-1 link-smooth"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-5 h-5 transition-transform duration-200" />
                   <span>Quản Lý Tài Khoản</span>
                 </Link>
               </nav>
@@ -230,9 +230,9 @@ export default function JobNotifications() {
                 <h1 className="text-2xl font-bold text-gray-900">Thông Báo Việc Làm</h1>
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium cursor-pointer btn-smooth transform hover:scale-105 active:scale-95"
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-5 h-5 transition-transform duration-200" />
                   Tạo Thông Báo Việc Làm Mới
                 </button>
               </div>
@@ -260,7 +260,7 @@ export default function JobNotifications() {
                     {notifications.map((notification) => (
                       <div
                         key={notification.stt}
-                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 card-smooth"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -321,9 +321,9 @@ export default function JobNotifications() {
       {/* Create Notification Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full my-8">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col my-4">
+            {/* Header - Fixed */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
               <h2 className="text-xl font-bold text-gray-900">Tạo Thông Báo Việc Làm</h2>
               <button
                 onClick={() => {
@@ -343,17 +343,19 @@ export default function JobNotifications() {
                   });
                   setErrors({});
                 }}
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 cursor-pointer"
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 cursor-pointer p-1 hover:bg-gray-100 rounded"
+                title="Đóng"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleCreateNotification} className="p-6">
-              <div className="grid grid-cols-2 gap-4">
+            {/* Form - Scrollable */}
+            <form id="create-notification-form" onSubmit={handleCreateNotification} className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Job Title (Required) */}
-                <div className="col-span-2">
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Chức danh việc làm <span className="text-red-500">(Bắt buộc)</span>
                   </label>
@@ -370,7 +372,7 @@ export default function JobNotifications() {
                 </div>
 
                 {/* Minimum Salary */}
-                <div className="col-span-2">
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Mức lương tối thiểu</label>
                   <div className="flex gap-2">
                     <input
@@ -470,7 +472,7 @@ export default function JobNotifications() {
               </div>
 
               {/* Frequency */}
-              <div className="mt-6">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">Tần suất</label>
                 <div className="flex gap-6">
                   <label className="flex items-center">
@@ -497,7 +499,7 @@ export default function JobNotifications() {
               </div>
 
               {/* Notify Via */}
-              <div className="mt-6">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">Thông báo qua</label>
                 <div className="flex gap-6">
                   <label className="flex items-center">
@@ -534,7 +536,7 @@ export default function JobNotifications() {
               </div>
 
               {/* Active Toggle */}
-              <div className="mt-6 flex items-center justify-between">
+              <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-gray-700">Nhận thông báo</label>
                 <button
                   type="button"
@@ -550,41 +552,43 @@ export default function JobNotifications() {
                   />
                 </button>
               </div>
-
-              {/* Buttons */}
-              <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setFormData({
-                      search_query: '',
-                      salary_min: '',
-                      salary_currency: 'VND',
-                      salary_period: 'monthly',
-                      level: '',
-                      location: '',
-                      industry: '',
-                      company_field: '',
-                      frequency: 'daily',
-                      notify_via: 'email',
-                      is_active: true
-                    });
-                    setErrors({});
-                  }}
-                  className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  {saving ? 'Đang lưu...' : 'Lưu'}
-                </button>
               </div>
             </form>
+
+            {/* Footer - Fixed */}
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 flex-shrink-0 bg-white">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setFormData({
+                    search_query: '',
+                    salary_min: '',
+                    salary_currency: 'VND',
+                    salary_period: 'monthly',
+                    level: '',
+                    location: '',
+                    industry: '',
+                    company_field: '',
+                    frequency: 'daily',
+                    notify_via: 'email',
+                    is_active: true
+                  });
+                  setErrors({});
+                }}
+                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 cursor-pointer btn-smooth transform hover:scale-105 active:scale-95"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                form="create-notification-form"
+                disabled={saving}
+                className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer btn-smooth transform hover:scale-105 active:scale-95 disabled:transform-none"
+              >
+                {saving ? 'Đang lưu...' : 'Lưu'}
+              </button>
+            </div>
           </div>
         </div>
       )}

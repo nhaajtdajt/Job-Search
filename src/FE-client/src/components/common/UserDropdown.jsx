@@ -158,10 +158,7 @@ export default function UserDropdown() {
 
       {isOpen && (
         <div 
-          className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50"
-          style={{
-            animation: 'dropdownFadeIn 0.3s ease-out'
-          }}
+          className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 dropdown-enter"
         >
           {/* User Info */}
           <div className="px-4 py-3 border-b border-gray-200">
@@ -171,7 +168,7 @@ export default function UserDropdown() {
             <p className="text-xs text-gray-500 mt-1 transition-colors duration-200">{user.email}</p>
             <Link
               to="/user/profile"
-              className="mt-3 inline-block w-full text-center bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-lg active:scale-95"
+              className="mt-3 inline-block w-full text-center bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-lg active:scale-95 btn-smooth"
               onClick={() => setIsOpen(false)}
             >
               Cập nhật hồ sơ
@@ -187,7 +184,7 @@ export default function UserDropdown() {
                   <Link
                     to={item.to}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 ease-in-out transform hover:translate-x-1 group"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 ease-in-out transform hover:translate-x-1 group link-smooth"
                   >
                     <span className="transition-transform duration-200 group-hover:scale-110">
                       {item.icon}
@@ -226,4 +223,3 @@ export default function UserDropdown() {
     </div>
   );
 }
-

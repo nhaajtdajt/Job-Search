@@ -91,7 +91,7 @@ class RoleMiddleware {
         }
 
         // Get employer record to check status
-        const employer = await EmployerRepository.findByUserId(req.user.id);
+        const employer = await EmployerRepository.findByUserId(req.user.user_id);
 
         if (!employer) {
           return next(new ForbiddenError('Employer profile not found'));

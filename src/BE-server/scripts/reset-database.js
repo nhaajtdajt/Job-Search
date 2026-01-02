@@ -37,6 +37,7 @@ async function resetDatabase() {
       'job_tag',
       'tag',
       'job',
+      'saved_candidate',  // Drop before employer (has FK to employer)
       'employer',
       'company',
       'users'
