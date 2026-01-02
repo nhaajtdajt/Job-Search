@@ -5,9 +5,11 @@ import {
   BarChart3,
   LayoutDashboard,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Bell
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import notificationService from '../../services/notificationService';
 
 /**
  * EmployerSidebar Component
@@ -15,6 +17,25 @@ import { useState } from 'react';
  */
 export default function EmployerSidebar({ collapsed = false, onToggle }) {
   const location = useLocation();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Load unread count
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      try {
+        const response = await notificationService.getUnreadCount();
+        setUnreadCount(response.data?.count || response.count || 0);
+      } catch (error) {
+        console.error('Error loading unread count:', error);
+      }
+    };
+
+    loadUnreadCount();
+    
+    // Refresh every 30 seconds
+    const interval = setInterval(loadUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
   
   const navItems = [
     {
@@ -32,6 +53,12 @@ export default function EmployerSidebar({ collapsed = false, onToggle }) {
       label: 'Ứng viên',
       icon: <Users className="w-5 h-5" />,
       to: '/employer/applications',
+    },
+    {
+      label: 'Thông báo',
+      icon: <Bell className="w-5 h-5" />,
+      to: '/employer/notifications',
+      badge: unreadCount > 0 ? unreadCount : null
     },
     {
       label: 'Thống kê & Báo cáo',
@@ -83,13 +110,29 @@ export default function EmployerSidebar({ collapsed = false, onToggle }) {
             }`}
             title={collapsed ? item.label : undefined}
           >
-            <span className={isActive(item.to, item.exact) ? 'text-orange-600' : 'text-gray-500'}>
+            <span className={`relative ${isActive(item.to, item.exact) ? 'text-orange-600' : 'text-gray-500'}`}>
               {item.icon}
+              {/* Badge for collapsed state */}
+              {collapsed && item.badge && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {item.badge > 9 ? '9+' : item.badge}
+                </span>
+              )}
             </span>
-            {!collapsed && <span>{item.label}</span>}
+            {!collapsed && (
+              <span className="flex-1 flex items-center justify-between">
+                <span>{item.label}</span>
+                {item.badge && (
+                  <span className="px-2 py-0.5 bg-red-500 text-white text-xs font-medium rounded-full">
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
+              </span>
+            )}
           </Link>
         ))}
       </nav>
     </aside>
   );
 }
+

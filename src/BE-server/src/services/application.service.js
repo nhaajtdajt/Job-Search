@@ -3,6 +3,7 @@ const JobRepository = require('../repositories/job.repo');
 const ResumeRepository = require('../repositories/resume.repo');
 const EmployerRepository = require('../repositories/employer.repo');
 const UserRepository = require('../repositories/user.repo');
+const NotificationService = require('./notification.service');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors');
 const EmailService = require('./email.service');
 const { getUserEmailById } = require('../utils/supabase.util');
@@ -64,6 +65,14 @@ class ApplicationService {
     };
 
     const application = await ApplicationRepository.create(applicationToCreate);
+
+    // Get applicant info for notification
+    const applicant = await UserRepository.findById(userId);
+
+    // Create notification for employer (async, don't block response)
+    this.notifyEmployerNewApplication(job, applicant).catch(err => {
+      console.error('Failed to create employer notification:', err.message);
+    });
 
     // Send email notifications (async, don't block response)
     this.sendApplicationEmails(userId, job, resume).catch(err => {
@@ -524,6 +533,38 @@ class ApplicationService {
     });
 
     console.log(`📧 Status update email sent to user ${userId}: ${oldStatus} -> ${newStatus}`);
+  }
+
+  /**
+   * Create notification for employer when new application is received
+   * @private
+   * @param {Object} job - Job object with employer info
+   * @param {Object} applicant - User object of applicant
+   */
+  static async notifyEmployerNewApplication(job, applicant) {
+    try {
+      // Get employer to find their user_id
+      const employer = await EmployerRepository.findById(job.employer_id);
+      
+      if (!employer || !employer.user_id) {
+        console.warn(`⚠️  Cannot create notification: Employer ${job.employer_id} has no user_id`);
+        return;
+      }
+
+      const applicantName = applicant?.name || 'Ứng viên';
+      const jobTitle = job.job_title || 'vị trí tuyển dụng';
+
+      await NotificationService.createNotification(
+        employer.user_id,
+        'Ứng viên mới',
+        `${applicantName} đã ứng tuyển vào vị trí "${jobTitle}". Xem hồ sơ ngay!`
+      );
+
+      console.log(`🔔 Notification created for employer ${employer.employer_id} about new application`);
+    } catch (error) {
+      console.error('Error creating employer notification:', error.message);
+      // Don't throw, just log - notifications are not critical
+    }
   }
 }
 
