@@ -5,7 +5,7 @@ import "./App.css";
 
 function Header() {
   const { isAuthenticated, user } = useAuth();
-  
+
   const primaryLinks = [
     { label: "Trang chủ", to: "/" },
     { label: "Việc làm", to: "/jobs" },
@@ -79,8 +79,8 @@ function Header() {
             <div className="flex items-center gap-4">
               {/* Only show "Nhà tuyển dụng" button when NOT authenticated */}
               {!isAuthenticated && (
-                <Link 
-                  to="/employer" 
+                <Link
+                  to="/employer"
                   className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 shadow-lg"
                 >
                   Nhà tuyển dụng

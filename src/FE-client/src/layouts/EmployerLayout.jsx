@@ -11,7 +11,7 @@ function EmployerFooter() {
           <div>
             <p className="text-2xl font-bold text-black">viec24h</p>
             <p className="mt-4 text-xs sm:text-sm text-brand-200/85">
-              Nền tảng tuyển dụng hàng đầu Việt Nam - Kết nối nhà tuyển dụng 
+              Nền tảng tuyển dụng hàng đầu Việt Nam - Kết nối nhà tuyển dụng
               với hàng triệu ứng viên tiềm năng.
             </p>
           </div>

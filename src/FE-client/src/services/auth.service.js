@@ -21,8 +21,8 @@ export const authService = {
    * @param {string} password - User password
    * @returns {Promise<Object>} { user, accessToken, refreshToken }
    */
-  async login(email, password) {
-    const response = await api.post('/auth/login', { email, password });
+  async login(email, password, loginType = 'job_seeker') {
+    const response = await api.post('/auth/login', { email, password, loginType });
     return response.data.data;
   },
 
