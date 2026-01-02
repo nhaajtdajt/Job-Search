@@ -17,6 +17,7 @@ import RecentApplications from '../../components/employer/RecentApplications';
 import QuickActions from '../../components/employer/QuickActions';
 import JobStatusOverview from '../../components/employer/JobStatusOverview';
 import TimeRangeFilter from '../../components/employer/TimeRangeFilter';
+import EmployerSidebar from '../../components/employer/EmployerSidebar';
 
 // Chart Components
 import ApplicationTrendChart from '../../components/employer/ApplicationTrendChart';
@@ -50,6 +51,7 @@ export default function EmployerDashboard() {
   // State for time range filter
   const [timeRange, setTimeRange] = useState('30d');
   const [loading, setLoading] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   const navigate = useNavigate();
 
@@ -130,19 +132,27 @@ export default function EmployerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Dashboard Nhà tuyển dụng
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Xin chào! Chào mừng trở lại với bảng điều khiển của bạn
-              </p>
-            </div>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <EmployerSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+      />
+      
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Dashboard Nhà tuyển dụng
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Xin chào! Chào mừng trở lại với bảng điều khiển của bạn
+                </p>
+              </div>
             <div className="flex items-center gap-4">
               {/* Time Range Filter */}
               <TimeRangeFilter 
@@ -158,11 +168,11 @@ export default function EmployerDashboard() {
                 Đăng tin mới
               </Link>
             </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Pending Applications Alert - Highlighted if > 0 */}
         {stats.pendingApplications > 0 && (
           <div 
@@ -285,6 +295,7 @@ export default function EmployerDashboard() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

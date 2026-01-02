@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Send, Users } from 'lucide-react';
+import { Send, Users } from 'lucide-react';
+import adminService from '../../services/admin.service';
 
 export default function NotificationManagement() {
     const [title, setTitle] = useState('');
@@ -19,31 +20,28 @@ export default function NotificationManagement() {
         setResult(null);
 
         try {
-            const token = localStorage.getItem('accessToken');
-            const response = await fetch('/api/admin/notifications', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    title: title.trim() || null,
-                    message: message.trim(),
-                    target_role: targetRole
-                })
+            const response = await adminService.sendNotification({
+                title: title.trim() || null,
+                message: message.trim(),
+                target_role: targetRole
             });
 
-            const data = await response.json();
-
-            if (response.ok) {
-                setResult({ success: true, message: `Đã gửi thông báo đến ${data.data?.recipients || 0} người dùng!` });
+            if (response.data?.success) {
+                setResult({
+                    success: true,
+                    message: `Đã gửi thông báo đến ${response.data.data?.recipients || 0} người dùng!`
+                });
                 setTitle('');
                 setMessage('');
             } else {
-                setResult({ success: false, message: data.message || 'Gửi thông báo thất bại' });
+                setResult({ success: false, message: response.data?.message || 'Gửi thông báo thất bại' });
             }
         } catch (error) {
-            setResult({ success: false, message: 'Lỗi kết nối server' });
+            console.error('Failed to send notification:', error);
+            setResult({
+                success: false,
+                message: error.response?.data?.message || 'Lỗi kết nối server'
+            });
         } finally {
             setSending(false);
         }
@@ -72,7 +70,7 @@ export default function NotificationManagement() {
                         <label className="block text-sm font-medium text-gray-300 mb-2">
                             Đối tượng nhận
                         </label>
-                        <div className="flex gap-3">
+                        <div className="flex flex-wrap gap-3">
                             {[
                                 { value: 'all', label: 'Tất cả', icon: Users },
                                 { value: 'job_seeker', label: 'Job Seekers', icon: Users },

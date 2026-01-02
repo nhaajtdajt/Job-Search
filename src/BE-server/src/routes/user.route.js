@@ -110,4 +110,24 @@ router.delete(
   SavedSearchController.deleteSearch
 );
 
+// ==================================================
+// EMPLOYER ROUTES - View candidate info
+// ==================================================
+
+// Get candidate profile by ID (for employers)
+router.get(
+  '/:userId/profile',
+  authMiddleware.authenticate,
+  authMiddleware.authorize(['employer']),
+  UserController.getCandidateProfile
+);
+
+// Get candidate's applications for this employer (for employers)
+router.get(
+  '/:userId/applications',
+  authMiddleware.authenticate,
+  authMiddleware.authorize(['employer']),
+  UserController.getCandidateApplications
+);
+
 module.exports = router;

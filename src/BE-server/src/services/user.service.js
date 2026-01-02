@@ -181,6 +181,31 @@ class UserService {
 
     return { message: 'Password changed successfully' };
   }
+
+  /**
+   * Get candidate profile by ID (for employers viewing candidates)
+   * @param {string} userId - Candidate user ID
+   * @returns {Object} Candidate profile with resume info
+   */
+  static async getCandidateProfile(userId) {
+    const candidate = await UserRepository.getCandidateWithResume(userId);
+    
+    if (!candidate) {
+      throw new NotFoundError('Candidate not found');
+    }
+
+    return candidate;
+  }
+
+  /**
+   * Get candidate's applications for this employer's jobs
+   * @param {string} userId - Candidate user ID
+   * @param {number} employerId - Employer ID
+   * @returns {Array} Applications list
+   */
+  static async getCandidateApplications(userId, employerId) {
+    return await UserRepository.getCandidateApplicationsForEmployer(userId, employerId);
+  }
 }
 
 module.exports = UserService;

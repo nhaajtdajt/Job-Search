@@ -24,6 +24,8 @@ import JobEdit from './pages/employer/JobEdit.jsx'
 import ApplicationList from './pages/employer/ApplicationList.jsx'
 import ApplicationDetail from './pages/employer/ApplicationDetail.jsx'
 import CandidateProfile from './pages/employer/CandidateProfile.jsx'
+import SavedCandidates from './pages/employer/SavedCandidates.jsx'
+import Analytics from './pages/employer/Analytics.jsx'
 import EmployerLogin from './pages/auth/EmployerLogin.jsx'
 import EmployerRegister from './pages/auth/EmployerRegister.jsx'
 import Profile from './pages/user/ProfileComplete.jsx'
@@ -34,6 +36,7 @@ import JobNotifications from './pages/user/JobNotifications.jsx'
 
 // Admin imports
 import AdminLayout from './pages/admin/AdminLayout.jsx'
+import AdminLogin from './pages/admin/AdminLogin.jsx'
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import UserManagement from './pages/admin/UserManagement.jsx'
 import EmployerManagement from './pages/admin/EmployerManagement.jsx'
@@ -75,20 +78,29 @@ const router = createBrowserRouter([
       { path: 'applications', element: <ApplicationList /> },
       { path: 'applications/:id', element: <ApplicationDetail /> },
       { path: 'candidates/:id', element: <CandidateProfile /> },
+      { path: 'saved-candidates', element: <SavedCandidates /> },
+      { path: 'analytics', element: <Analytics /> },
       { path: 'login', element: <EmployerLogin /> },
       { path: 'register', element: <EmployerRegister /> },
     ],
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
     children: [
-      { index: true, element: <AdminDashboard /> },
-      { path: 'users', element: <UserManagement /> },
-      { path: 'employers', element: <EmployerManagement /> },
-      { path: 'companies', element: <CompanyManagement /> },
-      { path: 'jobs', element: <JobManagement /> },
-      { path: 'notifications', element: <NotificationManagement /> },
+      // Login page (standalone, no layout)
+      { index: true, element: <AdminLogin /> },
+      // Protected admin pages (with layout)
+      {
+        element: <AdminLayout />,
+        children: [
+          { path: 'dashboard', element: <AdminDashboard /> },
+          { path: 'users', element: <UserManagement /> },
+          { path: 'employers', element: <EmployerManagement /> },
+          { path: 'companies', element: <CompanyManagement /> },
+          { path: 'jobs', element: <JobManagement /> },
+          { path: 'notifications', element: <NotificationManagement /> },
+        ],
+      },
     ],
   },
 ])

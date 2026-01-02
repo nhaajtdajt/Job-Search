@@ -144,6 +144,47 @@ class UserController {
       return next(error);
     }
   }
+
+  /**
+   * Get candidate profile by ID (for employers)
+   * GET /api/users/:userId/profile
+   */
+  static async getCandidateProfile(req, res, next) {
+    try {
+      const { userId } = req.params;
+
+      const user = await UserService.getCandidateProfile(userId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Candidate profile retrieved successfully',
+        data: user,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Get candidate's applications (for employers)
+   * GET /api/users/:userId/applications
+   */
+  static async getCandidateApplications(req, res, next) {
+    try {
+      const { userId } = req.params;
+      const employerId = req.user.employer_id;
+
+      const applications = await UserService.getCandidateApplications(userId, employerId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Applications retrieved successfully',
+        data: applications,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = UserController;

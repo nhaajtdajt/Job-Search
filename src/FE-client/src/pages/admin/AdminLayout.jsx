@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -6,9 +6,16 @@ import {
     Settings, LogOut, Menu, X, Search, ChevronDown
 } from 'lucide-react';
 
+// Admin emails (must match BE config)
+const ADMIN_EMAILS = [
+    'admin@jobsearch.com',
+    'admin2@jobsearch.com',
+    'superadmin@jobsearch.com'
+];
+
 const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-    { icon: Users, label: 'Users', path: '/admin/users' },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+    { icon: Users, label: 'Job Seekers', path: '/admin/users' },
     { icon: Building2, label: 'Employers', path: '/admin/employers' },
     { icon: Briefcase, label: 'Companies', path: '/admin/companies' },
     { icon: Briefcase, label: 'Job Postings', path: '/admin/jobs' },
@@ -23,16 +30,40 @@ const analyticsItems = [
 export default function AdminLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [checking, setChecking] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, logout } = useAuth();
+    const { user, logout, isAuthenticated, loading } = useAuth();
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
+    // Check if user is admin
+    useEffect(() => {
+        if (loading) return;
+
+        const isAdmin = user && ADMIN_EMAILS.includes(user.email?.toLowerCase());
+
+        if (!isAuthenticated || !isAdmin) {
+            // Not logged in or not admin - redirect to admin login
+            navigate('/admin', { replace: true });
+        } else {
+            setChecking(false);
+        }
+    }, [user, isAuthenticated, loading, navigate]);
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/admin');
     };
 
     const isActive = (path) => location.pathname === path;
+
+    // Show loading while checking auth
+    if (loading || checking) {
+        return (
+            <div className="min-h-screen bg-[#0f1419] flex items-center justify-center">
+                <div className="text-white">Loading...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#0f1419] text-white flex">
@@ -60,15 +91,12 @@ export default function AdminLayout() {
                             key={item.path}
                             to={item.path}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive(item.path)
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                                 }`}
                         >
                             <item.icon size={20} />
                             {sidebarOpen && <span>{item.label}</span>}
-                            {item.badge && sidebarOpen && (
-                                <span className="ml-auto bg-red-500 text-xs px-2 py-0.5 rounded-full">{item.badge}</span>
-                            )}
                         </Link>
                     ))}
 
@@ -81,8 +109,8 @@ export default function AdminLayout() {
                             key={item.path}
                             to={item.path}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive(item.path)
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                                 }`}
                         >
                             <item.icon size={20} />

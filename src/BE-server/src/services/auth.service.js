@@ -256,14 +256,37 @@ class AuthService {
     }
 
     const userId = authData.user.id;
+    const userMetadata = authData.user.user_metadata || {};
+    const name = userMetadata.full_name || userMetadata.name || email?.split('@')[0];
 
     // Get user profile from database
-    const user = await db('users')
+    let user = await db('users')
       .where('user_id', userId)
       .first();
 
+    // If user profile doesn't exist, create it automatically
+    // This handles cases where user was created before trigger was set up, or trigger failed
     if (!user) {
-      throw new NotFoundError('User profile not found');
+      try {
+        await db('users').insert({
+          user_id: userId,
+          name: name,
+          // Other fields can be null
+        });
+        user = await db('users')
+          .where('user_id', userId)
+          .first();
+      } catch (dbError) {
+        console.error('Error creating user profile:', dbError);
+        // If insert fails (e.g., trigger already created it), try to fetch again
+        user = await db('users')
+          .where('user_id', userId)
+          .first();
+
+        if (!user) {
+          throw new NotFoundError('User profile not found and could not be created');
+        }
+      }
     }
 
     // Determine user role based on email (admin) or employer table

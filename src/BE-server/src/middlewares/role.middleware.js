@@ -1,5 +1,7 @@
 const { ForbiddenError } = require('../errors');
 const ROLES = require('../constants/role');
+const { EMPLOYER_STATUS } = require('../constants/employer-status');
+const EmployerRepository = require('../repositories/employer.repo');
 
 /**
  * Role Middleware
@@ -70,7 +72,45 @@ class RoleMiddleware {
       next();
     };
   }
+
+  /**
+   * Require verified employer
+   * Checks that the user is an employer AND their employer status is 'verified'
+   * Suspended employers cannot post jobs or manage applications
+   */
+  static requireVerifiedEmployer() {
+    return async (req, res, next) => {
+      try {
+        if (!req.user) {
+          return next(new ForbiddenError('Authentication required'));
+        }
+
+        // Check role first
+        if (req.user.role !== ROLES.EMPLOYER) {
+          return next(new ForbiddenError('Employer role required'));
+        }
+
+        // Get employer record to check status
+        const employer = await EmployerRepository.findByUserId(req.user.id);
+
+        if (!employer) {
+          return next(new ForbiddenError('Employer profile not found'));
+        }
+
+        if (employer.status === EMPLOYER_STATUS.SUSPENDED) {
+          return next(new ForbiddenError('Your employer account has been suspended. Contact admin for assistance.'));
+        }
+
+        // Attach employer to request for later use
+        req.employer = employer;
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
+  }
 }
 
 module.exports = RoleMiddleware;
+
 

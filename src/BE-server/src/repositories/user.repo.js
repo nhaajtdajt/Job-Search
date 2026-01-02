@@ -142,6 +142,7 @@ class UserRepository {
 
   /**
    * Find all users with pagination and filters (Admin only)
+   * Excludes employers and admins - only returns job seekers
    * @param {number} page - Page number
    * @param {number} limit - Items per page
    * @param {Object} filters - Optional filters (role, status)
@@ -149,20 +150,47 @@ class UserRepository {
    */
   static async findAll(page = 1, limit = 10, filters = {}) {
     const { parsePagination } = require('../utils/pagination.util');
+    const { ADMIN_EMAILS } = require('../constants/admin');
     const { offset } = parsePagination(page, limit);
 
-    let query = db(MODULE.USERS).select('*');
-    
-    // Note: role filter would need to be checked from auth.users table
-    // For now, we'll just paginate users table
-    
-    const [{ total }] = await query.clone().count('* as total');
-    
-    const data = await query
+    // Get employer user_ids to exclude (employers have accounts in both tables)
+    const employerUserIds = await db('employer')
+      .select('user_id')
+      .whereNotNull('user_id');
+
+    const excludeEmployerIds = employerUserIds.map(e => e.user_id);
+
+    // Get admin user_ids from auth.users by email
+    const adminUserIds = await db.raw(`
+      SELECT id FROM auth.users WHERE email = ANY(?)
+    `, [ADMIN_EMAILS]);
+
+    const excludeAdminIds = adminUserIds.rows?.map(r => r.id) || [];
+
+    // Combine all IDs to exclude
+    const allExcludeIds = [...new Set([...excludeEmployerIds, ...excludeAdminIds])];
+
+    // Base query - exclude employer and admin user_ids
+    let baseQuery = db(MODULE.USERS);
+    if (allExcludeIds.length > 0) {
+      baseQuery = baseQuery.whereNotIn('user_id', allExcludeIds);
+    }
+
+    // Apply status filter if provided
+    if (filters.status) {
+      baseQuery = baseQuery.where('status', filters.status);
+    }
+
+    // Count query
+    const [{ total }] = await baseQuery.clone().count('* as total');
+
+    // Data query
+    const data = await baseQuery.clone()
+      .select('*')
       .orderBy('user_id', 'asc')
       .limit(limit)
       .offset(offset);
-    
+
     return {
       data,
       total: parseInt(total, 10),
@@ -180,6 +208,81 @@ class UserRepository {
     return await db(MODULE.USERS)
       .select('user_id', 'name')
       .where('role', role);
+  }
+
+  /**
+   * Get candidate profile with resume details (for employer viewing)
+   * @param {string} userId - User UUID
+   * @returns {Object} Candidate profile with resume info
+   */
+  static async getCandidateWithResume(userId) {
+    const user = await this.findById(userId);
+    if (!user) return null;
+
+    // Get latest resume
+    const resume = await db(MODULE.RESUME)
+      .where('user_id', userId)
+      .orderBy('updated_at', 'desc')
+      .first();
+
+    // Get resume details if exists
+    let experiences = [];
+    let educations = [];
+    let skills = [];
+
+    if (resume) {
+      experiences = await db(MODULE.RES_EXPERIENCE)
+        .where('resume_id', resume.resume_id)
+        .orderBy('start_date', 'desc');
+
+      educations = await db(MODULE.RES_EDUCATION)
+        .where('resume_id', resume.resume_id)
+        .orderBy('start_year', 'desc');
+
+      skills = await db(MODULE.RESUME_SKILL)
+        .join(MODULE.SKILL, 'resume_skill.skill_id', 'skill.skill_id')
+        .where('resume_id', resume.resume_id)
+        .select('skill.skill_name as name', 'resume_skill.level');
+    }
+
+    return {
+      ...user,
+      summary: resume?.summary || null,
+      title: resume?.resume_title || null,
+      resume: resume ? {
+        resume_id: resume.resume_id,
+        resume_title: resume.resume_title,
+        summary: resume.summary,
+        resume_url: resume.resume_url,
+        experiences,
+        educations,
+        skills
+      } : null
+    };
+  }
+
+  /**
+   * Get candidate's applications for a specific employer
+   * @param {string} userId - User UUID
+   * @param {number} employerId - Employer ID
+   * @returns {Array} Applications list
+   */
+  static async getCandidateApplicationsForEmployer(userId, employerId) {
+    const applications = await db(MODULE.APPLICATION)
+      .join(MODULE.JOB, 'application.job_id', 'job.job_id')
+      .where('application.user_id', userId)
+      .where('job.employer_id', employerId)
+      .select(
+        'application.application_id',
+        'application.status',
+        'application.apply_date as applied_at',
+        'application.notes',
+        'job.job_id',
+        'job.job_title'
+      )
+      .orderBy('application.apply_date', 'desc');
+
+    return applications;
   }
 }
 

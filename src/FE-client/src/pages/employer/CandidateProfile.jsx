@@ -11,7 +11,8 @@ import {
   Calendar,
   FileText,
   History,
-  Loader2
+  Loader2,
+  Heart
 } from 'lucide-react';
 import { message } from 'antd';
 
@@ -21,6 +22,7 @@ import { STATUS_CONFIG } from '../../components/employer/ApplicationStatusUpdate
 
 // Services
 import applicationService from '../../services/applicationService';
+import savedCandidateService from '../../services/savedCandidateService';
 
 /**
  * CandidateProfile Page
@@ -34,6 +36,8 @@ export default function CandidateProfile() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingCandidate, setSavingCandidate] = useState(false);
 
   /**
    * Load candidate profile
@@ -69,7 +73,39 @@ export default function CandidateProfile() {
   useEffect(() => {
     loadCandidate();
     loadHistory();
+    checkIfSaved();
   }, [loadCandidate, loadHistory]);
+
+  // Check if candidate is saved
+  const checkIfSaved = async () => {
+    try {
+      const result = await savedCandidateService.checkSaved(id);
+      setIsSaved(result.data?.isSaved || false);
+    } catch (error) {
+      console.error('Error checking saved status:', error);
+    }
+  };
+
+  // Handle save/unsave candidate
+  const handleToggleSave = async () => {
+    try {
+      setSavingCandidate(true);
+      if (isSaved) {
+        await savedCandidateService.unsaveCandidate(id);
+        message.success('Đã bỏ lưu ứng viên');
+        setIsSaved(false);
+      } else {
+        await savedCandidateService.saveCandidate(id);
+        message.success('Đã lưu ứng viên');
+        setIsSaved(true);
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+      message.error('Có lỗi xảy ra');
+    } finally {
+      setSavingCandidate(false);
+    }
+  };
 
   // Format date
   const formatDate = (dateString) => {
@@ -149,6 +185,20 @@ export default function CandidateProfile() {
                 )}
               </div>
             </div>
+            
+            {/* Save Button */}
+            <button
+              onClick={handleToggleSave}
+              disabled={savingCandidate}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium ${
+                isSaved 
+                  ? 'bg-pink-100 text-pink-600 hover:bg-pink-200' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              } disabled:opacity-50`}
+            >
+              <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
+              {isSaved ? 'Đã lưu' : 'Lưu ứng viên'}
+            </button>
           </div>
         </div>
       </div>

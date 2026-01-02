@@ -9,7 +9,7 @@
  */
 exports.seed = async function (knex) {
   console.log('🗑️  Truncating all tables...');
-  
+
   await knex.raw(`
     TRUNCATE TABLE
       application,
@@ -33,6 +33,6 @@ exports.seed = async function (knex) {
       company
     CASCADE;
   `);
-  
+
   console.log('✅ All tables truncated successfully!');
 };

@@ -1,15 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ChevronDown, UserCheck, UserX, User, Mail, Calendar } from 'lucide-react';
-
-// Mock data
-const mockUsers = [
-    { id: 1, name: 'Nguyễn Văn A', email: 'nguyenvana@gmail.com', role: 'job_seeker', status: 'active', joinedAt: 'Jan 15, 2024' },
-    { id: 2, name: 'Trần Thị B', email: 'tranthib@email.com', role: 'job_seeker', status: 'active', joinedAt: 'Jan 10, 2024' },
-    { id: 3, name: 'Lê Văn C', email: 'levanc@company.com', role: 'employer', status: 'blocked', joinedAt: 'Dec 20, 2023' },
-    { id: 4, name: 'Phạm Thị D', email: 'phamthid@work.vn', role: 'job_seeker', status: 'active', joinedAt: 'Feb 01, 2024' },
-    { id: 5, name: 'Hoàng Văn E', email: 'hoangvane@test.com', role: 'admin', status: 'active', joinedAt: 'Nov 05, 2023' },
-];
+import { Search, UserCheck, UserX } from 'lucide-react';
+import adminService from '../../services/admin.service';
 
 const statusStyles = {
     active: 'bg-green-500/20 text-green-400 border-green-500/30',
@@ -23,23 +15,64 @@ const roleLabels = {
 };
 
 export default function UserManagement() {
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [users, setUsers] = useState(mockUsers);
+    const [page, setPage] = useState(1);
+    const [total, setTotal] = useState(0);
+    const [updating, setUpdating] = useState(null);
 
-    const filteredUsers = users.filter(user => {
-        const matchSearch = user.name.toLowerCase().includes(search.toLowerCase()) ||
-            user.email.toLowerCase().includes(search.toLowerCase());
-        const matchRole = roleFilter === 'all' || user.role === roleFilter;
-        const matchStatus = statusFilter === 'all' || user.status === statusFilter;
-        return matchSearch && matchRole && matchStatus;
-    });
+    const fetchUsers = async () => {
+        try {
+            setLoading(true);
+            const params = { page, limit: 10 };
+            if (search) params.search = search;
+            if (roleFilter !== 'all') params.role = roleFilter;
+            if (statusFilter !== 'all') params.status = statusFilter;
 
-    const handleToggleBlock = (id) => {
-        setUsers(prev => prev.map(user =>
-            user.id === id ? { ...user, status: user.status === 'active' ? 'blocked' : 'active' } : user
-        ));
+            const response = await adminService.getUsers(params);
+            console.log('Users API response:', response.data);
+            if (response.data?.success) {
+                // API returns { data: { data: [...], total, page, limit } }
+                const result = response.data.data;
+                setUsers(result?.data || []);
+                setTotal(result?.total || 0);
+            }
+        } catch (error) {
+            console.error('Failed to fetch users:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, [page, roleFilter, statusFilter]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setPage(1);
+            fetchUsers();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    const handleToggleStatus = async (userId, currentStatus) => {
+        const newStatus = currentStatus === 'active' ? 'blocked' : 'active';
+        setUpdating(userId);
+        try {
+            await adminService.updateUserStatus(userId, newStatus);
+            setUsers(prev => prev.map(u =>
+                u.user_id === userId ? { ...u, status: newStatus } : u
+            ));
+        } catch (error) {
+            console.error('Failed to update status:', error);
+            alert('Cập nhật trạng thái thất bại!');
+        } finally {
+            setUpdating(null);
+        }
     };
 
     return (
@@ -48,15 +81,13 @@ export default function UserManagement() {
             <div className="flex items-center gap-2 text-sm text-gray-400">
                 <Link to="/admin" className="hover:text-white">Dashboard</Link>
                 <span>›</span>
-                <span className="text-white">Users</span>
+                <span className="text-white">Job Seekers</span>
             </div>
 
             {/* Header */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold">User Management</h1>
-                    <p className="text-gray-400">Manage all user accounts on the platform.</p>
-                </div>
+            <div>
+                <h1 className="text-2xl font-bold">Job Seeker Management</h1>
+                <p className="text-gray-400">Manage all job seeker accounts on the platform.</p>
             </div>
 
             {/* Filters */}
@@ -75,7 +106,7 @@ export default function UserManagement() {
                     <div className="flex gap-2">
                         <select
                             value={roleFilter}
-                            onChange={(e) => setRoleFilter(e.target.value)}
+                            onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
                             className="bg-[#252d3d] border border-gray-700 rounded-lg px-4 py-2.5 text-sm"
                         >
                             <option value="all">All Roles</option>
@@ -85,7 +116,7 @@ export default function UserManagement() {
                         </select>
                         <select
                             value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
+                            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
                             className="bg-[#252d3d] border border-gray-700 rounded-lg px-4 py-2.5 text-sm"
                         >
                             <option value="all">All Status</option>
@@ -98,76 +129,94 @@ export default function UserManagement() {
 
             {/* Table */}
             <div className="bg-[#1a1f2e] rounded-xl border border-gray-700/50 overflow-hidden">
-                <table className="w-full">
-                    <thead className="bg-[#252d3d]">
-                        <tr>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">
-                                <input type="checkbox" className="rounded" />
-                            </th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">User</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Role</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Status</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Joined</th>
-                            <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-700/50">
-                        {filteredUsers.map((user) => (
-                            <tr key={user.id} className="hover:bg-[#252d3d]/50">
-                                <td className="py-4 px-4">
-                                    <input type="checkbox" className="rounded" />
-                                </td>
-                                <td className="py-4 px-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-sm font-medium">
-                                            {user.name.split(' ').slice(-1)[0].charAt(0)}
+                {loading ? (
+                    <div className="p-8 text-center text-gray-400">Loading...</div>
+                ) : users.length === 0 ? (
+                    <div className="p-8 text-center text-gray-400">No users found</div>
+                ) : (
+                    <table className="w-full">
+                        <thead className="bg-[#252d3d]">
+                            <tr>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">User</th>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Gender</th>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Birthday</th>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Phone</th>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Status</th>
+                                <th className="text-left py-4 px-4 text-sm font-medium text-gray-400">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-700/50">
+                            {users.map((user) => (
+                                <tr key={user.user_id} className="hover:bg-[#252d3d]/50">
+                                    <td className="py-4 px-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-sm font-medium overflow-hidden">
+                                                {user.avatar_url ? (
+                                                    <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    (user.name || 'U').charAt(0).toUpperCase()
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium">{user.name || 'Chưa cập nhật'}</p>
+                                                <p className="text-sm text-gray-400">{user.user_id?.substring(0, 8)}...</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium">{user.name}</p>
-                                            <p className="text-sm text-gray-400">{user.email}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="py-4 px-4">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${roleLabels[user.role].color === 'blue' ? 'bg-blue-500/20 text-blue-400' :
-                                            roleLabels[user.role].color === 'purple' ? 'bg-purple-500/20 text-purple-400' :
-                                                'bg-orange-500/20 text-orange-400'
-                                        }`}>
-                                        {roleLabels[user.role].label}
-                                    </span>
-                                </td>
-                                <td className="py-4 px-4">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusStyles[user.status]}`}>
-                                        • {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                                    </span>
-                                </td>
-                                <td className="py-4 px-4 text-gray-400">{user.joinedAt}</td>
-                                <td className="py-4 px-4">
-                                    <button
-                                        onClick={() => handleToggleBlock(user.id)}
-                                        className={`p-2 rounded-lg transition-colors ${user.status === 'active'
+                                    </td>
+                                    <td className="py-4 px-4 text-gray-300">
+                                        {user.gender ? (user.gender === 'male' ? 'Nam' : user.gender === 'female' ? 'Nữ' : user.gender) : 'N/A'}
+                                    </td>
+                                    <td className="py-4 px-4 text-gray-300">
+                                        {user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString('vi-VN') : 'N/A'}
+                                    </td>
+                                    <td className="py-4 px-4 text-gray-300">
+                                        {user.phone || 'N/A'}
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusStyles[user.status] || statusStyles.active}`}>
+                                            • {(user.status || 'active').charAt(0).toUpperCase() + (user.status || 'active').slice(1)}
+                                        </span>
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        <button
+                                            onClick={() => handleToggleStatus(user.user_id, user.status || 'active')}
+                                            disabled={updating === user.user_id}
+                                            className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${(user.status || 'active') === 'active'
                                                 ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
                                                 : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                                            }`}
-                                        title={user.status === 'active' ? 'Block User' : 'Unblock User'}
-                                    >
-                                        {user.status === 'active' ? <UserX size={16} /> : <UserCheck size={16} />}
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                                }`}
+                                            title={(user.status || 'active') === 'active' ? 'Block User' : 'Unblock User'}
+                                        >
+                                            {(user.status || 'active') === 'active' ? <UserX size={16} /> : <UserCheck size={16} />}
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between px-4 py-3 border-t border-gray-700/50">
                     <span className="text-sm text-gray-400">
-                        Showing 1 to {filteredUsers.length} of {mockUsers.length} users
+                        Showing {users.length} of {total} users
                     </span>
                     <div className="flex items-center gap-2">
-                        <button className="px-3 py-1.5 bg-[#252d3d] rounded-lg text-sm text-gray-400 hover:text-white">Previous</button>
-                        <button className="px-3 py-1.5 bg-blue-600 rounded-lg text-sm">1</button>
-                        <button className="px-3 py-1.5 bg-[#252d3d] rounded-lg text-sm text-gray-400 hover:text-white">Next</button>
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="px-3 py-1.5 bg-[#252d3d] rounded-lg text-sm text-gray-400 hover:text-white disabled:opacity-50"
+                        >
+                            Previous
+                        </button>
+                        <span className="px-3 py-1.5 bg-blue-600 rounded-lg text-sm">{page}</span>
+                        <button
+                            onClick={() => setPage(p => p + 1)}
+                            disabled={users.length < 10}
+                            className="px-3 py-1.5 bg-[#252d3d] rounded-lg text-sm text-gray-400 hover:text-white disabled:opacity-50"
+                        >
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>
