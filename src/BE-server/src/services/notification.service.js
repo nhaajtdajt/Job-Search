@@ -86,13 +86,15 @@ class NotificationService {
      * @param {string} userId - User ID
      * @param {string} title - Notification title
      * @param {string} message - Notification message
+     * @param {Object} metadata - Optional metadata { type, application_id, job_id, etc. }
      * @returns {Object} Created notification
      */
-    static async createNotification(userId, title, message) {
+    static async createNotification(userId, title, message, metadata = null) {
         return await NotificationRepository.create({
             user_id: userId,
             title: title,
-            note: message
+            note: message,
+            metadata: metadata
         });
     }
 
