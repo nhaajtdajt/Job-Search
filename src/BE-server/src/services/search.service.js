@@ -156,6 +156,55 @@ class SearchService {
     await SearchRepository.delete(searchId);
     return { message: 'Saved search deleted successfully' };
   }
+
+  /**
+   * Get search suggestions for autocomplete
+   * @param {string} query - Search keyword
+   * @param {number} limit - Max results per category
+   * @returns {Object} Suggestions grouped by category
+   */
+  static async getSuggestions(query, limit = 5) {
+    if (!query || query.trim().length < 2) {
+      return { jobs: [], companies: [], skills: [] };
+    }
+
+    const keyword = query.trim().toLowerCase();
+    const db = require('../databases/knex');
+
+    // Search job titles (distinct, published only)
+    const jobTitles = await db('job')
+      .select('job_title')
+      .whereRaw('LOWER(job_title) LIKE ?', [`%${keyword}%`])
+      .where('status', 'published')
+      .groupBy('job_title')
+      .orderByRaw('COUNT(*) DESC')
+      .limit(limit);
+
+    // Search company names
+    const companies = await db('company')
+      .select('company_name', 'logo_url')
+      .whereRaw('LOWER(company_name) LIKE ?', [`%${keyword}%`])
+      .limit(limit);
+
+    // Search skills
+    const skills = await db('skill')
+      .select('skill_name')
+      .whereRaw('LOWER(skill_name) LIKE ?', [`%${keyword}%`])
+      .limit(limit);
+
+    // Search locations
+    const locations = await db('location')
+      .select('location_name')
+      .whereRaw('LOWER(location_name) LIKE ?', [`%${keyword}%`])
+      .limit(limit);
+
+    return {
+      jobs: jobTitles.map(j => j.job_title),
+      companies: companies.map(c => ({ name: c.company_name, logo: c.logo_url })),
+      skills: skills.map(s => s.skill_name),
+      locations: locations.map(l => l.location_name)
+    };
+  }
 }
 
 module.exports = SearchService;
