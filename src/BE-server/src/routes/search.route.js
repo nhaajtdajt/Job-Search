@@ -4,10 +4,14 @@ const SearchController = require('../controllers/search.controller');
 const { authenticate, authorize } = require('../middlewares/auth.middleware');
 
 /**
- * Saved Searches Routes
- * All routes require authentication as job_seeker
+ * Search Routes
  */
 
+// ============ PUBLIC ROUTES ============
+// GET /api/search/suggestions - Get search suggestions (autocomplete)
+router.get('/suggestions', SearchController.getSuggestions);
+
+// ============ PROTECTED ROUTES (job_seeker only) ============
 // GET /api/searches - Get saved searches
 router.get('/',
   authenticate,

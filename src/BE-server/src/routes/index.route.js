@@ -60,7 +60,8 @@ const initRoute = (app) => {
   app.use("/api/companies", companyRoutes);
   app.use("/api/resumes", resumeRoutes);
   app.use("/api/applications", applicationRoutes);
-  app.use("/api/searches", searchRoutes);
+  app.use("/api/searches", searchRoutes);  // Saved searches (protected)
+  app.use("/api/search", searchRoutes);    // Search suggestions (public)
   app.use("/api/notifications", notificationRoutes);
   app.use("/api/admin", adminRoutes);
   app.use("/api/saved-candidates", savedCandidateRoutes);

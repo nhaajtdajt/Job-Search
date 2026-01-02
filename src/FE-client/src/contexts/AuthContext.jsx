@@ -58,11 +58,14 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Login user
+   * @param {string} email
+   * @param {string} password
+   * @param {string} loginType - 'job_seeker', 'employer', 'admin'
    */
-  const login = async (email, password) => {
+  const login = async (email, password, loginType = 'job_seeker') => {
     try {
-      const result = await authService.login(email, password);
-      
+      const result = await authService.login(email, password, loginType);
+
       // Save tokens FIRST before updating state
       localStorage.setItem('accessToken', result.accessToken);
       localStorage.setItem('refreshToken', result.refreshToken);
@@ -88,7 +91,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const result = await authService.register(userData);
-      
+
       // Save tokens
       localStorage.setItem('accessToken', result.accessToken);
       localStorage.setItem('refreshToken', result.refreshToken);
@@ -120,12 +123,12 @@ export const AuthProvider = ({ children }) => {
       // Always clear state and localStorage (authService.logout already clears localStorage, but ensure it)
       setUser(null);
       setIsAuthenticated(false);
-      
+
       // Clear localStorage (double check)
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
-      
+
       // Clear Supabase session if exists (for social login)
       try {
         const { supabase } = await import('../config/supabase');
@@ -146,10 +149,10 @@ export const AuthProvider = ({ children }) => {
         ...user,
         ...updatedProfile,
       };
-      
+
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
+
       return updatedUser;
     } catch (error) {
       throw error;
@@ -166,10 +169,10 @@ export const AuthProvider = ({ children }) => {
         ...user,
         ...profile,
       };
-      
+
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
+
       return updatedUser;
     } catch (error) {
       throw error;
@@ -184,15 +187,15 @@ export const AuthProvider = ({ children }) => {
     if (!user) {
       return null;
     }
-    
+
     const updatedUser = {
       ...user,
       ...updateData,
     };
-    
+
     setUser(updatedUser);
     localStorage.setItem('user', JSON.stringify(updatedUser));
-    
+
     return updatedUser;
   };
 
@@ -202,7 +205,7 @@ export const AuthProvider = ({ children }) => {
   const socialLogin = async (provider = 'google') => {
     try {
       const { supabase } = await import('../config/supabase');
-      
+
       // Sign in with OAuth provider
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider,
@@ -232,7 +235,7 @@ export const AuthProvider = ({ children }) => {
   const handleSocialCallback = async () => {
     try {
       const { supabase } = await import('../config/supabase');
-      
+
       // Get session from Supabase
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
@@ -246,7 +249,7 @@ export const AuthProvider = ({ children }) => {
 
       // Get provider from session (try to detect from user metadata or default to google)
       const provider = session.provider_token ? 'google' : 'facebook'; // Simple detection
-      
+
       // Call backend to sync user and get JWT tokens
       const result = await authService.socialLoginCallback(session.access_token, provider);
 

@@ -13,7 +13,6 @@ export default function CompanyManagement() {
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
 
@@ -22,7 +21,6 @@ export default function CompanyManagement() {
             setLoading(true);
             const params = { page, limit: 10 };
             if (search) params.search = search;
-            if (statusFilter !== 'all') params.status = statusFilter;
 
             const response = await adminService.getCompanies(params);
             console.log('Companies API response:', response.data);
@@ -41,15 +39,14 @@ export default function CompanyManagement() {
 
     useEffect(() => {
         fetchCompanies();
-    }, [page, statusFilter]);
+    }, [page]);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
+    const handleSearchKeyDown = (e) => {
+        if (e.key === 'Enter') {
             setPage(1);
             fetchCompanies();
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [search]);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -73,22 +70,13 @@ export default function CompanyManagement() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input
                             type="text"
-                            placeholder="Search companies..."
+                            placeholder="Search by company name (Press Enter)..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
+                            onKeyDown={handleSearchKeyDown}
                             className="w-full bg-[#252d3d] border border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
                         />
                     </div>
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                        className="bg-[#252d3d] border border-gray-700 rounded-lg px-4 py-2.5 text-sm"
-                    >
-                        <option value="all">All Status</option>
-                        <option value="approved">Approved</option>
-                        <option value="pending">Pending</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
                 </div>
             </div>
 

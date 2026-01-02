@@ -75,11 +75,19 @@ router.get(
   AdminController.getStatistics
 );
 
+// Get analytics data for charts
+router.get(
+  '/analytics',
+  authMiddleware.authenticate,
+  RoleMiddleware.requireAdmin(),
+  AdminController.getAnalytics
+);
+
 // POST /api/admin/notifications - Send notification to users
 router.post('/notifications',
-    authenticate,
-    authorize(['admin']),
-    NotificationController.sendAdminNotification
+  authenticate,
+  authorize(['admin']),
+  NotificationController.sendAdminNotification
 );
 
 module.exports = router;

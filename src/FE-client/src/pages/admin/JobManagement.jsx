@@ -50,13 +50,12 @@ export default function JobManagement() {
         fetchJobs();
     }, [page, statusFilter]);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
+    const handleSearchKeyDown = (e) => {
+        if (e.key === 'Enter') {
             setPage(1);
             fetchJobs();
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [search]);
+        }
+    };
 
     const handleDelete = async (jobId) => {
         if (!confirm('Bạn có chắc muốn xóa job này?')) return;
@@ -104,9 +103,10 @@ export default function JobManagement() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input
                             type="text"
-                            placeholder="Search by job title, ID, or keyword..."
+                            placeholder="Search by job title (Press Enter)..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
+                            onKeyDown={handleSearchKeyDown}
                             className="w-full bg-[#252d3d] border border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
                         />
                     </div>

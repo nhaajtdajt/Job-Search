@@ -67,6 +67,13 @@ const adminService = {
      * @param {Object} data - { title, message, target_role, target_user_id }
      */
     sendNotification: (data) => apiService.post('/admin/notifications', data),
+
+    // ============ ANALYTICS ============
+    /**
+     * Get analytics data for dashboard charts
+     * @param {string} timeRange - '7d', '30d', '3m', '1y'
+     */
+    getAnalytics: (timeRange = '7d') => apiService.get('/admin/analytics', { params: { timeRange } }),
 };
 
 export default adminService;

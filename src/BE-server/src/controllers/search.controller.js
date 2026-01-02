@@ -102,6 +102,26 @@ class SearchController {
       return next(error);
     }
   }
+
+  /**
+   * GET /api/search/suggestions
+   * Get search suggestions for autocomplete (public)
+   * Query: q (keyword), limit (optional, default 5)
+   */
+  static async getSuggestions(req, res, next) {
+    try {
+      const { q, limit } = req.query;
+      const suggestions = await SearchService.getSuggestions(q, parseInt(limit) || 5);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Suggestions retrieved successfully',
+        data: suggestions
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = SearchController;

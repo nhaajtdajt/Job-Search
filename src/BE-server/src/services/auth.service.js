@@ -194,7 +194,7 @@ class AuthService {
               const existing = await db('employer')
                 .where('user_id', userId)
                 .first();
-              
+
               if (existing) {
                 employerId = existing.employer_id;
               } else {
@@ -240,10 +240,16 @@ class AuthService {
    * Login user
    * @param {string} email - User email
    * @param {string} password - User password
+   * @param {string} loginType - Login type: 'job_seeker', 'employer', 'admin'
    * @returns {Object} { user, tokens }
    */
-  static async login(email, password) {
+  static async login(email, password, loginType = 'job_seeker') {
     // Note: Input validation is handled by AuthValidator middleware
+
+    // Block admin login from non-admin pages
+    if (ADMIN_EMAILS.includes(email) && loginType !== 'admin') {
+      throw new ForbiddenError('Tài khoản admin không thể đăng nhập từ trang này. Vui lòng sử dụng trang đăng nhập Admin.');
+    }
 
     // Authenticate with Supabase
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -887,7 +893,7 @@ class AuthService {
     let role = ROLES.JOB_SEEKER;
     let employerId = null;
     let finalAvatarUrl = user.avatar_url || avatarUrl; // Default: user's avatar or Google avatar
-    
+
     const employer = await db('employer')
       .where('user_id', userId)
       .first();

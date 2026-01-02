@@ -17,7 +17,9 @@ class AdminController {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const filters = {
-        role: req.query.role
+        role: req.query.role,
+        status: req.query.status,
+        search: req.query.search
       };
 
       const result = await AdminService.getUsers(page, limit, filters);
@@ -67,7 +69,8 @@ class AdminController {
       const limit = parseInt(req.query.limit) || 10;
       const filters = {
         status: req.query.status,
-        company_id: req.query.company_id
+        company_id: req.query.company_id,
+        search: req.query.search
       };
 
       const result = await AdminService.getEmployers(page, limit, filters);
@@ -111,8 +114,11 @@ class AdminController {
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
+      const filters = {
+        search: req.query.search
+      };
 
-      const result = await AdminService.getCompanies(page, limit);
+      const result = await AdminService.getCompanies(page, limit, filters);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -133,8 +139,10 @@ class AdminController {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const filters = {
+        status: req.query.status,
         job_type: req.query.job_type,
-        employer_id: req.query.employer_id
+        employer_id: req.query.employer_id,
+        search: req.query.search
       };
 
       const result = await AdminService.getJobs(page, limit, filters);
@@ -185,6 +193,25 @@ class AdminController {
         status: HTTP_STATUS.OK,
         message: 'Statistics retrieved successfully',
         data: statistics,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Get analytics data for dashboard charts
+   * GET /api/admin/analytics
+   */
+  static async getAnalytics(req, res, next) {
+    try {
+      const { timeRange } = req.query;
+      const analytics = await AdminService.getAnalytics(timeRange || '7d');
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Analytics retrieved successfully',
+        data: analytics,
       });
     } catch (error) {
       return next(error);

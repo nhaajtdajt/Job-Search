@@ -25,11 +25,13 @@ class AuthController {
   /**
    * POST /api/auth/login
    * Login user
+   * Body: { email, password, loginType? }
+   * loginType: 'job_seeker' (default), 'employer', 'admin'
    */
   static async login(req, res, next) {
     try {
-      const { email, password } = req.body;
-      const result = await AuthService.login(email, password);
+      const { email, password, loginType } = req.body;
+      const result = await AuthService.login(email, password, loginType || 'job_seeker');
       return ResponseHandler.success(res, {
         message: 'Login successful',
         data: result
@@ -156,7 +158,7 @@ class AuthController {
   static async socialLoginCallback(req, res, next) {
     try {
       const { accessToken, provider } = req.body;
-      
+
       if (!accessToken) {
         return ResponseHandler.error(res, {
           status: 400,

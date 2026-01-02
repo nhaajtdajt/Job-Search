@@ -53,8 +53,8 @@ export default function EmployerLogin() {
 
     try {
       // Use AuthContext login to properly update state
-      const result = await login(formData.email, formData.password);
-      
+      const result = await login(formData.email, formData.password, 'employer');
+
       // Check if user is employer role
       if (result.user.role !== 'employer') {
         setApiError("Tài khoản này không phải là nhà tuyển dụng. Vui lòng sử dụng trang đăng nhập dành cho ứng viên.");
@@ -183,11 +183,10 @@ export default function EmployerLogin() {
                     autoComplete="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-3 border ${
-                      errors.email
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-orange-500 focus:border-orange-500"
-                    } rounded-lg focus:outline-none focus:ring-2 transition`}
+                    className={`block w-full pl-10 pr-3 py-3 border ${errors.email
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-orange-500 focus:border-orange-500"
+                      } rounded-lg focus:outline-none focus:ring-2 transition`}
                     placeholder="company@example.com"
                   />
                 </div>
@@ -218,11 +217,10 @@ export default function EmployerLogin() {
                     autoComplete="current-password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-12 py-3 border ${
-                      errors.password
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-orange-500 focus:border-orange-500"
-                    } rounded-lg focus:outline-none focus:ring-2 transition`}
+                    className={`block w-full pl-10 pr-12 py-3 border ${errors.password
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-orange-500 focus:border-orange-500"
+                      } rounded-lg focus:outline-none focus:ring-2 transition`}
                     placeholder="••••••••"
                   />
                   <button

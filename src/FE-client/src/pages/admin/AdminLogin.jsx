@@ -31,7 +31,7 @@ export default function AdminLogin() {
 
         setLoading(true);
         try {
-            const result = await login(email, password);
+            const result = await login(email, password, 'admin');
 
             // Double check role after login
             if (result.user?.role !== 'admin') {

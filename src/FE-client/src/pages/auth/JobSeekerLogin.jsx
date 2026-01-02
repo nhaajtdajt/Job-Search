@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { supabase } from "../../config/supabase";
 import {
   Mail,
   Lock,
@@ -54,7 +53,7 @@ export default function JobSeekerLogin() {
     setApiError("");
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.email, formData.password, 'job_seeker');
       // Small delay to ensure state is updated before redirect
       await new Promise(resolve => setTimeout(resolve, 100));
       // Redirect to home page after successful login
@@ -201,9 +200,8 @@ export default function JobSeekerLogin() {
                     autoComplete="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`w-full pl-10 pr-4 py-3 border ${
-                      errors.email ? "border-red-300" : "border-gray-300"
-                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition`}
+                    className={`w-full pl-10 pr-4 py-3 border ${errors.email ? "border-red-300" : "border-gray-300"
+                      } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition`}
                     placeholder="example@email.com"
                   />
                 </div>
@@ -232,9 +230,8 @@ export default function JobSeekerLogin() {
                     autoComplete="current-password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`w-full pl-10 pr-12 py-3 border ${
-                      errors.password ? "border-red-300" : "border-gray-300"
-                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition`}
+                    className={`w-full pl-10 pr-12 py-3 border ${errors.password ? "border-red-300" : "border-gray-300"
+                      } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition`}
                     placeholder="••••••••"
                   />
                   <button

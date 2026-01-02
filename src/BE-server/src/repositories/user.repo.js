@@ -176,6 +176,12 @@ class UserRepository {
       baseQuery = baseQuery.whereNotIn('user_id', allExcludeIds);
     }
 
+    // Apply search filter (only search by name)
+    if (filters.search) {
+      const searchPattern = `%${filters.search}%`;
+      baseQuery = baseQuery.where('name', 'ILIKE', searchPattern);
+    }
+
     // Apply status filter if provided
     if (filters.status) {
       baseQuery = baseQuery.where('status', filters.status);
