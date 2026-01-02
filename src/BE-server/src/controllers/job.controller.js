@@ -23,8 +23,33 @@ class JobController {
       }
 
       const filters = {};
+      if (req.query.search) filters.search = req.query.search;
+      if (req.query.location) filters.location = req.query.location;
+      if (req.query.sort) filters.sort = req.query.sort;
       if (req.query.job_type) filters.job_type = req.query.job_type;
       if (req.query.employer_id) filters.employer_id = req.query.employer_id;
+      if (req.query.is_remote) filters.is_remote = req.query.is_remote === 'true';
+      if (req.query.salary_min) filters.salary_min = parseInt(req.query.salary_min);
+      if (req.query.salary_max) filters.salary_max = parseInt(req.query.salary_max);
+      
+      // Handle array filters (job_type could be array?)
+      // Front-End sends 'job_type' as single or array currently? 
+      // Jobs.jsx: params.append('type', type) -> ?type=Part-time&type=Remote... 
+      // Express parses ?type=A&type=B as array.
+      // So req.query.job_type might be array. Repo needs to handle that.
+      // Wait, my update to Repo above uses `where('job_type', filters.job_type)`. 
+      // If it's array, `where` might fail or handle it depending on Knex.
+      // Safest is to use `whereIn` if array.
+
+      // Let's checking req.query details more carefully.
+      // Frontend sends 'type' param, but mapped to `job_type` in `params` object in JS, 
+      // url params: `type=Full-time&type=Part-time`.
+      // Express keys: req.query.type.
+      
+      // Controller maps:
+      if (req.query.type) filters.job_type = req.query.type; 
+      if (req.query.exp) filters.experience_level = req.query.exp;
+      if (req.query.posted) filters.posted_within = req.query.posted;
 
       const result = await JobService.getJobs(page, limit, filters);
 

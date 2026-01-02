@@ -32,6 +32,56 @@ class ApplicationController {
   }
 
   /**
+   * POST /api/jobs/:jobId/apply
+   * Apply for a specific job (takes jobId from URL params)
+   * Body: { resume_id, cover_letter? }
+   */
+  static async applyJobByJobId(req, res, next) {
+    try {
+      const userId = req.user.user_id;
+      const { jobId } = req.params;
+      const { resume_id, cover_letter } = req.body;
+
+      const applicationData = {
+        job_id: parseInt(jobId, 10),
+        resume_id,
+        cover_letter
+      };
+
+      const application = await ApplicationService.applyJob(userId, applicationData);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.CREATED,
+        message: 'Application submitted successfully',
+        data: application
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * GET /api/jobs/:jobId/application-status
+   * Check if user has applied to a job
+   */
+  static async checkApplication(req, res, next) {
+    try {
+      const { jobId } = req.params;
+      const userId = req.user.user_id;
+      
+      const hasApplied = await ApplicationService.checkApplication(userId, parseInt(jobId, 10));
+      
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Application status checked',
+        data: { has_applied: hasApplied }
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
    * GET /api/applications
    * Get user's application history with pagination
    * Query: ?page=1&limit=10&status=pending

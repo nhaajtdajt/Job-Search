@@ -26,6 +26,16 @@ export const companyService = {
   },
 
   /**
+   * Get jobs by company ID
+   * @param {string} companyId - Company ID
+   * @returns {Promise<Array>} List of jobs
+   */
+  async getCompanyJobs(companyId) {
+    const response = await api.get(`/companies/${companyId}/jobs`);
+    return response.data.data; // Assuming controller returns { data: [] }
+  },
+
+  /**
    * Upload company logo
    * @param {string} companyId - Company ID
    * @param {File} file - Logo image file

@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import SearchBar from "../../components/common/SearchBar.jsx";
+import { userService } from "../../services/user.service";
 import heroImage from "../../assets/logoAdvertise/teleper_hrbn.webp";
 import mbBanner from "../../assets/logoBank/MBbankBanner_136036.webp";
 import boschImage from "../../assets/logoAdvertise/BOSCH_GLOBAL.webp";
@@ -367,6 +369,8 @@ export default function Home() {
   const navigate = useNavigate();
   const [mainTool, ...otherTools] = careerTools;
 
+  const [dashboardStats, setDashboardStats] = useState(null);
+
   // Redirect employer users to employer dashboard
   useEffect(() => {
     if (authLoading) return; // Don't redirect while loading
@@ -375,8 +379,82 @@ export default function Home() {
     }
   }, [isAuthenticated, user, authLoading, navigate]);
 
+  // Load stats for logged in user
+  useEffect(() => {
+    if (isAuthenticated && user && user.role !== 'employer') {
+        userService.getStatistics()
+            .then(stats => setDashboardStats(stats))
+            .catch(err => console.error(err));
+    }
+  }, [isAuthenticated, user]);
+
   return (
     <div className="pb-24">
+      {isAuthenticated && user ? (
+        <section className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-800 to-blue-900 text-white">
+            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+            <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:pt-20 lg:pb-40">
+                <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+                    <div className="space-y-6">
+                        <span className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-widest bg-white/20 rounded-full text-blue-100">
+                             Chào mừng trở lại
+                        </span>
+                        <h1 className="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+                            Xin chào, <span className="text-blue-300">{user.name || user.email?.split('@')[0]}</span>!
+                        </h1>
+                        <p className="text-base text-blue-100/80 sm:text-lg">
+                            Tiếp tục hành trình chinh phục sự nghiệp mơ ước. Dưới đây là tình hình hoạt động của bạn.
+                        </p>
+                        
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
+                            <Link to="/user/applications" className="bg-white/10 hover:bg-white/20 transition p-4 rounded-xl border border-white/10 backdrop-blur group">
+                                <p className="text-3xl font-bold text-white group-hover:scale-110 transition-transform origin-left">{dashboardStats?.applications || 0}</p>
+                                <p className="text-sm text-blue-200 mt-1">Việc đã ứng tuyển</p>
+                            </Link>
+                            <Link to="/user/saved-jobs" className="bg-white/10 hover:bg-white/20 transition p-4 rounded-xl border border-white/10 backdrop-blur group">
+                                <p className="text-3xl font-bold text-white group-hover:scale-110 transition-transform origin-left">{dashboardStats?.saved_jobs || 0}</p>
+                                <p className="text-sm text-blue-200 mt-1">Việc làm đã lưu</p>
+                            </Link>
+                            <Link to="/user/saved-searches" className="bg-white/10 hover:bg-white/20 transition p-4 rounded-xl border border-white/10 backdrop-blur group">
+                                <p className="text-3xl font-bold text-white group-hover:scale-110 transition-transform origin-left">{dashboardStats?.saved_searches || 0}</p>
+                                <p className="text-sm text-blue-200 mt-1">Lượt tìm kiếm đã lưu</p>
+                            </Link>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3 mt-6">
+                            <Link to="/jobs" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 font-semibold transition shadow-lg shadow-orange-500/30">
+                                Tìm việc ngay
+                            </Link>
+                            <Link to="/user/overview" className="rounded-full bg-white text-blue-900 hover:bg-blue-50 px-6 py-3 font-semibold transition">
+                                Đến Bảng Điều Khiển
+                            </Link>
+                        </div>
+                    </div>
+                     <div className="hidden lg:block relative">
+                         {/* Abstract decoration */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-500/30 rounded-full blur-3xl"></div>
+                        <div className="relative z-10 bg-white/10 border border-white/20 p-8 rounded-2xl backdrop-blur-md">
+                            <h3 className="text-xl font-bold mb-4 border-b border-white/10 pb-4">Công việc mới nhất dành cho bạn</h3>
+                            <div className="space-y-4">
+                                {suggestedJobs.slice(0, 3).map((job, idx) => (
+                                    <div key={idx} className="flex gap-4 items-center group cursor-pointer hover:bg-white/5 p-2 rounded-lg transition">
+                                        <img src={job.image} alt="" className="w-12 h-12 rounded bg-white object-contain" />
+                                        <div>
+                                            <p className="font-semibold text-white group-hover:text-blue-200 transition">{job.title}</p>
+                                            <p className="text-sm text-blue-200/70">{job.salary} • {job.location}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-6 pt-4 border-t border-white/10 text-center">
+                                <Link to="/jobs" className="text-sm font-medium text-blue-200 hover:text-white transition">Xem tất cả việc làm gợi ý →</Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+      ) : (
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-100 via-blue-200 to-blue-200 text-black">
         <div className="absolute inset-0 opacity-10 bg-blue-300" />
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
@@ -451,6 +529,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       <section className="relative z-10 -mt-16 sm:-mt-20 lg:-mt-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

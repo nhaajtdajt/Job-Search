@@ -50,8 +50,8 @@ class ResumeService {
       throw new BadRequestError('Resume title is required');
     }
 
-    // Generate resume ID
-    const resumeId = 'RES' + Date.now().toString().slice(-6);
+    // Generate resume ID (max 7 chars to fit DB varchar(7))
+    const resumeId = 'R' + Date.now().toString().slice(-6);
 
     // Create resume
     const resume = await ResumeRepository.create({
@@ -238,8 +238,13 @@ class ResumeService {
       throw new NotFoundError('No CV file found');
     }
 
-    // Delete from storage
-    await StorageService.deleteFile(resume.resume_url);
+    // Delete from storage (attempt)
+    try {
+      await StorageService.deleteFile(resume.resume_url);
+    } catch (error) {
+      console.warn(`Failed to delete file from storage: ${error.message} (ResumeID: ${resumeId})`);
+      // Proceed to update DB even if storage delete fails
+    }
 
     // Update database
     await ResumeRepository.update(resumeId, { resume_url: null });

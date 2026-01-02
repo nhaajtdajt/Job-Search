@@ -43,6 +43,21 @@ const applicationService = {
   },
 
   /**
+   * Check if user applied to a job
+   * @param {string} jobId - Job ID
+   * @returns {Promise<boolean>} True if applied
+   */
+  async checkApplicationStatus(jobId) {
+    try {
+      const response = await api.get(`/jobs/${jobId}/application-status`);
+      return response.data.data.has_applied;
+    } catch (error) {
+      console.error('Error checking application status:', error);
+      return false;
+    }
+  },
+
+  /**
    * Apply for a job
    * @param {string} jobId - Job ID
    * @param {Object} data - Application data { resume_id, cover_letter }

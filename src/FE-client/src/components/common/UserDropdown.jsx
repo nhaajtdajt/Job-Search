@@ -63,13 +63,13 @@ export default function UserDropdown() {
     {
       label: 'Tổng Quan',
       icon: <User className="w-4 h-4" />,
-      to: '/overview',
+      to: '/user/overview',
       divider: false,
     },
     {
       label: 'Hồ Sơ Của Tôi',
       icon: <FileText className="w-4 h-4" />,
-      to: '/profile',
+      to: '/user/profile',
       divider: false,
     },
     ...(user?.role === 'employer'
@@ -89,22 +89,34 @@ export default function UserDropdown() {
         ]
       : [
           {
+            label: 'Quản Lý CV',
+            icon: <FileText className="w-4 h-4" />,
+            to: '/user/resumes',
+            divider: false,
+          },
+          {
             label: 'Việc Làm Của Tôi',
             icon: <Briefcase className="w-4 h-4" />,
-            to: '/my-jobs',
+            to: '/user/my-jobs',
             divider: false,
           },
         ]),
     {
       label: 'Thông Báo Việc Làm',
       icon: <Bell className="w-4 h-4" />,
-      to: '/job-notifications',
+      to: '/user/job-notifications',
+      divider: false,
+    },
+    {
+      label: 'Thông Báo',
+      icon: <Bell className="w-4 h-4" />,
+      to: '/user/notifications',
       divider: false,
     },
     {
       label: 'Quản Lý Tài Khoản',
       icon: <Settings className="w-4 h-4" />,
-      to: '/account-management',
+      to: '/user/account',
       divider: true,
     },
     {
@@ -155,7 +167,7 @@ export default function UserDropdown() {
             </p>
             <p className="text-xs text-gray-500 mt-1 transition-colors duration-200">{user.email}</p>
             <Link
-              to="/profile"
+              to="/user/profile"
               className="mt-3 inline-block w-full text-center bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-lg active:scale-95 btn-smooth"
               onClick={() => setIsOpen(false)}
             >
@@ -211,4 +223,3 @@ export default function UserDropdown() {
     </div>
   );
 }
-

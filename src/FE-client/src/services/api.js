@@ -19,6 +19,21 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  paramsSerializer: {
+    serialize: (params) => {
+      const searchParams = new URLSearchParams();
+      for (const key in params) {
+        const value = params[key];
+        if (value === null || value === undefined) continue;
+        if (Array.isArray(value)) {
+          value.forEach((v) => searchParams.append(key, v));
+        } else {
+          searchParams.append(key, value);
+        }
+      }
+      return searchParams.toString();
+    },
+  },
 });
 
 // Request interceptor: Add auth token to requests

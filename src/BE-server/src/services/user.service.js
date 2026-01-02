@@ -27,11 +27,41 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 class UserService {
   /**
    * Get user profile by ID
+   * If user doesn't exist in users table, create a minimal profile
    * @param {string} userId - User ID
    * @returns {Object} User profile
    */
   static async getProfile(userId) {
-    const user = await UserRepository.findById(userId);
+    let user = await UserRepository.findById(userId);
+    
+    // If user doesn't exist, try to create a minimal profile
+    if (!user) {
+      // Try to get user info from Supabase Auth to populate profile
+      try {
+        const { data: authData, error } = await supabase.auth.admin.getUserById(userId);
+        
+        if (!error && authData?.user) {
+          const authUser = authData.user;
+          const userMetadata = authUser.user_metadata || {};
+          
+          // Create minimal profile
+          const profileData = {
+            user_id: userId,
+            name: userMetadata.full_name || userMetadata.name || authUser.email?.split('@')[0] || 'User',
+            avatar_url: userMetadata.avatar_url || userMetadata.picture || null,
+          };
+          
+          // Insert the new profile
+          await UserRepository.create(profileData);
+          
+          // Fetch the created user
+          user = await UserRepository.findById(userId);
+        }
+      } catch (createError) {
+        console.error('Error auto-creating user profile:', createError);
+        // If we still can't create, throw the original not found error
+      }
+    }
     
     if (!user) {
       throw new NotFoundError('User not found');
