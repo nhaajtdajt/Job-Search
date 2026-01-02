@@ -43,13 +43,12 @@ export default function CompanyManagement() {
         fetchCompanies();
     }, [page, statusFilter]);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
+    const handleSearchKeyDown = (e) => {
+        if (e.key === 'Enter') {
             setPage(1);
             fetchCompanies();
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [search]);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -73,9 +72,10 @@ export default function CompanyManagement() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input
                             type="text"
-                            placeholder="Search companies..."
+                            placeholder="Search by company name (Press Enter)..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
+                            onKeyDown={handleSearchKeyDown}
                             className="w-full bg-[#252d3d] border border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
                         />
                     </div>

@@ -62,7 +62,8 @@ class AdminService {
     const { offset } = parsePagination(page, limit);
 
     // Build WHERE conditions
-    let countQuery = db(MODULE.EMPLOYER);
+    let countQuery = db(MODULE.EMPLOYER)
+      .leftJoin('company', 'employer.company_id', 'company.company_id');
     let dataQuery = db(MODULE.EMPLOYER)
       .select(
         'employer.*',
@@ -71,9 +72,17 @@ class AdminService {
       )
       .leftJoin('company', 'employer.company_id', 'company.company_id');
 
+    // Status filter
     if (filters.status) {
       countQuery = countQuery.where('employer.status', filters.status);
       dataQuery = dataQuery.where('employer.status', filters.status);
+    }
+
+    // Search filter (only search by full_name)
+    if (filters.search) {
+      const searchPattern = `%${filters.search}%`;
+      countQuery = countQuery.where('employer.full_name', 'ILIKE', searchPattern);
+      dataQuery = dataQuery.where('employer.full_name', 'ILIKE', searchPattern);
     }
 
     const [{ total }] = await countQuery.count('* as total');
@@ -115,20 +124,30 @@ class AdminService {
   }
 
   /**
-   * Get all companies with pagination
+   * Get all companies with pagination and filters
    * Also get job count for each company
    */
-  static async getCompanies(page = 1, limit = 10) {
+  static async getCompanies(page = 1, limit = 10, filters = {}) {
     const { offset } = parsePagination(page, limit);
 
-    const [{ total }] = await db(MODULE.COMPANY).count('* as total');
-
-    // Get companies with job count
-    const data = await db(MODULE.COMPANY)
+    // Base queries
+    let countQuery = db(MODULE.COMPANY);
+    let dataQuery = db(MODULE.COMPANY)
       .select(
         'company.*',
         db.raw('(SELECT COUNT(*) FROM job j INNER JOIN employer e ON j.employer_id = e.employer_id WHERE e.company_id = company.company_id) as job_count')
-      )
+      );
+
+    // Search filter (only search by company_name)
+    if (filters.search) {
+      const searchPattern = `%${filters.search}%`;
+      countQuery = countQuery.where('company_name', 'ILIKE', searchPattern);
+      dataQuery = dataQuery.where('company_name', 'ILIKE', searchPattern);
+    }
+
+    const [{ total }] = await countQuery.count('* as total');
+
+    const data = await dataQuery
       .orderBy('company.company_id', 'asc')
       .limit(limit)
       .offset(offset);
@@ -149,7 +168,9 @@ class AdminService {
     const { offset } = parsePagination(page, limit);
 
     // Build WHERE conditions
-    let countQuery = db(MODULE.JOB);
+    let countQuery = db(MODULE.JOB)
+      .leftJoin('employer', 'job.employer_id', 'employer.employer_id')
+      .leftJoin('company', 'employer.company_id', 'company.company_id');
     let dataQuery = db(MODULE.JOB)
       .select(
         'job.*',
@@ -161,13 +182,21 @@ class AdminService {
       .leftJoin('employer', 'job.employer_id', 'employer.employer_id')
       .leftJoin('company', 'employer.company_id', 'company.company_id');
 
+    // Status filter
     if (filters.status) {
       countQuery = countQuery.where('job.status', filters.status);
       dataQuery = dataQuery.where('job.status', filters.status);
     }
+    // Job type filter
     if (filters.job_type) {
       countQuery = countQuery.where('job.job_type', filters.job_type);
       dataQuery = dataQuery.where('job.job_type', filters.job_type);
+    }
+    // Search filter (only search by job_title)
+    if (filters.search) {
+      const searchPattern = `%${filters.search}%`;
+      countQuery = countQuery.where('job.job_title', 'ILIKE', searchPattern);
+      dataQuery = dataQuery.where('job.job_title', 'ILIKE', searchPattern);
     }
 
     const [{ total }] = await countQuery.count('* as total');
