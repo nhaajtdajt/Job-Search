@@ -171,6 +171,7 @@ class AuthService {
           employerId = existingEmployer.employer_id;
         } else {
           // Create new employer record
+          // Use raw SQL with ON CONFLICT to handle race conditions
           const employerData = {
             user_id: userId,
             full_name: name || 'Employer',
@@ -180,11 +181,29 @@ class AuthService {
             company_id: additionalData.company_id || null  // Nullable now
           };
 
-          const [employer] = await db('employer')
-            .insert(employerData)
-            .returning('employer_id');
+          // Try insert, if fails due to duplicate, try to get existing record
+          try {
+            const [employer] = await db('employer')
+              .insert(employerData)
+              .returning('employer_id');
 
-          employerId = employer.employer_id;
+            employerId = employer.employer_id;
+          } catch (insertError) {
+            // If insert fails due to duplicate key, try to get existing record
+            if (insertError.code === '23505' || insertError.message.includes('duplicate key')) {
+              const existing = await db('employer')
+                .where('user_id', userId)
+                .first();
+              
+              if (existing) {
+                employerId = existing.employer_id;
+              } else {
+                throw insertError;
+              }
+            } else {
+              throw insertError;
+            }
+          }
         }
       } catch (employerError) {
         console.error('Failed to create employer record:', employerError);
