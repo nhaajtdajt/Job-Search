@@ -190,6 +190,25 @@ class AdminController {
       return next(error);
     }
   }
+
+  /**
+   * Get analytics data for dashboard charts
+   * GET /api/admin/analytics
+   */
+  static async getAnalytics(req, res, next) {
+    try {
+      const { timeRange } = req.query;
+      const analytics = await AdminService.getAnalytics(timeRange || '7d');
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Analytics retrieved successfully',
+        data: analytics,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = AdminController;
