@@ -18,7 +18,7 @@ const savedService = {
     if (params.limit) queryParams.append('limit', params.limit);
     
     const queryString = queryParams.toString();
-    const url = `/saved-jobs${queryString ? `?${queryString}` : ''}`;
+    const url = `/users/saved-jobs${queryString ? `?${queryString}` : ''}`;
     const response = await apiService.get(url);
     return response.data;
   },
@@ -28,7 +28,7 @@ const savedService = {
    * @param {string} jobId 
    */
   saveJob: async (jobId) => {
-    const response = await apiService.post('/saved-jobs', { job_id: jobId });
+    const response = await apiService.post('/users/saved-jobs', { job_id: jobId });
     return response.data;
   },
 
@@ -37,7 +37,7 @@ const savedService = {
    * @param {string} jobId 
    */
   unsaveJob: async (jobId) => {
-    const response = await apiService.delete(`/saved-jobs/${jobId}`);
+    const response = await apiService.delete(`/users/saved-jobs/${jobId}`);
     return response.data;
   },
 
@@ -47,7 +47,7 @@ const savedService = {
    */
   isJobSaved: async (jobId) => {
     try {
-      const response = await apiService.get(`/saved-jobs/${jobId}/check`);
+      const response = await apiService.get(`/users/saved-jobs/${jobId}/check`);
       return response.data?.isSaved || false;
     } catch {
       return false;
@@ -62,7 +62,7 @@ const savedService = {
    * Get all saved searches for current user
    */
   getSavedSearches: async () => {
-    const response = await apiService.get('/saved-searches');
+    const response = await apiService.get('/users/saved-searches');
     return response.data;
   },
 
@@ -71,7 +71,7 @@ const savedService = {
    * @param {Object} searchData - { name, keyword, location, job_type, salary_min, salary_max, experience_level }
    */
   saveSearch: async (searchData) => {
-    const response = await apiService.post('/saved-searches', searchData);
+    const response = await apiService.post('/users/saved-searches', searchData);
     return response.data;
   },
 
@@ -81,7 +81,7 @@ const savedService = {
    * @param {Object} searchData 
    */
   updateSavedSearch: async (searchId, searchData) => {
-    const response = await apiService.put(`/saved-searches/${searchId}`, searchData);
+    const response = await apiService.put(`/users/saved-searches/${searchId}`, searchData);
     return response.data;
   },
 
@@ -90,7 +90,7 @@ const savedService = {
    * @param {string} searchId 
    */
   deleteSavedSearch: async (searchId) => {
-    const response = await apiService.delete(`/saved-searches/${searchId}`);
+    const response = await apiService.delete(`/users/saved-searches/${searchId}`);
     return response.data;
   },
 
@@ -100,7 +100,7 @@ const savedService = {
    * @param {boolean} enabled 
    */
   toggleSearchNotification: async (searchId, enabled) => {
-    const response = await apiService.patch(`/saved-searches/${searchId}/notification`, { 
+    const response = await apiService.patch(`/users/saved-searches/${searchId}/notification`, { 
       email_notification: enabled 
     });
     return response.data;
@@ -111,7 +111,7 @@ const savedService = {
    * @param {string} searchId 
    */
   getMatchingJobs: async (searchId) => {
-    const response = await apiService.get(`/saved-searches/${searchId}/jobs`);
+    const response = await apiService.get(`/users/saved-searches/${searchId}/jobs`);
     return response.data;
   },
 };

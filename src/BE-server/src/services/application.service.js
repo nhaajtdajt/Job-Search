@@ -74,6 +74,16 @@ class ApplicationService {
   }
 
   /**
+   * Check if user has applied to a job
+   * @param {string} userId - User ID
+   * @param {number} jobId - Job ID
+   * @returns {Promise<boolean>}
+   */
+  static async checkApplication(userId, jobId) {
+    return await ApplicationRepository.hasApplied(userId, jobId);
+  }
+
+  /**
    * Get user's application history with pagination
    * @param {string} userId - User ID
    * @param {number} page - Page number

@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { message } from 'antd';
 import { jobService } from '../../services/jobService';
+import savedService from '../../services/savedService';
+import { useAuth } from '../../contexts/AuthContext';
 import JobListItem from '../../components/jobs/JobListItem';
 import AdvancedFilters from '../../components/jobs/AdvancedFilters';
 
@@ -26,6 +28,7 @@ const SORT_OPTIONS = [
 ];
 
 export default function Jobs() {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +36,7 @@ export default function Jobs() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [savedJobIds, setSavedJobIds] = useState(new Set());
   
   // Search state
   const [keyword, setKeyword] = useState(searchParams.get('q') || '');
@@ -43,7 +47,30 @@ export default function Jobs() {
     experience_levels: searchParams.getAll('exp') || [],
     salary_range: searchParams.get('salary') || '',
     is_remote: searchParams.get('remote') === 'true',
+    posted_within: searchParams.get('posted') || '',
   });
+
+  // Fetch saved job IDs for authenticated user
+  useEffect(() => {
+    const fetchSavedJobIds = async () => {
+      if (!user) {
+        setSavedJobIds(new Set());
+        return;
+      }
+      try {
+        const response = await savedService.getSavedJobs({ limit: 100 });
+        // Response structure: { data: { data: [...], total, page, limit } }
+        // or just { data: [...], total, page, limit }
+        let savedJobs = response?.data?.data || response?.data || response || [];
+        if (!Array.isArray(savedJobs)) savedJobs = [];
+        const ids = new Set(savedJobs.map(item => item.job_id || item.job?.job_id).filter(Boolean));
+        setSavedJobIds(ids);
+      } catch (error) {
+        console.error('Error fetching saved jobs:', error);
+      }
+    };
+    fetchSavedJobIds();
+  }, [user]);
 
   // Load jobs from API
   const loadJobs = useCallback(async () => {
@@ -55,7 +82,9 @@ export default function Jobs() {
         search: keyword || undefined,
         location: location || undefined,
         sort: sortBy,
-        job_type: filters.job_types.length > 0 ? filters.job_types[0] : undefined,
+        type: filters.job_types.length > 0 ? filters.job_types : undefined,
+        exp: filters.experience_levels.length > 0 ? filters.experience_levels : undefined,
+        posted: filters.posted_within || undefined,
         is_remote: filters.is_remote || undefined,
       };
 
@@ -68,8 +97,23 @@ export default function Jobs() {
 
       const response = await jobService.getJobs(params);
       // Handle different response formats
-      const jobsData = response?.data || response || [];
-      setJobs(Array.isArray(jobsData) ? jobsData : []);
+      let jobsData = response?.data || response || [];
+      jobsData = Array.isArray(jobsData) ? jobsData : [];
+      
+      // Mark saved jobs and sort: saved jobs first
+      const processedJobs = jobsData.map(job => ({
+        ...job,
+        is_saved: savedJobIds.has(job.job_id)
+      }));
+      
+      // Sort: saved jobs first, then by original order
+      processedJobs.sort((a, b) => {
+        if (a.is_saved && !b.is_saved) return -1;
+        if (!a.is_saved && b.is_saved) return 1;
+        return 0;
+      });
+      
+      setJobs(processedJobs);
       setTotalJobs(response?.pagination?.total || response?.total || jobsData.length || 0);
       setTotalPages(response?.pagination?.totalPages || Math.ceil((response?.total || jobsData.length) / 10) || 1);
     } catch (error) {
@@ -78,7 +122,7 @@ export default function Jobs() {
     } finally {
       setLoading(false);
     }
-  }, [page, keyword, location, sortBy, filters]);
+  }, [page, keyword, location, sortBy, filters, savedJobIds]);
 
   useEffect(() => {
     loadJobs();
@@ -94,6 +138,7 @@ export default function Jobs() {
     filters.job_types.forEach(type => params.append('type', type));
     filters.experience_levels.forEach(exp => params.append('exp', exp));
     if (filters.salary_range) params.set('salary', filters.salary_range);
+    if (filters.posted_within) params.set('posted', filters.posted_within);
     
     setSearchParams(params, { replace: true });
   }, [keyword, location, sortBy, filters, setSearchParams]);
@@ -117,6 +162,7 @@ export default function Jobs() {
       experience_levels: [],
       salary_range: '',
       is_remote: false,
+      posted_within: '',
     });
     setPage(1);
   };
@@ -125,6 +171,7 @@ export default function Jobs() {
     filters.job_types.length +
     filters.experience_levels.length +
     (filters.salary_range ? 1 : 0) +
+    (filters.posted_within ? 1 : 0) +
     (filters.is_remote ? 1 : 0);
 
   return (
@@ -169,28 +216,34 @@ export default function Jobs() {
 
           {/* Quick filters */}
           <div className="flex flex-wrap gap-2 mt-4">
-            {['Remote', 'Full-time', 'Part-time', 'Internship'].map(tag => (
+            {[
+              { label: 'Remote', value: 'remote' },
+              { label: 'Full-time', value: 'full-time' },
+              { label: 'Part-time', value: 'part-time' },
+              { label: 'Internship', value: 'internship' }
+            ].map((item) => (
               <button
-                key={tag}
+                key={item.value}
                 onClick={() => {
-                  if (tag === 'Remote') {
-                    setFilters(prev => ({ ...prev, is_remote: !prev.is_remote }));
+                  if (item.value === 'remote') {
+                    setFilters((prev) => ({ ...prev, is_remote: !prev.is_remote }));
                   } else {
-                    setFilters(prev => ({
+                    setFilters((prev) => ({
                       ...prev,
-                      job_types: prev.job_types.includes(tag)
-                        ? prev.job_types.filter(t => t !== tag)
-                        : [...prev.job_types, tag]
+                      job_types: prev.job_types.includes(item.value)
+                        ? prev.job_types.filter((t) => t !== item.value)
+                        : [...prev.job_types, item.value],
                     }));
                   }
                 }}
                 className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  (tag === 'Remote' && filters.is_remote) || filters.job_types.includes(tag)
+                  (item.value === 'remote' && filters.is_remote) ||
+                  filters.job_types.includes(item.value)
                     ? 'bg-white text-blue-600'
                     : 'bg-blue-500/30 text-white hover:bg-blue-500/50'
                 }`}
               >
-                {tag}
+                {item.label}
               </button>
             ))}
           </div>

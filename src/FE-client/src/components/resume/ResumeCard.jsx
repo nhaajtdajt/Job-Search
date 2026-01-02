@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { FileText, Calendar, Edit2, Trash2, Eye, Download, MoreVertical } from 'lucide-react';
 import { useState } from 'react';
+import { message } from 'antd';
+import resumeService from '../../services/resumeService';
 import ResumeStatusBadge from './ResumeStatusBadge';
 
 function ResumeCard({ resume, onDelete, onSetDefault }) {
@@ -29,6 +31,24 @@ function ResumeCard({ resume, onDelete, onSetDefault }) {
 
   const handleSetDefault = () => {
     onSetDefault?.(resume.resume_id);
+    setShowMenu(false);
+  };
+
+  const handleDownload = async () => {
+    try {
+      const blob = await resumeService.downloadResume(resume.resume_id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `resume_${resume.resume_id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download error:', error);
+      message.error('Không thể tải xuống CV');
+    }
     setShowMenu(false);
   };
 
@@ -89,16 +109,13 @@ function ResumeCard({ resume, onDelete, onSetDefault }) {
                   Chỉnh sửa
                 </Link>
                 {resume.resume_url && (
-                  <a
-                    href={resume.resume_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    onClick={() => setShowMenu(false)}
+                  <button
+                    onClick={handleDownload}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
                   >
                     <Download className="w-4 h-4" />
                     Tải xuống
-                  </a>
+                  </button>
                 )}
                 {!resume.is_default && (
                   <button

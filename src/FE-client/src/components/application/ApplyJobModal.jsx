@@ -35,18 +35,32 @@ function ApplyJobModal({
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isOpen) {
-      loadResumes();
-      setStatus('form');
-      setError('');
-      setCoverLetter('');
+    if (isOpen && job?.job_id) {
+      const init = async () => {
+        setStatus('form');
+        setError('');
+        setCoverLetter('');
+        
+        try {
+          const applied = await applicationService.checkApplicationStatus(job.job_id);
+          if (applied) {
+            setStatus('already_applied');
+            return;
+          }
+          await loadResumes();
+        } catch (error) {
+          console.error('Error initializing modal:', error);
+        }
+      };
+      
+      init();
     }
-  }, [isOpen]);
+  }, [isOpen, job]);
 
   const loadResumes = async () => {
     try {
       setLoadingResumes(true);
-      const response = await resumeService.getResumes();
+      const response = await resumeService.getMyResumes();
       const resumeList = response?.data || response || [];
       setResumes(Array.isArray(resumeList) ? resumeList : []);
       
@@ -133,22 +147,34 @@ function ApplyJobModal({
             </button>
           </div>
 
-          {/* Success State */}
-          {status === 'success' && (
+          {/* Success / Already Applied State */}
+          {(status === 'success' || status === 'already_applied') && (
             <div className="p-8 text-center">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-                <CheckCircle className="w-10 h-10 text-green-600" />
+              <div className={`w-20 h-20 mx-auto mb-4 rounded-full ${status === 'already_applied' ? 'bg-blue-100' : 'bg-green-100'} flex items-center justify-center`}>
+                <CheckCircle className={`w-10 h-10 ${status === 'already_applied' ? 'text-blue-600' : 'text-green-600'}`} />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Ứng tuyển thành công!</h3>
-              <p className="text-gray-600">
-                Hồ sơ của bạn đã được gửi đến nhà tuyển dụng. 
-                Bạn sẽ nhận được thông báo khi có phản hồi.
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {status === 'already_applied' ? 'Bạn đã ứng tuyển công việc này' : 'Ứng tuyển thành công!'}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {status === 'already_applied' 
+                  ? 'Hồ sơ của bạn đã được gửi đến nhà tuyển dụng trước đó.' 
+                  : 'Hồ sơ của bạn đã được gửi đến nhà tuyển dụng. Bạn sẽ nhận được thông báo khi có phản hồi.'
+                }
               </p>
+              {status === 'already_applied' && (
+                <button
+                  onClick={onClose}
+                  className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                >
+                  Đóng
+                </button>
+              )}
             </div>
           )}
 
           {/* Form State */}
-          {status !== 'success' && (
+          {status !== 'success' && status !== 'already_applied' && (
             <form onSubmit={handleSubmit}>
               <div className="px-6 py-4 space-y-5 max-h-[60vh] overflow-y-auto">
                 {/* Job Info Summary */}

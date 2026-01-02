@@ -238,8 +238,13 @@ class ResumeService {
       throw new NotFoundError('No CV file found');
     }
 
-    // Delete from storage
-    await StorageService.deleteFile(resume.resume_url);
+    // Delete from storage (attempt)
+    try {
+      await StorageService.deleteFile(resume.resume_url);
+    } catch (error) {
+      console.warn(`Failed to delete file from storage: ${error.message} (ResumeID: ${resumeId})`);
+      // Proceed to update DB even if storage delete fails
+    }
 
     // Update database
     await ResumeRepository.update(resumeId, { resume_url: null });

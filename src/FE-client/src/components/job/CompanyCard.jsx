@@ -1,7 +1,8 @@
 // src/components/CompanyCard.jsx
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-export default function CompanyCard({ logo, name, follows, jobs, image }) {
+export default function CompanyCard({ id, logo, name, follows, jobs, image, industry }) {
   const [isFollowed, setIsFollowed] = useState(false);
 
   return (
@@ -17,7 +18,8 @@ export default function CompanyCard({ logo, name, follows, jobs, image }) {
 
 
         <div className="flex-1 flex flex-col">
-          <h3 className="font-semibold truncate max-w-[200px] hover:text-orange-500 transition duration-300 cursor-pointer">{name}</h3>
+          <Link to={`/companies/${id}`} className="font-semibold truncate max-w-[200px] hover:text-orange-500 transition duration-300 cursor-pointer">{name}</Link>
+          {industry && <p className="text-gray-500 text-xs mb-1">{industry}</p>}
           <p className="text-gray-500 text-sm">{follows} lượt theo dõi</p>
                   {/* Button Theo dõi */}
           <div className="flex justify-end mt-2">
@@ -48,9 +50,9 @@ export default function CompanyCard({ logo, name, follows, jobs, image }) {
         ))}
       </div>
 
-      <button className="w-full bg-orange-500 text-white rounded-lg py-2 mt-3 hover:bg-orange-400 transition duration-300 delay-100 hover:underline cursor-pointer">
+      <Link to={`/companies/${id}`} className="block text-center w-full bg-orange-500 text-white rounded-lg py-2 mt-3 hover:bg-orange-400 transition duration-300 delay-100 hover:underline cursor-pointer">
         Xem công ty
-      </button>
+      </Link>
     </div>
   );
 }

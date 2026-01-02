@@ -57,13 +57,22 @@ const resumeService = {
    */
   uploadResumeFile: async (resumeId, file) => {
     const formData = new FormData();
-    formData.append('resume', file);
+    formData.append('cv', file);
     
     const response = await apiService.post(`/resumes/${resumeId}/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
+    return response.data;
+  },
+
+  /**
+   * Delete resume file (PDF)
+   * @param {string} resumeId 
+   */
+  deleteResumeFile: async (resumeId) => {
+    const response = await apiService.delete(`/resumes/${resumeId}/cv`);
     return response.data;
   },
 

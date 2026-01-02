@@ -14,11 +14,13 @@ import {
   Plus,
   Search,
   Filter,
-  Loader2
+  Loader2,
+  Upload
 } from 'lucide-react';
 import { message } from 'antd';
 import resumeService from '../../services/resumeService';
 import ResumeCard from '../../components/resume/ResumeCard';
+import ResumeUploadModal from '../../components/resume/ResumeUploadModal';
 
 function ResumeList() {
   const { user } = useAuth();
@@ -27,6 +29,7 @@ function ResumeList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   // Sidebar menu items
   const menuItems = [
@@ -144,19 +147,27 @@ function ResumeList() {
 
           {/* Main Content */}
           <main className="flex-1">
-            {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Quản lý CV</h1>
                 <p className="text-gray-600 mt-1">Quản lý và cập nhật các CV của bạn</p>
               </div>
-              <Link
-                to="/user/resumes/create"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                <Plus className="w-5 h-5" />
-                Tạo CV mới
-              </Link>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  <Upload className="w-5 h-5" />
+                  Tải lên CV
+                </button>
+                <Link
+                  to="/user/resumes/create"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  <Plus className="w-5 h-5" />
+                  Tạo CV mới
+                </Link>
+              </div>
             </div>
 
             {/* Search and Filter */}
@@ -207,13 +218,22 @@ function ResumeList() {
                     : 'Tạo CV đầu tiên để bắt đầu ứng tuyển việc làm'}
                 </p>
                 {!searchTerm && filterStatus === 'all' && (
-                  <Link
-                    to="/user/resumes/create"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                  >
-                    <Plus className="w-5 h-5" />
-                    Tạo CV mới
-                  </Link>
+                  <div className="flex gap-3 justify-center">
+                    <button
+                      onClick={() => setIsUploadModalOpen(true)}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                    >
+                      <Upload className="w-5 h-5" />
+                      Tải lên CV
+                    </button>
+                    <Link
+                      to="/user/resumes/create"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                    >
+                      <Plus className="w-5 h-5" />
+                      Tạo CV mới
+                    </Link>
+                  </div>
                 )}
               </div>
             ) : (
@@ -241,6 +261,12 @@ function ResumeList() {
           </main>
         </div>
       </div>
+
+      <ResumeUploadModal 
+        isOpen={isUploadModalOpen} 
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={loadResumes}
+      />
     </div>
   );
 }

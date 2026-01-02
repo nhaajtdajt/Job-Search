@@ -18,12 +18,12 @@ import {
 } from 'lucide-react';
 
 const JOB_TYPES = [
-  { value: 'Full-time', label: 'Toàn thời gian' },
-  { value: 'Part-time', label: 'Bán thời gian' },
-  { value: 'Contract', label: 'Hợp đồng' },
-  { value: 'Freelance', label: 'Freelance' },
-  { value: 'Internship', label: 'Thực tập' },
-  { value: 'Remote', label: 'Làm từ xa' },
+  { value: 'full-time', label: 'Toàn thời gian' },
+  { value: 'part-time', label: 'Bán thời gian' },
+  { value: 'contract', label: 'Hợp đồng' },
+  { value: 'freelance', label: 'Freelance' },
+  { value: 'internship', label: 'Thực tập' },
+  { value: 'remote', label: 'Làm từ xa' },
 ];
 
 const EXPERIENCE_LEVELS = [

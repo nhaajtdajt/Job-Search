@@ -10,6 +10,7 @@ import Home from './pages/public/Home.jsx'
 import Jobs from './pages/public/Jobs.jsx'
 import JobDetail from './pages/public/JobDetail.jsx'
 import Companies from './pages/public/Companies.jsx'
+import CompanyDetail from './pages/public/CompanyDetail.jsx'
 import JobSeekerLogin from './pages/auth/JobSeekerLogin.jsx'
 import JobSeekerRegister from './pages/auth/JobSeekerRegister.jsx'
 import AuthCallback from './pages/auth/AuthCallback.jsx'
@@ -64,6 +65,7 @@ const router = createBrowserRouter([
       { path: 'jobs', element: <Jobs /> },
       { path: 'jobs/:id', element: <JobDetail /> },
       { path: 'companies', element: <Companies /> },
+      { path: 'companies/:id', element: <CompanyDetail /> },
       { path: 'login', element: <JobSeekerLogin /> },
       { path: 'register', element: <JobSeekerRegister /> },
       { path: 'auth/callback', element: <AuthCallback /> },

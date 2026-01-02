@@ -264,8 +264,8 @@ class AuthService {
       if (employer) {
         role = ROLES.EMPLOYER;
         employerId = employer.employer_id;
-        // Use employer's avatar if available, fallback to user's avatar
-        avatarUrl = employer.avatar_url || user.avatar_url;
+        // Use user's avatar if available (primary source), fallback to employer's avatar
+        avatarUrl = user.avatar_url || employer.avatar_url;
       }
     }
 
@@ -824,8 +824,8 @@ class AuthService {
         }
       }
     } else {
-      // Update avatar if available (always update from Google if provided)
-      if (avatarUrl) {
+      // Update avatar if available and user doesn't have one (don't overwrite manual uploads)
+      if (avatarUrl && !user.avatar_url) {
         await db('users')
           .where('user_id', userId)
           .update({ avatar_url: avatarUrl });

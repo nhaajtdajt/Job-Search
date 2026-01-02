@@ -444,7 +444,7 @@ export default function Overview() {
                   </p>
                 </div>
                 <Link
-                  to="#"
+                  to="/user/resumes"
                   className="text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Quản lý hồ sơ đính kèm

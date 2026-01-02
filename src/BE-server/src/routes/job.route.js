@@ -65,4 +65,18 @@ router.get("/:jobId/applications",
   ApplicationController.getJobApplications
 );
 
+// GET /api/jobs/:jobId/application-status - Check if user applied (job seeker only)
+router.get("/:jobId/application-status",
+  authenticate,
+  authorize(['job_seeker']),
+  ApplicationController.checkApplication
+);
+
+// POST /api/jobs/:jobId/apply - Apply for a job (job seeker only)
+router.post("/:jobId/apply",
+  authenticate,
+  authorize(['job_seeker']),
+  ApplicationController.applyJobByJobId
+);
+
 module.exports = router;

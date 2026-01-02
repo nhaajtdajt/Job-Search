@@ -13,35 +13,142 @@ class JobRepository {
   static async findAll(page = 1, limit = 10, filters = {}) {
     const { offset } = parsePagination(page, limit);
 
-    let query = db(MODULE.JOB).select('*');
+    let query = db(MODULE.JOB).select('job.*');
 
-    // Apply filters
-    if (filters.job_type) {
-      query = query.where('job_type', filters.job_type);
+    // Filter by Location Relation
+    if (filters.location) {
+      query = query.whereExists(function() {
+        this.select('*')
+          .from(MODULE.JOB_LOCATION)
+          .join(MODULE.LOCATION, 'job_location.location_id', 'location.location_id')
+          .whereRaw('job_location.job_id = job.job_id')
+          .andWhere('location.location_name', 'ilike', `%${filters.location}%`);
+      });
     }
+
+    // Apply other filters
+    if (filters.search) {
+      query = query.where(builder => {
+        builder.where('job_title', 'ilike', `%${filters.search}%`)
+          .orWhere('description', 'ilike', `%${filters.search}%`);
+      });
+    }
+
+    if (filters.location) {
+      // Handled above via exists
+    }
+
+    if (filters.job_type) {
+      if (Array.isArray(filters.job_type)) {
+        query = query.whereIn('job_type', filters.job_type);
+      } else {
+        query = query.where('job_type', filters.job_type);
+      }
+    }
+
+    if (filters.posted_within) {
+      const days = parseInt(filters.posted_within, 10);
+      if (days > 0) {
+        const date = new Date();
+        date.setDate(date.getDate() - days);
+        query = query.where('posted_at', '>=', date);
+      }
+    }
+    
     if (filters.employer_id) {
       query = query.where('employer_id', filters.employer_id);
     }
 
-    // Get total count
-    const countQuery = db(MODULE.JOB).count('* as total');
-    if (filters.job_type) {
-      countQuery.where('job_type', filters.job_type);
-    }
-    if (filters.employer_id) {
-      countQuery.where('employer_id', filters.employer_id);
+    if (filters.is_remote !== undefined) {
+      query = query.where('is_remote', filters.is_remote);
     }
 
+    if (filters.experience_level) {
+      // If array passed via comma-separated or similar, handle it. 
+      // Assuming frontend passes single string or backend controller splits it. 
+      // Knex whereIn expects array.
+      if (Array.isArray(filters.experience_level)) {
+        query = query.whereIn('experience_level', filters.experience_level);
+      } else {
+        query = query.where('experience_level', filters.experience_level);
+      }
+    }
+
+    if (filters.salary_min) {
+      query = query.where('salary_max', '>=', filters.salary_min);
+    }
+
+    if (filters.salary_max) {
+      query = query.where('salary_min', '<=', filters.salary_max);
+    }
+
+    // Get total count (clone query before sorting/pagination)
+    const countQuery = query.clone().clearSelect().count('* as total');
     const [{ total }] = await countQuery;
+
+    // Sort
+    if (filters.sort === 'salary_desc') {
+      query = query.orderBy('salary_max', 'desc');
+    } else if (filters.sort === 'salary_asc') {
+      query = query.orderBy('salary_min', 'asc');
+    } else if (filters.sort === 'relevance') {
+       // Simple relevance: exact matches first if search keyword exists, else just newest
+       if (filters.search) {
+         query = query.orderByRaw(`
+           CASE 
+             WHEN job_title ILIKE ? THEN 1 
+             ELSE 2 
+           END, posted_at DESC
+         `, [`%${filters.search}%`]);
+       } else {
+         query = query.orderBy('posted_at', 'desc');
+       }
+    } else {
+      // Default newest
+      query = query.orderBy('posted_at', 'desc');
+    }
 
     // Get paginated data
     const data = await query
-      .orderBy('posted_at', 'desc')
       .limit(limit)
       .offset(offset);
 
+    // Fetch location, company, employer info
+    const employerIds = [...new Set(data.map(j => j.employer_id))];
+    const jobIds = data.map(j => j.job_id);
+
+    const [employers, locations] = await Promise.all([
+      db(MODULE.EMPLOYER)
+        .select('employer_id', 'company_id')
+        .whereIn('employer_id', employerIds),
+      
+      db(MODULE.JOB_LOCATION)
+        .join(MODULE.LOCATION, 'job_location.location_id', 'location.location_id')
+        .select('job_location.job_id', 'location.location_name')
+        .whereIn('job_location.job_id', jobIds)
+    ]);
+    
+    const companyIds = [...new Set(employers.map(e => e.company_id).filter(id => id))];
+    const companies = await db(MODULE.COMPANY)
+      .select('company_id', 'company_name', 'logo_url')
+      .whereIn('company_id', companyIds);
+
+    const enrichedData = data.map(job => {
+      const emp = employers.find(e => e.employer_id == job.employer_id);
+      const comp = emp ? companies.find(c => c.company_id == emp.company_id) : null;
+      const jobLocs = locations.filter(l => l.job_id == job.job_id).map(l => l.location_name);
+      
+      return {
+        ...job,
+        company_name: comp?.company_name,
+        company_logo: comp?.logo_url,
+        company_id: comp?.company_id,
+        location: jobLocs.join(', ') // Provide location string to frontend as it expects
+      };
+    });
+
     return {
-      data,
+      data: enrichedData,
       total: parseInt(total, 10),
       page,
       limit
@@ -68,11 +175,38 @@ class JobRepository {
     if (employer) {
       // Get company info
       const company = await db(MODULE.COMPANY)
-        .select('company_id', 'company_name', 'website', 'address', 'logo_url')
+        .select(
+          'company_id', 
+          'company_name', 
+          'website', 
+          'address', 
+          'logo_url', 
+          'description',
+          'industry',
+          'company_size',
+          'founded_year',
+          'email',
+          'phone'
+        )
         .where('company_id', employer.company_id)
         .first();
 
       employer.company = company || null;
+      
+      // Flatten company info for frontend consistency
+      if (company) {
+        job.company_id = company.company_id;
+        job.company_name = company.company_name;
+        job.company_logo = company.logo_url;
+        job.company_description = company.description;
+        job.company_address = company.address;
+        job.company_website = company.website;
+        job.company_industry = company.industry;
+        job.company_size = company.company_size;
+        job.company_founded_year = company.founded_year;
+        job.company_email = company.email;
+        job.company_phone = company.phone;
+      }
     }
 
     job.employer = employer || null;
@@ -244,6 +378,14 @@ class JobRepository {
    * @returns {Array} Jobs
    */
   static async findByCompanyId(companyId) {
+    // Get company details for name
+    const company = await db(MODULE.COMPANY)
+        .select('company_id', 'company_name')
+        .where('company_id', companyId)
+        .first();
+
+    if (!company) return [];
+
     // Get all employers for this company
     const employers = await db(MODULE.EMPLOYER)
       .select('employer_id')
@@ -256,10 +398,30 @@ class JobRepository {
     }
     
     // Get jobs from these employers
-    return await db(MODULE.JOB)
+    const jobs = await db(MODULE.JOB)
       .select('*')
       .whereIn('employer_id', employerIds)
       .orderBy('posted_at', 'desc');
+
+    if (jobs.length === 0) return [];
+
+    // Get locations
+    const jobIds = jobs.map(j => j.job_id);
+    const locations = await db(MODULE.JOB_LOCATION)
+        .join(MODULE.LOCATION, 'job_location.location_id', 'location.location_id')
+        .select('job_location.job_id', 'location.location_name')
+        .whereIn('job_location.job_id', jobIds);
+
+    // Enrich data
+    return jobs.map(job => {
+        const jobLocs = locations.filter(l => l.job_id == job.job_id).map(l => l.location_name);
+        return {
+            ...job,
+            company_name: company.company_name,
+            company_id: company.company_id,
+            location: jobLocs.join(', ')
+        };
+    });
   }
 }
 

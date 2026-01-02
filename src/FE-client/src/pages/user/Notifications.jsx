@@ -31,8 +31,6 @@ export default function Notifications() {
     { icon: FileText, label: 'Hồ sơ của tôi', path: '/user/profile' },
     { icon: FileText, label: 'Quản lý CV', path: '/user/resumes' },
     { icon: Briefcase, label: 'Việc làm của tôi', path: '/user/my-jobs' },
-    { icon: Bookmark, label: 'Việc làm đã lưu', path: '/user/saved-jobs' },
-    { icon: Search, label: 'Tìm kiếm đã lưu', path: '/user/saved-searches' },
     { icon: Bell, label: 'Thông báo', path: '/user/notifications', active: true },
     { icon: Settings, label: 'Quản lý tài khoản', path: '/user/account' },
   ];

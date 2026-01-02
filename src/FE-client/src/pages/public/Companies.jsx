@@ -4,11 +4,20 @@ import { companyService } from "../../services/companyService";
 import { Loader2, Search } from "lucide-react";
 import { message } from "antd";
 
+const INDUSTRIES = [
+  "Công nghệ thông tin",
+  "Thương mại điện tử",
+  "Viễn thông",
+  "Fintech",
+  "Đa ngành",
+];
+
 export default function CompanyPage() {
   const [companies, setCompanies] = useState([]);
   const [filteredCompanies, setFilteredCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState("");
+  const [selectedIndustry, setSelectedIndustry] = useState("");
 
   useEffect(() => {
     fetchCompanies();
@@ -16,7 +25,7 @@ export default function CompanyPage() {
 
   useEffect(() => {
     filterCompanies();
-  }, [companies, searchInput]);
+  }, [companies, searchInput, selectedIndustry]);
 
   const fetchCompanies = async () => {
     try {
@@ -42,6 +51,11 @@ export default function CompanyPage() {
       );
     }
 
+    // Filter by industry
+    if (selectedIndustry) {
+      result = result.filter(c => c.industry === selectedIndustry);
+    }
+
     setFilteredCompanies(result);
   };
 
@@ -64,6 +78,19 @@ export default function CompanyPage() {
                           focus:border-blue-500 focus:ring-blue-500 outline-none"
               />
             </div>
+            
+            <select
+              value={selectedIndustry}
+              onChange={(e) => setSelectedIndustry(e.target.value)}
+              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white min-w-[150px]"
+            >
+              <option value="">Tất cả lĩnh vực</option>
+              {INDUSTRIES.map((ind) => (
+                <option key={ind} value={ind}>
+                  {ind}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -86,10 +113,12 @@ export default function CompanyPage() {
                 filteredCompanies.map((c) => (
                   <CompanyCard 
                     key={c.company_id} 
+                    id={c.company_id}
                     name={c.company_name}
                     logo={c.logo_url} 
                     image={c.banner_url || "https://via.placeholder.com/800x400"} 
-                    follows={c.follower_count || 0} 
+                    follows={c.follower_count || 0}
+                    industry={c.industry}
                     jobs={[]} 
                   />
                 ))

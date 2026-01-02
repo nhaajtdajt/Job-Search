@@ -16,13 +16,17 @@ import {
   Trash2,
   GraduationCap,
   Loader2,
-  Save
+  Save,
+  Download,
+  Upload,
+  Eye
 } from 'lucide-react';
-import { message } from 'antd';
+import { message, Modal } from 'antd';
 import resumeService from '../../services/resumeService';
 import ResumeForm from '../../components/resume/ResumeForm';
 import EducationForm from '../../components/resume/EducationForm';
 import ExperienceForm from '../../components/resume/ExperienceForm';
+import ResumeUploadModal from '../../components/resume/ResumeUploadModal';
 
 function ResumeEdit() {
   const { user } = useAuth();
@@ -40,6 +44,7 @@ function ResumeEdit() {
   const [showExperienceForm, setShowExperienceForm] = useState(false);
   const [editingEducation, setEditingEducation] = useState(null);
   const [editingExperience, setEditingExperience] = useState(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   // Sidebar menu items
   const menuItems = [
@@ -184,6 +189,34 @@ function ResumeEdit() {
     }
   };
 
+  const handleViewFile = async () => {
+    try {
+      const blob = await resumeService.downloadResume(resumeId);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Error viewing file:', error);
+      message.error('Không thể xem file');
+    }
+  };
+
+  // File handlers
+  const handleDeleteFile = async () => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa file CV này không?')) {
+      try {
+        setSaving(true);
+        await resumeService.deleteResumeFile(resumeId);
+        setResume({ ...resume, resume_url: null });
+        message.success('Đã xóa file CV');
+      } catch (error) {
+        console.error('Error deleting file:', error);
+        message.error('Không thể xóa file');
+      } finally {
+        setSaving(false);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -254,6 +287,70 @@ function ResumeEdit() {
                 isLoading={saving}
                 submitLabel="Lưu thay đổi"
               />
+            </div>
+
+            {/* Attached File Section */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-red-600" />
+                  File CV đính kèm
+                </h2>
+                {!resume?.resume_url && (
+                   <button
+                     onClick={() => setIsUploadModalOpen(true)}
+                     className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100"
+                   >
+                     <Upload className="w-4 h-4" />
+                     Tải lên
+                   </button>
+                )}
+              </div>
+
+              {resume?.resume_url ? (
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                       <FileText className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">CV hiện tại</p>
+                      <button 
+                        onClick={handleViewFile}
+                        className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                      >
+                        <Eye className="w-3 h-3" /> Xem file
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setIsUploadModalOpen(true)}
+                      className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg"
+                    >
+                      <Upload className="w-4 h-4" />
+                      Thay thế
+                    </button>
+                    <button
+                      onClick={handleDeleteFile}
+                      className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Xóa
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-4 border-2 border-dashed border-gray-200 rounded-lg">
+                  Chưa có file CV đính kèm. 
+                  <button 
+                    onClick={() => setIsUploadModalOpen(true)}
+                    className="text-blue-600 hover:underline font-medium ml-1"
+                  >
+                    Tải lên ngay
+                  </button>
+                </p>
+              )}
             </div>
 
             {/* Education Section */}
@@ -374,6 +471,15 @@ function ResumeEdit() {
           </main>
         </div>
       </div>
+
+      <ResumeUploadModal 
+        isOpen={isUploadModalOpen} 
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={() => {
+          loadResume();
+        }}
+        resumeId={resumeId}
+      />
     </div>
   );
 }
