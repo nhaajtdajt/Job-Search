@@ -30,7 +30,45 @@ exports.seed = async function (knex) {
     return;
   }
 
-  // Insert employers for each company
+  // Employer user IDs (sample data for employers - prefix 'e' for employer users)
+  // These will be inserted into users table to link employers with notifications
+  const employerUserIds = [
+    'e0000000-0000-0000-0000-000000000001', // FPT
+    'e0000000-0000-0000-0000-000000000002', // VinGroup  
+    'e0000000-0000-0000-0000-000000000003', // Viettel
+    'e0000000-0000-0000-0000-000000000004', // Sendo
+    'e0000000-0000-0000-0000-000000000005', // Tiki
+    'e0000000-0000-0000-0000-000000000006', // TMA
+    'e0000000-0000-0000-0000-000000000007', // Lazada
+    'e0000000-0000-0000-0000-000000000008', // Shopee
+    'e0000000-0000-0000-0000-000000000009', // MoMo
+    'e0000000-0000-0000-0000-000000000010', // VNG
+  ];
+
+  // Insert employer users into users table for notifications
+  console.log('👥 Creating employer user profiles...');
+  for (let i = 0; i < employerUserIds.length; i++) {
+    const employerNames = [
+      'Nguyễn Thị Hương', 'Trần Văn Đức', 'Lê Thị Mai', 'Phạm Văn Hùng', 'Hoàng Thị Lan',
+      'Võ Văn Nam', 'Đỗ Thị Hoa', 'Bùi Văn Long', 'Ngô Thị Linh', 'Lý Văn Tuấn'
+    ];
+    await knex.raw(`
+      INSERT INTO users (user_id, name, gender, phone, address, avatar_url)
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT (user_id) 
+      DO UPDATE SET name = EXCLUDED.name
+    `, [
+      employerUserIds[i],
+      employerNames[i],
+      i % 2 === 0 ? 'Female' : 'Male',
+      `093${i}234567`,
+      'TP. Hồ Chí Minh',
+      null
+    ]);
+  }
+  console.log(`✅ Created ${employerUserIds.length} employer user profiles`);
+
+  // Insert employers for each company (now with user_id linked)
   const employers = await knex('employer').insert([
     {
       full_name: 'Nguyễn Thị Hương',
@@ -38,7 +76,7 @@ exports.seed = async function (knex) {
       role: 'HR Manager',
       status: 'verified',
       company_id: companyMap['FPT Software'],
-      user_id: null
+      user_id: employerUserIds[0]
     },
     {
       full_name: 'Trần Văn Đức',
@@ -46,7 +84,7 @@ exports.seed = async function (knex) {
       role: 'Senior Recruiter',
       status: 'verified',
       company_id: companyMap['VinGroup'],
-      user_id: null
+      user_id: employerUserIds[1]
     },
     {
       full_name: 'Lê Thị Mai',
@@ -54,7 +92,7 @@ exports.seed = async function (knex) {
       role: 'Talent Acquisition Manager',
       status: 'verified',
       company_id: companyMap['Viettel Solutions'],
-      user_id: null
+      user_id: employerUserIds[2]
     },
     {
       full_name: 'Phạm Văn Hùng',
@@ -62,7 +100,7 @@ exports.seed = async function (knex) {
       role: 'HR Specialist',
       status: 'verified',
       company_id: companyMap['Sendo'],
-      user_id: null
+      user_id: employerUserIds[3]
     },
     {
       full_name: 'Hoàng Thị Lan',
@@ -70,7 +108,7 @@ exports.seed = async function (knex) {
       role: 'Recruitment Lead',
       status: 'verified',
       company_id: companyMap['Tiki'],
-      user_id: null
+      user_id: employerUserIds[4]
     },
     {
       full_name: 'Võ Văn Nam',
@@ -78,7 +116,7 @@ exports.seed = async function (knex) {
       role: 'HR Director',
       status: 'verified',
       company_id: companyMap['TMA Solutions'],
-      user_id: null
+      user_id: employerUserIds[5]
     },
     {
       full_name: 'Đỗ Thị Hoa',
@@ -86,7 +124,7 @@ exports.seed = async function (knex) {
       role: 'Talent Manager',
       status: 'verified',
       company_id: companyMap['Lazada Vietnam'],
-      user_id: null
+      user_id: employerUserIds[6]
     },
     {
       full_name: 'Bùi Văn Long',
@@ -94,7 +132,7 @@ exports.seed = async function (knex) {
       role: 'HR Business Partner',
       status: 'verified',
       company_id: companyMap['Shopee Vietnam'],
-      user_id: null
+      user_id: employerUserIds[7]
     },
     {
       full_name: 'Ngô Thị Linh',
@@ -102,7 +140,7 @@ exports.seed = async function (knex) {
       role: 'Senior Recruiter',
       status: 'verified',
       company_id: companyMap['MoMo'],
-      user_id: null
+      user_id: employerUserIds[8]
     },
     {
       full_name: 'Lý Văn Tuấn',
@@ -110,7 +148,7 @@ exports.seed = async function (knex) {
       role: 'HR Manager',
       status: 'verified',
       company_id: companyMap['VNG Corporation'],
-      user_id: null
+      user_id: employerUserIds[9]
     }
   ]).returning('*');
 
