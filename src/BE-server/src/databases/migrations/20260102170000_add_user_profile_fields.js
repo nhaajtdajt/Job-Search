@@ -1,8 +1,19 @@
 /**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
+ * Migration: Add user profile fields
+ * This migration is now a NO-OP since columns are already in init schema
+ * Keeping for migration history compatibility
  */
-exports.up = function(knex) {
+
+exports.up = async function(knex) {
+  // Check if columns already exist (they do in init_job_search_schema)
+  const hasJobTitle = await knex.schema.hasColumn('users', 'job_title');
+  
+  if (hasJobTitle) {
+    console.log('  ⏭️  User profile fields already exist, skipping...');
+    return;
+  }
+
+  // Only add if they don't exist (legacy support)
   return knex.schema.table('users', function(table) {
     table.string('job_title');
     table.string('current_level');
@@ -20,11 +31,15 @@ exports.up = function(knex) {
   });
 };
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.down = function(knex) {
+exports.down = async function(knex) {
+  // Check if columns exist before trying to drop
+  const hasJobTitle = await knex.schema.hasColumn('users', 'job_title');
+  
+  if (!hasJobTitle) {
+    console.log('  ⏭️  User profile fields do not exist, skipping...');
+    return;
+  }
+
   return knex.schema.table('users', function(table) {
     table.dropColumn('job_title');
     table.dropColumn('current_level');

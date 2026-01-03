@@ -5,18 +5,33 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
+
+// Layouts
 import EmployerLayout from './layouts/EmployerLayout.jsx'
+import UserLayout from './layouts/UserLayout.jsx'
+
+// Auth Components
+import ProtectedRoute from './components/auth/ProtectedRoute.jsx'
+import ErrorBoundary from './components/common/ErrorBoundary.jsx'
+
+// Public Pages
 import Home from './pages/public/Home.jsx'
 import Jobs from './pages/public/Jobs.jsx'
 import JobDetail from './pages/public/JobDetail.jsx'
 import Companies from './pages/public/Companies.jsx'
 import CompanyDetail from './pages/public/CompanyDetail.jsx'
+
+// Auth Pages
 import JobSeekerLogin from './pages/auth/JobSeekerLogin.jsx'
 import JobSeekerRegister from './pages/auth/JobSeekerRegister.jsx'
 import AuthCallback from './pages/auth/AuthCallback.jsx'
 import ForgotPassword from './pages/auth/ForgotPassword.jsx'
 import VerifyEmail from './pages/auth/VerifyEmail.jsx'
 import ResetPassword from './pages/auth/ResetPassword.jsx'
+import EmployerLogin from './pages/auth/EmployerLogin.jsx'
+import EmployerRegister from './pages/auth/EmployerRegister.jsx'
+
+// Employer Pages
 import EmployerLanding from './pages/employer/EmployerLanding.jsx'
 import EmployerDashboard from './pages/employer/EmployerDashboard.jsx'
 import EmployerProfile from './pages/employer/EmployerProfile.jsx'
@@ -30,8 +45,8 @@ import CandidateProfile from './pages/employer/CandidateProfile.jsx'
 import SavedCandidates from './pages/employer/SavedCandidates.jsx'
 import Analytics from './pages/employer/Analytics.jsx'
 import EmployerNotifications from './pages/employer/EmployerNotifications.jsx'
-import EmployerLogin from './pages/auth/EmployerLogin.jsx'
-import EmployerRegister from './pages/auth/EmployerRegister.jsx'
+
+// User (Job Seeker) Pages
 import Profile from './pages/user/ProfileComplete.jsx'
 import Overview from './pages/user/Overview.jsx'
 import AccountManagement from './pages/user/AccountManagement.jsx'
@@ -45,9 +60,8 @@ import SavedJobs from './pages/user/SavedJobs.jsx'
 import SavedSearches from './pages/user/SavedSearches.jsx'
 import UserApplicationDetail from './pages/user/ApplicationDetail.jsx'
 import Notifications from './pages/user/Notifications.jsx'
-import ErrorBoundary from './components/common/ErrorBoundary.jsx'
 
-// Admin imports
+// Admin Pages
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminLogin from './pages/admin/AdminLogin.jsx'
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
@@ -58,72 +72,187 @@ import JobManagement from './pages/admin/JobManagement.jsx'
 import NotificationManagement from './pages/admin/NotificationManagement.jsx'
 
 const router = createBrowserRouter([
+  // ============================================================
+  // PUBLIC ROUTES (with App layout - Header/Footer)
+  // ============================================================
   {
     path: '/',
     element: <App />,
     children: [
+      // Home & Public Pages
       { index: true, element: <Home /> },
       { path: 'jobs', element: <Jobs /> },
       { path: 'jobs/:id', element: <JobDetail /> },
       { path: 'companies', element: <Companies /> },
       { path: 'companies/:id', element: <CompanyDetail /> },
+      
+      // Auth Pages (public)
       { path: 'login', element: <JobSeekerLogin /> },
       { path: 'register', element: <JobSeekerRegister /> },
       { path: 'auth/callback', element: <AuthCallback /> },
       { path: 'forgot-password', element: <ForgotPassword /> },
       { path: 'reset-password', element: <ResetPassword /> },
       { path: 'verify-email', element: <VerifyEmail /> },
-      { path: 'profile', element: <Profile /> },
-      { path: 'overview', element: <Overview /> },
-      { path: 'account-management', element: <AccountManagement /> },
-      { path: 'my-jobs', element: <MyJobs /> },
-      { path: 'job-notifications', element: <JobNotifications /> },
-      // User dashboard routes
-      { path: 'user/overview', element: <Overview /> },
-      { path: 'user/profile', element: <Profile /> },
-      { path: 'user/resumes', element: <ResumeList /> },
-      { path: 'user/resumes/create', element: <ResumeCreate /> },
-      { path: 'user/resumes/:resumeId', element: <ResumeEdit /> },
-      { path: 'user/resumes/:resumeId/edit', element: <ResumeEdit /> },
-      { path: 'user/resumes/:resumeId/preview', element: <ResumePreview /> },
-      { path: 'user/my-jobs', element: <MyJobs /> },
-      { path: 'user/saved-jobs', element: <SavedJobs /> },
-      { path: 'user/saved-searches', element: <SavedSearches /> },
-      { path: 'user/applications/:applicationId', element: <UserApplicationDetail /> },
-      { path: 'user/job-notifications', element: <JobNotifications /> },
-      { path: 'user/notifications', element: <Notifications /> },
-      { path: 'user/account', element: <AccountManagement /> },
     ],
   },
+
+  // ============================================================
+  // USER ROUTES (Protected - with UserLayout sidebar)
+  // ============================================================
+  {
+    path: '/user',
+    element: (
+      <ProtectedRoute requiredRole="job_seeker">
+        <UserLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <Overview /> },
+      { path: 'dashboard', element: <Overview /> },
+      { path: 'profile', element: <Profile /> },
+      { path: 'resumes', element: <ResumeList /> },
+      { path: 'resumes/create', element: <ResumeCreate /> },
+      { path: 'resumes/:resumeId', element: <ResumePreview /> },
+      { path: 'resumes/:resumeId/edit', element: <ResumeEdit /> },
+      { path: 'applications', element: <MyJobs /> },
+      { path: 'applications/:applicationId', element: <UserApplicationDetail /> },
+      { path: 'saved-jobs', element: <SavedJobs /> },
+      { path: 'saved-searches', element: <SavedSearches /> },
+      { path: 'notifications', element: <Notifications /> },
+      { path: 'job-notifications', element: <JobNotifications /> },
+      { path: 'settings', element: <AccountManagement /> },
+    ],
+  },
+
+  // ============================================================
+  // EMPLOYER ROUTES (with EmployerLayout)
+  // ============================================================
   {
     path: '/employer',
     element: <EmployerLayout />,
     children: [
+      // Public employer pages
       { index: true, element: <EmployerLanding /> },
-      { path: 'dashboard', element: <EmployerDashboard /> },
-      { path: 'profile', element: <EmployerProfile /> },
-      { path: 'company', element: <CompanyProfile /> },
-      { path: 'jobs', element: <JobList /> },
-      { path: 'jobs/create', element: <JobCreate /> },
-      { path: 'jobs/:id/edit', element: <JobEdit /> },
-      { path: 'applications', element: <ApplicationList /> },
-      { path: 'applications/:id', element: <ApplicationDetail /> },
-      { path: 'candidates/:id', element: <CandidateProfile /> },
-      { path: 'saved-candidates', element: <SavedCandidates /> },
-      { path: 'analytics', element: <Analytics /> },
-      { path: 'notifications', element: <EmployerNotifications /> },
       { path: 'login', element: <EmployerLogin /> },
       { path: 'register', element: <EmployerRegister /> },
+      
+      // Protected employer pages (wrapped individually for flexibility)
+      { 
+        path: 'dashboard', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <EmployerDashboard />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'profile', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <EmployerProfile />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'company', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <CompanyProfile />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'jobs', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <JobList />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'jobs/create', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <JobCreate />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'jobs/:id/edit', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <JobEdit />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'applications', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <ApplicationList />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'applications/:id', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <ApplicationDetail />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'candidates/:id', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <CandidateProfile />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'saved-candidates', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <SavedCandidates />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'analytics', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <Analytics />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'notifications', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <EmployerNotifications />
+          </ProtectedRoute>
+        ) 
+      },
     ],
   },
+
+  // ============================================================
+  // ADMIN ROUTES
+  // ============================================================
   {
     path: '/admin',
     children: [
-      // Login page (standalone, no layout)
+      // Admin login (standalone, no layout)
       { index: true, element: <AdminLogin /> },
-      // Protected admin pages (with layout)
+      { path: 'login', element: <AdminLogin /> },
+      
+      // Protected admin pages (with AdminLayout)
       {
-        element: <AdminLayout />,
+        element: (
+          <ProtectedRoute requiredRole="admin">
+            <AdminLayout />
+          </ProtectedRoute>
+        ),
         children: [
           { path: 'dashboard', element: <AdminDashboard /> },
           { path: 'users', element: <UserManagement /> },
@@ -146,4 +275,3 @@ createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </StrictMode>
 )
-

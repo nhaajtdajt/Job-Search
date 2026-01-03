@@ -63,7 +63,7 @@ export default function UserDropdown() {
     {
       label: 'Tổng Quan',
       icon: <User className="w-4 h-4" />,
-      to: '/user/overview',
+      to: '/user/dashboard',
       divider: false,
     },
     {
@@ -97,7 +97,7 @@ export default function UserDropdown() {
           {
             label: 'Việc Làm Của Tôi',
             icon: <Briefcase className="w-4 h-4" />,
-            to: '/user/my-jobs',
+            to: '/user/applications',
             divider: false,
           },
         ]),
@@ -116,7 +116,7 @@ export default function UserDropdown() {
     {
       label: 'Quản Lý Tài Khoản',
       icon: <Settings className="w-4 h-4" />,
-      to: '/user/account',
+      to: '/user/settings',
       divider: true,
     },
     {

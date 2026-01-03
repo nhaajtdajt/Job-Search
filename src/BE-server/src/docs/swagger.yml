@@ -1,0 +1,2300 @@
+openapi: 3.0.3
+info:
+  title: Job Search Platform API
+  description: |
+    REST API cho nền tảng tìm kiếm việc làm Viec24h.
+    
+    ## Authentication
+    Hầu hết các endpoints yêu cầu Bearer Token trong header:
+    ```
+    Authorization: Bearer <access_token>
+    ```
+    
+    ## Roles
+    - **job_seeker**: Người tìm việc
+    - **employer**: Nhà tuyển dụng
+    - **admin**: Quản trị viên
+  version: 1.0.0
+  contact:
+    name: Viec24h Team
+    email: support@viec24h.com
+
+servers:
+  - url: http://localhost:5000/api
+    description: Development server
+  - url: https://api.viec24h.com/api
+    description: Production server
+
+tags:
+  - name: Auth
+    description: Authentication & Authorization
+  - name: Users
+    description: User profile management (Job Seeker)
+  - name: Employers
+    description: Employer profile management
+  - name: Companies
+    description: Company management
+  - name: Jobs
+    description: Job listings management
+  - name: Applications
+    description: Job applications management
+  - name: Resumes
+    description: Resume/CV management
+  - name: Notifications
+    description: Notifications management
+  - name: Saved Candidates
+    description: Employer saved candidates
+  - name: Search
+    description: Search functionality
+  - name: Admin
+    description: Admin management
+
+paths:
+  # ============================================================
+  # AUTH ENDPOINTS
+  # ============================================================
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Đăng ký tài khoản mới
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name, role]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                name:
+                  type: string
+                role:
+                  type: string
+                  enum: [job_seeker, employer]
+                phone:
+                  type: string
+      responses:
+        201:
+          description: Đăng ký thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        400:
+          description: Dữ liệu không hợp lệ
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Đăng nhập
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                loginType:
+                  type: string
+                  enum: [job_seeker, employer, admin]
+                  default: job_seeker
+      responses:
+        200:
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        401:
+          description: Sai email hoặc mật khẩu
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Đăng xuất
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Đăng xuất thành công
+
+  /auth/refresh-token:
+    post:
+      tags: [Auth]
+      summary: Làm mới access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        200:
+          description: Token mới
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Yêu cầu đặt lại mật khẩu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        200:
+          description: Email đã được gửi
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Đặt lại mật khẩu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, newPassword]
+              properties:
+                email:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        200:
+          description: Đặt lại mật khẩu thành công
+
+  /auth/verify-email:
+    post:
+      tags: [Auth]
+      summary: Xác thực email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, email]
+              properties:
+                token:
+                  type: string
+                email:
+                  type: string
+      responses:
+        200:
+          description: Xác thực thành công
+
+  /auth/resend-verification:
+    post:
+      tags: [Auth]
+      summary: Gửi lại email xác thực
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+      responses:
+        200:
+          description: Email đã được gửi
+
+  /auth/social/callback:
+    post:
+      tags: [Auth]
+      summary: OAuth callback (Google/Facebook)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accessToken, provider]
+              properties:
+                accessToken:
+                  type: string
+                provider:
+                  type: string
+                  enum: [google, facebook]
+      responses:
+        200:
+          description: Đăng nhập thành công
+
+  # ============================================================
+  # JOBS ENDPOINTS
+  # ============================================================
+  /jobs:
+    get:
+      tags: [Jobs]
+      summary: Lấy danh sách việc làm
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: location
+          in: query
+          schema:
+            type: string
+        - name: job_type
+          in: query
+          schema:
+            type: string
+            enum: [Full-time, Part-time, Contract, Internship, Remote]
+        - name: salary_min
+          in: query
+          schema:
+            type: number
+        - name: salary_max
+          in: query
+          schema:
+            type: number
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [newest, salary_high, salary_low]
+      responses:
+        200:
+          description: Danh sách jobs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobListResponse'
+
+    post:
+      tags: [Jobs]
+      summary: Tạo tin tuyển dụng mới (Employer only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobInput'
+      responses:
+        201:
+          description: Tạo thành công
+
+  /jobs/my-jobs:
+    get:
+      tags: [Jobs]
+      summary: Lấy danh sách jobs của employer
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách jobs của employer
+
+  /jobs/{jobId}:
+    get:
+      tags: [Jobs]
+      summary: Lấy chi tiết việc làm
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Chi tiết job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+
+    put:
+      tags: [Jobs]
+      summary: Cập nhật tin tuyển dụng (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobInput'
+      responses:
+        200:
+          description: Cập nhật thành công
+
+    delete:
+      tags: [Jobs]
+      summary: Xóa tin tuyển dụng (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Xóa thành công
+
+  /jobs/{jobId}/publish:
+    post:
+      tags: [Jobs]
+      summary: Đăng tin tuyển dụng (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Đăng tin thành công
+
+  /jobs/{jobId}/expire:
+    post:
+      tags: [Jobs]
+      summary: Đóng tin tuyển dụng (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Đóng tin thành công
+
+  /jobs/{jobId}/views:
+    put:
+      tags: [Jobs]
+      summary: Tăng lượt xem của job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Đã tăng lượt xem
+
+  /jobs/{jobId}/applications:
+    get:
+      tags: [Jobs]
+      summary: Lấy danh sách ứng viên của job (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Danh sách applications
+
+  /jobs/{jobId}/application-status:
+    get:
+      tags: [Jobs]
+      summary: Kiểm tra đã ứng tuyển chưa (Job Seeker only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Trạng thái ứng tuyển
+
+  /jobs/{jobId}/apply:
+    post:
+      tags: [Jobs]
+      summary: Nộp đơn ứng tuyển (Job Seeker only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resume_id]
+              properties:
+                resume_id:
+                  type: string
+                cover_letter:
+                  type: string
+      responses:
+        201:
+          description: Nộp đơn thành công
+
+  # ============================================================
+  # USERS ENDPOINTS
+  # ============================================================
+  /users/profile:
+    get:
+      tags: [Users]
+      summary: Lấy thông tin profile
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    put:
+      tags: [Users]
+      summary: Cập nhật profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileInput'
+      responses:
+        200:
+          description: Cập nhật thành công
+
+  /users/change-password:
+    post:
+      tags: [Users]
+      summary: Đổi mật khẩu
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        200:
+          description: Đổi mật khẩu thành công
+
+  /users/avatar:
+    post:
+      tags: [Users]
+      summary: Upload avatar
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Upload thành công
+
+    delete:
+      tags: [Users]
+      summary: Xóa avatar
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Xóa thành công
+
+  /users/statistics:
+    get:
+      tags: [Users]
+      summary: Lấy thống kê user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thống kê
+
+  /users/saved-jobs:
+    get:
+      tags: [Users]
+      summary: Lấy danh sách jobs đã lưu
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách saved jobs
+
+    post:
+      tags: [Users]
+      summary: Lưu job
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [job_id]
+              properties:
+                job_id:
+                  type: integer
+                  format: int64
+      responses:
+        201:
+          description: Lưu thành công
+
+  /users/saved-jobs/count:
+    get:
+      tags: [Users]
+      summary: Đếm số jobs đã lưu
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Số lượng
+
+  /users/saved-jobs/{jobId}/check:
+    get:
+      tags: [Users]
+      summary: Kiểm tra job đã lưu chưa
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Trạng thái đã lưu
+
+  /users/saved-jobs/{jobId}:
+    delete:
+      tags: [Users]
+      summary: Bỏ lưu job
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Bỏ lưu thành công
+
+  /users/saved-searches:
+    get:
+      tags: [Users]
+      summary: Lấy danh sách tìm kiếm đã lưu
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách saved searches
+
+    post:
+      tags: [Users]
+      summary: Lưu tìm kiếm
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                filter:
+                  type: string
+      responses:
+        201:
+          description: Lưu thành công
+
+  /users/saved-searches/count:
+    get:
+      tags: [Users]
+      summary: Đếm số tìm kiếm đã lưu
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Số lượng
+
+  /users/saved-searches/{searchId}:
+    delete:
+      tags: [Users]
+      summary: Xóa tìm kiếm đã lưu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: searchId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Xóa thành công
+
+  /users/{userId}/profile:
+    get:
+      tags: [Users]
+      summary: Xem profile ứng viên (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Candidate profile
+
+  /users/{userId}/applications:
+    get:
+      tags: [Users]
+      summary: Lấy applications của ứng viên (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Danh sách applications
+
+  # ============================================================
+  # APPLICATIONS ENDPOINTS
+  # ============================================================
+  /applications:
+    get:
+      tags: [Applications]
+      summary: Lấy lịch sử ứng tuyển (Job Seeker only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: Danh sách applications
+
+    post:
+      tags: [Applications]
+      summary: Nộp đơn ứng tuyển (Job Seeker only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [job_id, resume_id]
+              properties:
+                job_id:
+                  type: integer
+                  format: int64
+                resume_id:
+                  type: string
+      responses:
+        201:
+          description: Nộp đơn thành công
+
+  /applications/statistics:
+    get:
+      tags: [Applications]
+      summary: Thống kê ứng tuyển (Job Seeker only)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thống kê
+
+  /applications/employer:
+    get:
+      tags: [Applications]
+      summary: Lấy tất cả ứng viên (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: job_id
+          in: query
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Danh sách applications
+
+  /applications/employer/{applicationId}:
+    get:
+      tags: [Applications]
+      summary: Chi tiết application (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Application detail
+
+  /applications/bulk-status:
+    put:
+      tags: [Applications]
+      summary: Cập nhật hàng loạt trạng thái (Employer only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [application_ids, status]
+              properties:
+                application_ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                status:
+                  type: string
+      responses:
+        200:
+          description: Cập nhật thành công
+
+  /applications/{applicationId}:
+    get:
+      tags: [Applications]
+      summary: Chi tiết application (Job Seeker only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Application detail
+
+    put:
+      tags: [Applications]
+      summary: Cập nhật application (Job Seeker only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resume_id:
+                  type: string
+      responses:
+        200:
+          description: Cập nhật thành công
+
+    delete:
+      tags: [Applications]
+      summary: Rút đơn ứng tuyển (Job Seeker only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Rút đơn thành công
+
+  /applications/{applicationId}/status:
+    put:
+      tags: [Applications]
+      summary: Cập nhật trạng thái (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [pending, reviewing, interview, offer, rejected, withdrawn]
+      responses:
+        200:
+          description: Cập nhật thành công
+
+  /applications/{applicationId}/notes:
+    get:
+      tags: [Applications]
+      summary: Lấy ghi chú (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Notes
+
+    post:
+      tags: [Applications]
+      summary: Thêm ghi chú (Employer only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [notes]
+              properties:
+                notes:
+                  type: string
+      responses:
+        200:
+          description: Thêm thành công
+
+  # ============================================================
+  # RESUMES ENDPOINTS
+  # ============================================================
+  /resumes:
+    get:
+      tags: [Resumes]
+      summary: Lấy danh sách CV
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách resumes
+
+    post:
+      tags: [Resumes]
+      summary: Tạo CV mới
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResumeInput'
+      responses:
+        201:
+          description: Tạo thành công
+
+  /resumes/{resumeId}:
+    get:
+      tags: [Resumes]
+      summary: Lấy chi tiết CV
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: resumeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Resume detail
+
+    put:
+      tags: [Resumes]
+      summary: Cập nhật CV
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: resumeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResumeInput'
+      responses:
+        200:
+          description: Cập nhật thành công
+
+    delete:
+      tags: [Resumes]
+      summary: Xóa CV
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: resumeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Xóa thành công
+
+  /resumes/{resumeId}/upload:
+    post:
+      tags: [Resumes]
+      summary: Upload file CV (PDF)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: resumeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                cv:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Upload thành công
+
+  /resumes/{resumeId}/download:
+    get:
+      tags: [Resumes]
+      summary: Download file CV
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: resumeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: File PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /resumes/{resumeId}/cv:
+    delete:
+      tags: [Resumes]
+      summary: Xóa file CV
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: resumeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Xóa thành công
+
+  # ============================================================
+  # EMPLOYERS ENDPOINTS
+  # ============================================================
+  /employers/profile:
+    get:
+      tags: [Employers]
+      summary: Lấy profile employer
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Employer profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employer'
+
+    put:
+      tags: [Employers]
+      summary: Cập nhật profile employer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployerProfileInput'
+      responses:
+        200:
+          description: Cập nhật thành công
+
+  /employers/avatar:
+    post:
+      tags: [Employers]
+      summary: Upload avatar
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Upload thành công
+
+    delete:
+      tags: [Employers]
+      summary: Xóa avatar
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Xóa thành công
+
+  /employers/applications:
+    get:
+      tags: [Employers]
+      summary: Lấy tất cả applications
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách applications
+
+  /employers/{employerId}:
+    get:
+      tags: [Employers]
+      summary: Xem profile công khai
+      parameters:
+        - name: employerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Public profile
+
+  /employers/{employerId}/jobs:
+    get:
+      tags: [Employers]
+      summary: Lấy jobs của employer
+      parameters:
+        - name: employerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Danh sách jobs
+
+  # ============================================================
+  # COMPANIES ENDPOINTS
+  # ============================================================
+  /companies:
+    get:
+      tags: [Companies]
+      summary: Lấy danh sách công ty
+      responses:
+        200:
+          description: Danh sách companies
+
+    post:
+      tags: [Companies]
+      summary: Tạo công ty mới
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyInput'
+      responses:
+        201:
+          description: Tạo thành công
+
+  /companies/{companyId}:
+    get:
+      tags: [Companies]
+      summary: Chi tiết công ty
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Company detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+
+    put:
+      tags: [Companies]
+      summary: Cập nhật công ty
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyInput'
+      responses:
+        200:
+          description: Cập nhật thành công
+
+    delete:
+      tags: [Companies]
+      summary: Xóa công ty
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Xóa thành công
+
+  /companies/{companyId}/jobs:
+    get:
+      tags: [Companies]
+      summary: Lấy jobs của công ty
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Danh sách jobs
+
+  /companies/{companyId}/logo:
+    post:
+      tags: [Companies]
+      summary: Upload logo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Upload thành công
+
+    delete:
+      tags: [Companies]
+      summary: Xóa logo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Xóa thành công
+
+  /companies/{companyId}/banner:
+    post:
+      tags: [Companies]
+      summary: Upload banner
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                banner:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Upload thành công
+
+    delete:
+      tags: [Companies]
+      summary: Xóa banner
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Xóa thành công
+
+  # ============================================================
+  # NOTIFICATIONS ENDPOINTS
+  # ============================================================
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Lấy danh sách thông báo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Danh sách notifications
+
+  /notifications/unread-count:
+    get:
+      tags: [Notifications]
+      summary: Đếm thông báo chưa đọc
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Số lượng
+
+  /notifications/read-all:
+    put:
+      tags: [Notifications]
+      summary: Đánh dấu tất cả đã đọc
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thành công
+
+  /notifications/{notificationId}/read:
+    put:
+      tags: [Notifications]
+      summary: Đánh dấu đã đọc
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Thành công
+
+  /notifications/{notificationId}:
+    delete:
+      tags: [Notifications]
+      summary: Xóa thông báo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Xóa thành công
+
+  # ============================================================
+  # SAVED CANDIDATES ENDPOINTS
+  # ============================================================
+  /saved-candidates:
+    get:
+      tags: [Saved Candidates]
+      summary: Lấy danh sách ứng viên đã lưu (Employer only)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách saved candidates
+
+    post:
+      tags: [Saved Candidates]
+      summary: Lưu ứng viên (Employer only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: string
+                  format: uuid
+                notes:
+                  type: string
+      responses:
+        201:
+          description: Lưu thành công
+
+  /saved-candidates/count:
+    get:
+      tags: [Saved Candidates]
+      summary: Đếm ứng viên đã lưu
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Số lượng
+
+  /saved-candidates/{userId}/check:
+    get:
+      tags: [Saved Candidates]
+      summary: Kiểm tra đã lưu chưa
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Trạng thái
+
+  /saved-candidates/{userId}/notes:
+    patch:
+      tags: [Saved Candidates]
+      summary: Cập nhật ghi chú
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+      responses:
+        200:
+          description: Cập nhật thành công
+
+  /saved-candidates/{userId}:
+    delete:
+      tags: [Saved Candidates]
+      summary: Bỏ lưu ứng viên
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Bỏ lưu thành công
+
+  # ============================================================
+  # SEARCH ENDPOINTS
+  # ============================================================
+  /search/suggestions:
+    get:
+      tags: [Search]
+      summary: Gợi ý tìm kiếm (autocomplete)
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Danh sách gợi ý
+
+  /searches:
+    get:
+      tags: [Search]
+      summary: Lấy danh sách saved searches (Job Seeker only)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách
+
+    post:
+      tags: [Search]
+      summary: Lưu tìm kiếm (Job Seeker only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                filter:
+                  type: string
+      responses:
+        201:
+          description: Lưu thành công
+
+  /searches/{searchId}:
+    put:
+      tags: [Search]
+      summary: Cập nhật saved search
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: searchId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Cập nhật thành công
+
+    delete:
+      tags: [Search]
+      summary: Xóa saved search
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: searchId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Xóa thành công
+
+  # ============================================================
+  # ADMIN ENDPOINTS
+  # ============================================================
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: Lấy danh sách users (Admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách users
+
+  /admin/users/{userId}/status:
+    put:
+      tags: [Admin]
+      summary: Cập nhật trạng thái user (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [active, blocked]
+      responses:
+        200:
+          description: Cập nhật thành công
+
+  /admin/employers:
+    get:
+      tags: [Admin]
+      summary: Lấy danh sách employers (Admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách employers
+
+  /admin/employers/{employerId}/verify:
+    put:
+      tags: [Admin]
+      summary: Verify employer (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: employerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [verified, suspended]
+      responses:
+        200:
+          description: Verify thành công
+
+  /admin/companies:
+    get:
+      tags: [Admin]
+      summary: Lấy danh sách companies (Admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách companies
+
+  /admin/jobs:
+    get:
+      tags: [Admin]
+      summary: Lấy danh sách jobs (Admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Danh sách jobs
+
+  /admin/jobs/{jobId}:
+    delete:
+      tags: [Admin]
+      summary: Xóa job (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Xóa thành công
+
+  /admin/statistics:
+    get:
+      tags: [Admin]
+      summary: Lấy thống kê tổng quan (Admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thống kê
+
+  /admin/analytics:
+    get:
+      tags: [Admin]
+      summary: Lấy dữ liệu analytics (Admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Analytics data
+
+  /admin/notifications:
+    post:
+      tags: [Admin]
+      summary: Gửi thông báo đến users (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, message]
+              properties:
+                title:
+                  type: string
+                message:
+                  type: string
+                target_role:
+                  type: string
+                  enum: [job_seeker, employer, all]
+                target_user_id:
+                  type: string
+                  format: uuid
+      responses:
+        200:
+          description: Gửi thành công
+
+# ============================================================
+# COMPONENTS - SCHEMAS
+# ============================================================
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Authentication
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    # User (Job Seeker)
+    User:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        gender:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        phone:
+          type: string
+        address:
+          type: string
+        avatar_url:
+          type: string
+        job_title:
+          type: string
+        current_level:
+          type: string
+        industry:
+          type: string
+        field:
+          type: string
+        experience_years:
+          type: integer
+        current_salary:
+          type: number
+        education:
+          type: string
+        nationality:
+          type: string
+        marital_status:
+          type: string
+        country:
+          type: string
+        province:
+          type: string
+        desired_location:
+          type: string
+        desired_salary:
+          type: number
+        status:
+          type: string
+          enum: [active, blocked]
+
+    UserProfileInput:
+      type: object
+      properties:
+        name:
+          type: string
+        gender:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        phone:
+          type: string
+        address:
+          type: string
+        job_title:
+          type: string
+        current_level:
+          type: string
+        industry:
+          type: string
+        field:
+          type: string
+        experience_years:
+          type: integer
+        current_salary:
+          type: number
+        education:
+          type: string
+        nationality:
+          type: string
+        marital_status:
+          type: string
+        country:
+          type: string
+        province:
+          type: string
+        desired_location:
+          type: string
+        desired_salary:
+          type: number
+
+    # Employer
+    Employer:
+      type: object
+      properties:
+        employer_id:
+          type: integer
+          format: int64
+        full_name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        status:
+          type: string
+          enum: [verified, suspended]
+        created_at:
+          type: string
+          format: date-time
+        avatar_url:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        company_id:
+          type: integer
+          format: int64
+
+    EmployerProfileInput:
+      type: object
+      properties:
+        full_name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+
+    # Company
+    Company:
+      type: object
+      properties:
+        company_id:
+          type: integer
+          format: int64
+        company_name:
+          type: string
+        website:
+          type: string
+        address:
+          type: string
+        description:
+          type: string
+        logo_url:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CompanyInput:
+      type: object
+      required: [company_name, address]
+      properties:
+        company_name:
+          type: string
+        website:
+          type: string
+        address:
+          type: string
+        description:
+          type: string
+
+    # Job
+    Job:
+      type: object
+      properties:
+        job_id:
+          type: integer
+          format: int64
+        employer_id:
+          type: integer
+          format: int64
+        job_title:
+          type: string
+        description:
+          type: string
+        requirements:
+          type: string
+        benefits:
+          type: string
+        salary_min:
+          type: number
+        salary_max:
+          type: number
+        job_type:
+          type: string
+          enum: [Full-time, Part-time, Contract, Internship, Remote]
+        posted_at:
+          type: string
+          format: date-time
+        expired_at:
+          type: string
+          format: date-time
+        views:
+          type: integer
+        status:
+          type: string
+          enum: [draft, active, expired]
+
+    JobInput:
+      type: object
+      required: [job_title, job_type]
+      properties:
+        job_title:
+          type: string
+        description:
+          type: string
+        requirements:
+          type: string
+        benefits:
+          type: string
+        salary_min:
+          type: number
+        salary_max:
+          type: number
+        job_type:
+          type: string
+          enum: [Full-time, Part-time, Contract, Internship, Remote]
+        expired_at:
+          type: string
+          format: date-time
+        locations:
+          type: array
+          items:
+            type: integer
+        tags:
+          type: array
+          items:
+            type: integer
+        skills:
+          type: array
+          items:
+            type: string
+
+    JobListResponse:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            totalPages:
+              type: integer
+
+    # Resume
+    Resume:
+      type: object
+      properties:
+        resume_id:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        resume_title:
+          type: string
+        summary:
+          type: string
+        resume_url:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ResumeInput:
+      type: object
+      required: [resume_title, summary]
+      properties:
+        resume_title:
+          type: string
+        summary:
+          type: string
+        education:
+          type: array
+          items:
+            type: object
+            properties:
+              school_name:
+                type: string
+              major:
+                type: string
+              degree:
+                type: string
+              start_year:
+                type: integer
+              end_year:
+                type: integer
+        experience:
+          type: array
+          items:
+            type: object
+            properties:
+              job_title:
+                type: string
+              company_name:
+                type: string
+              start_date:
+                type: string
+                format: date
+              end_date:
+                type: string
+                format: date
+              description:
+                type: string
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              skill_id:
+                type: string
+              level:
+                type: string
+
+    # Application
+    Application:
+      type: object
+      properties:
+        application_id:
+          type: integer
+          format: int64
+        resume_id:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        job_id:
+          type: integer
+          format: int64
+        apply_date:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, reviewing, interview, offer, rejected, withdrawn]
+        notes:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+
+    # Notification
+    Notification:
+      type: object
+      properties:
+        notification_id:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        note:
+          type: string
+        seen:
+          type: boolean
+        metadata:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+
+    # Saved Job
+    SavedJob:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        job_id:
+          type: integer
+          format: int64
+        saved_at:
+          type: string
+          format: date-time
+
+    # Saved Search
+    SavedSearch:
+      type: object
+      properties:
+        stt:
+          type: integer
+          format: int64
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        filter:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # Saved Candidate
+    SavedCandidate:
+      type: object
+      properties:
+        employer_id:
+          type: integer
+          format: int64
+        user_id:
+          type: string
+          format: uuid
+        notes:
+          type: string
+        saved_at:
+          type: string
+          format: date-time
