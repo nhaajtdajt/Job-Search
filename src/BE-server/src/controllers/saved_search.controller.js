@@ -105,7 +105,85 @@ class SavedSearchController {
       return next(error);
     }
   }
+
+  /**
+   * PUT /api/users/saved-searches/:searchId
+   * Update a saved search for the authenticated user
+   */
+  static async updateSearch(req, res, next) {
+    try {
+      const userId = req.user.user_id;
+      const searchId = parseInt(req.params.searchId, 10);
+      const updateData = req.body;
+
+      if (!isPositiveInteger(searchId)) {
+        throw new BadRequestError('Invalid search ID');
+      }
+
+      const updated = await SavedSearchService.updateSearch(searchId, userId, updateData);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Saved search updated successfully',
+        data: updated
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * PATCH /api/users/saved-searches/:searchId/notification
+   * Toggle email notification for a saved search
+   */
+  static async toggleNotification(req, res, next) {
+    try {
+      const userId = req.user.user_id;
+      const searchId = parseInt(req.params.searchId, 10);
+      const { email_notification } = req.body;
+
+      if (!isPositiveInteger(searchId)) {
+        throw new BadRequestError('Invalid search ID');
+      }
+
+      const updated = await SavedSearchService.toggleNotification(searchId, userId, email_notification);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: email_notification ? 'Notification enabled' : 'Notification disabled',
+        data: updated
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * GET /api/users/saved-searches/:searchId/jobs
+   * Get matching jobs for a saved search
+   */
+  static async getMatchingJobs(req, res, next) {
+    try {
+      const userId = req.user.user_id;
+      const searchId = parseInt(req.params.searchId, 10);
+
+      if (!isPositiveInteger(searchId)) {
+        throw new BadRequestError('Invalid search ID');
+      }
+
+      const result = await SavedSearchService.getMatchingJobs(searchId, userId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Matching jobs retrieved successfully',
+        data: result
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = SavedSearchController;
+
 

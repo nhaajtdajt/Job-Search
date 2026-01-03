@@ -64,7 +64,64 @@ class SavedSearchService {
   static async countSavedSearches(userId) {
     return await SavedSearchRepository.countByUserId(userId);
   }
+
+  /**
+   * Update a saved search
+   * @param {number} searchId - Saved search ID
+   * @param {string} userId - User ID
+   * @param {Object} updateData - Data to update
+   * @returns {Object} Updated saved search
+   */
+  static async updateSearch(searchId, userId, updateData) {
+    const updated = await SavedSearchRepository.update(searchId, userId, updateData);
+    
+    if (!updated) {
+      throw new NotFoundError('Saved search not found');
+    }
+
+    return updated;
+  }
+
+  /**
+   * Toggle email notification for a saved search
+   * @param {number} searchId - Saved search ID
+   * @param {string} userId - User ID
+   * @param {boolean} enabled - Enable or disable notification
+   * @returns {Object} Updated saved search
+   */
+  static async toggleNotification(searchId, userId, enabled) {
+    const updated = await SavedSearchRepository.toggleNotification(searchId, userId, enabled);
+    
+    if (!updated) {
+      throw new NotFoundError('Saved search not found');
+    }
+
+    return updated;
+  }
+
+  /**
+   * Get matching jobs for a saved search
+   * @param {number} searchId - Saved search ID
+   * @param {string} userId - User ID
+   * @returns {Object} Matching jobs
+   */
+  static async getMatchingJobs(searchId, userId) {
+    const savedSearch = await SavedSearchRepository.findById(searchId, userId);
+    
+    if (!savedSearch) {
+      throw new NotFoundError('Saved search not found');
+    }
+
+    // TODO: Implement actual job matching based on saved search filter
+    // For now, return empty array - this can be enhanced later
+    return {
+      savedSearch,
+      jobs: [],
+      total: 0
+    };
+  }
 }
 
 module.exports = SavedSearchService;
+
 

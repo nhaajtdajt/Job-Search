@@ -124,7 +124,69 @@ class SavedSearchRepository {
 
     return savedSearch;
   }
+
+  /**
+   * Update saved search
+   * @param {number} searchId - Saved search ID (stt)
+   * @param {string} userId - User ID (for ownership check)
+   * @param {Object} updateData - Data to update
+   * @returns {Object|null} Updated saved search or null
+   */
+  static async update(searchId, userId, updateData) {
+    // Prepare update data
+    const data = {};
+    if (updateData.name !== undefined) {
+      data.name = updateData.name;
+    }
+    if (updateData.filter !== undefined) {
+      data.filter = updateData.filter ? JSON.stringify(updateData.filter) : null;
+    }
+    if (updateData.email_notification !== undefined) {
+      data.email_notification = updateData.email_notification;
+    }
+
+    const [updated] = await db(MODULE.SAVED_SEARCH)
+      .where({
+        stt: searchId,
+        user_id: userId
+      })
+      .update(data)
+      .returning('*');
+    
+    if (!updated) return null;
+
+    // Parse filter JSON if exists
+    if (updated.filter) {
+      try {
+        updated.filter = JSON.parse(updated.filter);
+      } catch (e) {
+        updated.filter = null;
+      }
+    }
+
+    return updated;
+  }
+
+  /**
+   * Toggle email notification for saved search
+   * @param {number} searchId - Saved search ID (stt)
+   * @param {string} userId - User ID (for ownership check)
+   * @param {boolean} enabled - Enable or disable notification
+   * @returns {Object|null} Updated saved search or null
+   */
+  static async toggleNotification(searchId, userId, enabled) {
+    const [updated] = await db(MODULE.SAVED_SEARCH)
+      .where({
+        stt: searchId,
+        user_id: userId
+      })
+      .update({ email_notification: enabled })
+      .returning('*');
+    
+    return updated || null;
+  }
 }
 
 module.exports = SavedSearchRepository;
+
 
