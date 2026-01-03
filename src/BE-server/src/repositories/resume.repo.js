@@ -169,6 +169,127 @@ class ResumeRepository {
 
     await db(MODULE.RESUME_SKILL).insert(records);
   }
+
+  // ==========================================
+  // Single Record Operations
+  // ==========================================
+
+  /**
+   * Add single education record
+   * @param {string} resumeId - Resume ID
+   * @param {Object} educationData - Education data
+   * @returns {Object} Created education record
+   */
+  static async addSingleEducation(resumeId, educationData) {
+    const [education] = await db(MODULE.RES_EDUCATION)
+      .insert({
+        resume_id: resumeId,
+        ...educationData
+      })
+      .returning('*');
+    return education;
+  }
+
+  /**
+   * Update education record
+   * @param {number} educationId - Education ID
+   * @param {Object} updateData - Data to update
+   * @returns {Object} Updated education record
+   */
+  static async updateEducation(educationId, updateData) {
+    const [education] = await db(MODULE.RES_EDUCATION)
+      .where('education_id', educationId)
+      .update(updateData)
+      .returning('*');
+    return education;
+  }
+
+  /**
+   * Delete education record
+   * @param {number} educationId - Education ID
+   * @returns {number} Number of deleted rows
+   */
+  static async deleteEducation(educationId) {
+    return await db(MODULE.RES_EDUCATION)
+      .where('education_id', educationId)
+      .del();
+  }
+
+  /**
+   * Find education by ID
+   * @param {number} educationId - Education ID
+   * @returns {Object|null} Education record
+   */
+  static async findEducationById(educationId) {
+    return await db(MODULE.RES_EDUCATION)
+      .where('education_id', educationId)
+      .first();
+  }
+
+  /**
+   * Add single experience record
+   * @param {string} resumeId - Resume ID
+   * @param {Object} experienceData - Experience data
+   * @returns {Object} Created experience record
+   */
+  static async addSingleExperience(resumeId, experienceData) {
+    const [experience] = await db(MODULE.RES_EXPERIENCE)
+      .insert({
+        resume_id: resumeId,
+        ...experienceData
+      })
+      .returning('*');
+    return experience;
+  }
+
+  /**
+   * Update experience record
+   * @param {number} experienceId - Experience ID
+   * @param {Object} updateData - Data to update
+   * @returns {Object} Updated experience record
+   */
+  static async updateExperience(experienceId, updateData) {
+    const [experience] = await db(MODULE.RES_EXPERIENCE)
+      .where('experience_id', experienceId)
+      .update(updateData)
+      .returning('*');
+    return experience;
+  }
+
+  /**
+   * Delete experience record
+   * @param {number} experienceId - Experience ID
+   * @returns {number} Number of deleted rows
+   */
+  static async deleteExperience(experienceId) {
+    return await db(MODULE.RES_EXPERIENCE)
+      .where('experience_id', experienceId)
+      .del();
+  }
+
+  /**
+   * Find experience by ID
+   * @param {number} experienceId - Experience ID
+   * @returns {Object|null} Experience record
+   */
+  static async findExperienceById(experienceId) {
+    return await db(MODULE.RES_EXPERIENCE)
+      .where('experience_id', experienceId)
+      .first();
+  }
+
+  /**
+   * Delete skill from resume
+   * @param {string} resumeId - Resume ID
+   * @param {number} skillId - Skill ID
+   * @returns {number} Number of deleted rows
+   */
+  static async deleteSkill(resumeId, skillId) {
+    return await db(MODULE.RESUME_SKILL)
+      .where({ resume_id: resumeId, skill_id: skillId })
+      .del();
+  }
 }
 
 module.exports = ResumeRepository;
+

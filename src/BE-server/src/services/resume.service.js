@@ -249,6 +249,167 @@ class ResumeService {
     // Update database
     await ResumeRepository.update(resumeId, { resume_url: null });
   }
+
+  // ==========================================
+  // Education Operations
+  // ==========================================
+
+  /**
+   * Add education to resume
+   * @param {string} resumeId - Resume ID
+   * @param {string} userId - User ID (for permission check)
+   * @param {Object} educationData - Education data
+   * @returns {Object} Created education record
+   */
+  static async addEducation(resumeId, userId, educationData) {
+    // Check ownership
+    const isOwner = await ResumeRepository.isOwnedByUser(resumeId, userId);
+    if (!isOwner) {
+      throw new ForbiddenError('Not authorized to modify this resume');
+    }
+
+    return await ResumeRepository.addSingleEducation(resumeId, educationData);
+  }
+
+  /**
+   * Update education record
+   * @param {string} resumeId - Resume ID
+   * @param {number} educationId - Education ID
+   * @param {string} userId - User ID
+   * @param {Object} updateData - Data to update
+   * @returns {Object} Updated education record
+   */
+  static async updateEducation(resumeId, userId, educationId, updateData) {
+    const isOwner = await ResumeRepository.isOwnedByUser(resumeId, userId);
+    if (!isOwner) {
+      throw new ForbiddenError('Not authorized to modify this resume');
+    }
+
+    const education = await ResumeRepository.findEducationById(educationId);
+    if (!education || education.resume_id !== resumeId) {
+      throw new NotFoundError('Education not found');
+    }
+
+    return await ResumeRepository.updateEducation(educationId, updateData);
+  }
+
+  /**
+   * Delete education record
+   * @param {string} resumeId - Resume ID
+   * @param {number} educationId - Education ID
+   * @param {string} userId - User ID
+   */
+  static async deleteEducation(resumeId, userId, educationId) {
+    const isOwner = await ResumeRepository.isOwnedByUser(resumeId, userId);
+    if (!isOwner) {
+      throw new ForbiddenError('Not authorized to modify this resume');
+    }
+
+    const education = await ResumeRepository.findEducationById(educationId);
+    if (!education || education.resume_id !== resumeId) {
+      throw new NotFoundError('Education not found');
+    }
+
+    await ResumeRepository.deleteEducation(educationId);
+  }
+
+  // ==========================================
+  // Experience Operations
+  // ==========================================
+
+  /**
+   * Add experience to resume
+   * @param {string} resumeId - Resume ID
+   * @param {string} userId - User ID
+   * @param {Object} experienceData - Experience data
+   * @returns {Object} Created experience record
+   */
+  static async addExperience(resumeId, userId, experienceData) {
+    const isOwner = await ResumeRepository.isOwnedByUser(resumeId, userId);
+    if (!isOwner) {
+      throw new ForbiddenError('Not authorized to modify this resume');
+    }
+
+    return await ResumeRepository.addSingleExperience(resumeId, experienceData);
+  }
+
+  /**
+   * Update experience record
+   * @param {string} resumeId - Resume ID
+   * @param {number} experienceId - Experience ID
+   * @param {string} userId - User ID
+   * @param {Object} updateData - Data to update
+   * @returns {Object} Updated experience record
+   */
+  static async updateExperience(resumeId, userId, experienceId, updateData) {
+    const isOwner = await ResumeRepository.isOwnedByUser(resumeId, userId);
+    if (!isOwner) {
+      throw new ForbiddenError('Not authorized to modify this resume');
+    }
+
+    const experience = await ResumeRepository.findExperienceById(experienceId);
+    if (!experience || experience.resume_id !== resumeId) {
+      throw new NotFoundError('Experience not found');
+    }
+
+    return await ResumeRepository.updateExperience(experienceId, updateData);
+  }
+
+  /**
+   * Delete experience record
+   * @param {string} resumeId - Resume ID
+   * @param {number} experienceId - Experience ID
+   * @param {string} userId - User ID
+   */
+  static async deleteExperience(resumeId, userId, experienceId) {
+    const isOwner = await ResumeRepository.isOwnedByUser(resumeId, userId);
+    if (!isOwner) {
+      throw new ForbiddenError('Not authorized to modify this resume');
+    }
+
+    const experience = await ResumeRepository.findExperienceById(experienceId);
+    if (!experience || experience.resume_id !== resumeId) {
+      throw new NotFoundError('Experience not found');
+    }
+
+    await ResumeRepository.deleteExperience(experienceId);
+  }
+
+  // ==========================================
+  // Skills Operations
+  // ==========================================
+
+  /**
+   * Add skills to resume
+   * @param {string} resumeId - Resume ID
+   * @param {string} userId - User ID
+   * @param {Array} skills - Array of skill objects
+   * @returns {Object} Success message
+   */
+  static async addSkills(resumeId, userId, skills) {
+    const isOwner = await ResumeRepository.isOwnedByUser(resumeId, userId);
+    if (!isOwner) {
+      throw new ForbiddenError('Not authorized to modify this resume');
+    }
+
+    await ResumeRepository.addSkills(resumeId, skills);
+    return { message: 'Skills added successfully' };
+  }
+
+  /**
+   * Remove skill from resume
+   * @param {string} resumeId - Resume ID
+   * @param {number} skillId - Skill ID
+   * @param {string} userId - User ID
+   */
+  static async removeSkill(resumeId, userId, skillId) {
+    const isOwner = await ResumeRepository.isOwnedByUser(resumeId, userId);
+    if (!isOwner) {
+      throw new ForbiddenError('Not authorized to modify this resume');
+    }
+
+    await ResumeRepository.deleteSkill(resumeId, skillId);
+  }
 }
 
 module.exports = ResumeService;

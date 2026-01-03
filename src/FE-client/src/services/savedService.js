@@ -48,7 +48,7 @@ const savedService = {
   isJobSaved: async (jobId) => {
     try {
       const response = await apiService.get(`/users/saved-jobs/${jobId}/check`);
-      return response.data?.isSaved || false;
+      return response.data?.data?.is_saved || response.data?.is_saved || false;
     } catch {
       return false;
     }

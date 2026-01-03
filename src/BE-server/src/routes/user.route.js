@@ -110,6 +110,27 @@ router.delete(
   SavedSearchController.deleteSearch
 );
 
+// Update saved search
+router.put(
+  '/saved-searches/:searchId',
+  authMiddleware.authenticate,
+  SavedSearchController.updateSearch
+);
+
+// Toggle email notification for saved search
+router.patch(
+  '/saved-searches/:searchId/notification',
+  authMiddleware.authenticate,
+  SavedSearchController.toggleNotification
+);
+
+// Get matching jobs for saved search
+router.get(
+  '/saved-searches/:searchId/jobs',
+  authMiddleware.authenticate,
+  SavedSearchController.getMatchingJobs
+);
+
 // ==================================================
 // EMPLOYER ROUTES - View candidate info
 // ==================================================

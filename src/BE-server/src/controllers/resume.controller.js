@@ -187,6 +187,191 @@ class ResumeController {
       return next(error);
     }
   }
+
+  // ==========================================
+  // Education Endpoints
+  // ==========================================
+
+  /**
+   * Add education to resume
+   * POST /api/resumes/:resumeId/education
+   */
+  static async addEducation(req, res, next) {
+    try {
+      const { resumeId } = req.params;
+      const userId = req.user.user_id;
+      const educationData = req.body;
+
+      const education = await ResumeService.addEducation(resumeId, userId, educationData);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.CREATED,
+        message: 'Education added successfully',
+        data: education,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Update education record
+   * PUT /api/resumes/:resumeId/education/:educationId
+   */
+  static async updateEducation(req, res, next) {
+    try {
+      const { resumeId, educationId } = req.params;
+      const userId = req.user.user_id;
+      const updateData = req.body;
+
+      const education = await ResumeService.updateEducation(resumeId, userId, parseInt(educationId), updateData);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Education updated successfully',
+        data: education,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Delete education record
+   * DELETE /api/resumes/:resumeId/education/:educationId
+   */
+  static async deleteEducation(req, res, next) {
+    try {
+      const { resumeId, educationId } = req.params;
+      const userId = req.user.user_id;
+
+      await ResumeService.deleteEducation(resumeId, userId, parseInt(educationId));
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Education deleted successfully',
+        data: null,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  // ==========================================
+  // Experience Endpoints
+  // ==========================================
+
+  /**
+   * Add experience to resume
+   * POST /api/resumes/:resumeId/experience
+   */
+  static async addExperience(req, res, next) {
+    try {
+      const { resumeId } = req.params;
+      const userId = req.user.user_id;
+      const experienceData = req.body;
+
+      const experience = await ResumeService.addExperience(resumeId, userId, experienceData);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.CREATED,
+        message: 'Experience added successfully',
+        data: experience,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Update experience record
+   * PUT /api/resumes/:resumeId/experience/:experienceId
+   */
+  static async updateExperience(req, res, next) {
+    try {
+      const { resumeId, experienceId } = req.params;
+      const userId = req.user.user_id;
+      const updateData = req.body;
+
+      const experience = await ResumeService.updateExperience(resumeId, userId, parseInt(experienceId), updateData);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Experience updated successfully',
+        data: experience,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Delete experience record
+   * DELETE /api/resumes/:resumeId/experience/:experienceId
+   */
+  static async deleteExperience(req, res, next) {
+    try {
+      const { resumeId, experienceId } = req.params;
+      const userId = req.user.user_id;
+
+      await ResumeService.deleteExperience(resumeId, userId, parseInt(experienceId));
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Experience deleted successfully',
+        data: null,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  // ==========================================
+  // Skills Endpoints
+  // ==========================================
+
+  /**
+   * Add skills to resume
+   * POST /api/resumes/:resumeId/skills
+   */
+  static async addSkills(req, res, next) {
+    try {
+      const { resumeId } = req.params;
+      const userId = req.user.user_id;
+      const { skills } = req.body;
+
+      const result = await ResumeService.addSkills(resumeId, userId, skills);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.CREATED,
+        message: 'Skills added successfully',
+        data: result,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * Remove skill from resume
+   * DELETE /api/resumes/:resumeId/skills/:skillId
+   */
+  static async removeSkill(req, res, next) {
+    try {
+      const { resumeId, skillId } = req.params;
+      const userId = req.user.user_id;
+
+      await ResumeService.removeSkill(resumeId, userId, parseInt(skillId));
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'Skill removed successfully',
+        data: null,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = ResumeController;
