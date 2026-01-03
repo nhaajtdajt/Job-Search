@@ -52,7 +52,7 @@ export default function EmployerProfile() {
 
         // Initialize form data
         setFormData({
-          name: profileData.name || "",
+          name: profileData.full_name || profileData.name || "",
           email: authUser?.email || profileData.email || "",
           phone: profileData.phone || "",
           position: profileData.position || "",
@@ -207,7 +207,7 @@ export default function EmployerProfile() {
               {/* Name & Title */}
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {profile?.name || "Chưa cập nhật tên"}
+                  {profile?.full_name || profile?.name || "Chưa cập nhật tên"}
                 </h2>
                 <p className="text-gray-600 mt-1">
                   {profile?.position || "Chưa cập nhật chức vụ"}

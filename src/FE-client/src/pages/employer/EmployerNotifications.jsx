@@ -11,18 +11,21 @@ import {
   Clock,
   AlertCircle,
   Loader2,
-  ChevronRight
+  ChevronRight,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { message, Empty, Pagination } from 'antd';
 import EmployerSidebar from '../../components/employer/EmployerSidebar';
 import notificationService from '../../services/notificationService';
+import { subscribeToNotifications, getSocket, connectSocket } from '../../services/socketService';
 
 /**
  * EmployerNotifications Page
  * Display and manage notifications for employers
  */
 export default function EmployerNotifications() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, session } = useAuth();
   const navigate = useNavigate();
 
   // State
@@ -36,6 +39,64 @@ export default function EmployerNotifications() {
     total: 0
   });
   const [filter, setFilter] = useState('all'); // all, unread, application, expiring
+  const [isConnected, setIsConnected] = useState(false);
+
+  // Handle new notification from WebSocket
+  const handleNewNotification = useCallback((notification) => {
+    console.log('[EmployerNotifications] New notification received:', notification);
+    
+    // Add new notification to the top of the list
+    setNotifications(prev => {
+      // Check if notification already exists
+      const exists = prev.some(n => n.notification_id === notification.notification_id);
+      if (exists) return prev;
+      
+      return [notification, ...prev];
+    });
+
+    // Update unread count
+    setUnreadCount(prev => prev + 1);
+
+    // Show toast message
+    message.info({
+      content: 'Bạn có thông báo mới!',
+      duration: 3
+    });
+  }, []);
+
+  // Handle count update from WebSocket
+  const handleCountUpdate = useCallback((count) => {
+    console.log('[EmployerNotifications] Count updated:', count);
+    setUnreadCount(count);
+  }, []);
+
+  // Connect socket and subscribe to WebSocket events
+  useEffect(() => {
+    let unsubscribe = () => {};
+
+    if (isAuthenticated && session?.access_token) {
+      // Connect socket first
+      connectSocket(session.access_token);
+      
+      // Then subscribe to events
+      unsubscribe = subscribeToNotifications(handleNewNotification, handleCountUpdate);
+      
+      // Check connection status
+      const checkConnection = () => {
+        const socket = getSocket();
+        setIsConnected(socket?.connected || false);
+      };
+      checkConnection();
+      const interval = setInterval(checkConnection, 5000);
+      
+      return () => {
+        clearInterval(interval);
+        unsubscribe();
+      };
+    }
+
+    return () => unsubscribe();
+  }, [isAuthenticated, session, handleNewNotification, handleCountUpdate]);
 
   // Redirect if not authenticated or not employer
   useEffect(() => {

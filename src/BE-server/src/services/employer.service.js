@@ -6,33 +6,95 @@
 const EmployerRepository = require('../repositories/employer.repo');
 const StorageService = require('./storage.service');
 const { NotFoundError, BadRequestError } = require('../errors');
+const db = require('../databases/knex');
+const MODULE = require('../constants/module');
 
 class EmployerService {
   /**
-   * Get employer profile by ID
-   * @param {number} employerId - Employer ID
-   * @returns {Object} Employer profile
+   * Get employer profile by ID or User ID
+   * @param {number|string} employerIdOrUserId - Employer ID or User ID
+   * @returns {Object} Employer profile with statistics
    */
-  static async getProfile(employerId) {
-    const employer = await EmployerRepository.findById(employerId);
+  static async getProfile(employerIdOrUserId) {
+    // Try findById first (works if employerIdOrUserId is employer_id)
+    let employer = await EmployerRepository.findById(employerIdOrUserId);
+    
+    // Fallback: try findByUserId (if employerIdOrUserId is user_id)
+    if (!employer) {
+      employer = await EmployerRepository.findByUserId(employerIdOrUserId);
+    }
+    
+    if (!employer) {
+      throw new NotFoundError('Employer not found');
+    }
+
+    // Get statistics for employer
+    const stats = await this.getEmployerStatistics(employer.employer_id);
+    
+    return {
+      ...employer,
+      ...stats
+    };
+  }
+
+  /**
+   * Get employer statistics (total jobs, applications, views)
+   * @param {number} employerId - Employer ID
+   * @returns {Object} Statistics
+   */
+  static async getEmployerStatistics(employerId) {
+    // Count total jobs
+    const [jobsResult] = await db(MODULE.JOB)
+      .where('employer_id', employerId)
+      .count('job_id as total');
+    
+    // Count total applications for all jobs of this employer
+    const [applicationsResult] = await db(MODULE.APPLICATION)
+      .join(MODULE.JOB, 'application.job_id', 'job.job_id')
+      .where('job.employer_id', employerId)
+      .count('application.application_id as total');
+    
+    // Sum total views from all jobs
+    const [viewsResult] = await db(MODULE.JOB)
+      .where('employer_id', employerId)
+      .sum('views as total');
+
+    return {
+      total_jobs: parseInt(jobsResult?.total || 0, 10),
+      total_applications: parseInt(applicationsResult?.total || 0, 10),
+      total_views: parseInt(viewsResult?.total || 0, 10)
+    };
+  }
+
+  /**
+   * Update employer profile
+   * @param {number|string} employerIdOrUserId - Employer ID or User ID
+   * @param {Object} updateData - Data to update
+   * @returns {Object} Updated employer
+   */
+  static async updateProfile(employerIdOrUserId, updateData) {
+    // Try to find employer by ID first, then by userId
+    let employer = await EmployerRepository.findById(employerIdOrUserId);
+    
+    if (!employer) {
+      // Fallback: try to find by user_id
+      employer = await EmployerRepository.findByUserId(employerIdOrUserId);
+    }
     
     if (!employer) {
       throw new NotFoundError('Employer not found');
     }
     
-    return employer;
-  }
-
-  /**
-   * Update employer profile
-   * @param {number} employerId - Employer ID
-   * @param {Object} updateData - Data to update
-   * @returns {Object} Updated employer
-   */
-  static async updateProfile(employerId, updateData) {
+    const employerId = employer.employer_id;
+    
     // Validate updateData - only allow certain fields
+    // Map 'name' to 'full_name' for frontend compatibility
+    if (updateData.name && !updateData.full_name) {
+      updateData.full_name = updateData.name;
+    }
+    
     const allowedFields = [
-      'full_name', 'email', 'role', 'phone', 'company_id'
+      'full_name', 'email', 'role', 'phone', 'company_id', 'position', 'department'
     ];
     
     const filteredData = {};
@@ -42,13 +104,13 @@ class EmployerService {
       }
     }
 
-    const employer = await EmployerRepository.update(employerId, filteredData);
+    const updatedEmployer = await EmployerRepository.update(employerId, filteredData);
     
-    if (!employer) {
-      throw new NotFoundError('Employer not found');
+    if (!updatedEmployer) {
+      throw new NotFoundError('Employer not found after update');
     }
     
-    return employer;
+    return updatedEmployer;
   }
 
   /**

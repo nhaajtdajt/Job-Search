@@ -60,7 +60,10 @@ class EmployerRepository {
       'role',
       'status',
       'avatar_url',
-      'company_id'
+      'company_id',
+      'phone',
+      'position',
+      'department'
     ];
 
     const filteredData = {};

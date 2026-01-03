@@ -84,13 +84,13 @@ export default function CompanyProfile() {
 
   // Handle logo upload
   const handleLogoUpload = async (file) => {
-    if (!company?.id) {
+    if (!company?.company_id) {
       message.error('Không tìm thấy thông tin công ty');
       return;
     }
 
     try {
-      const result = await companyService.uploadLogo(company.id, file);
+      const result = await companyService.uploadLogo(company.company_id, file);
       setCompany(prev => ({ ...prev, logo_url: result.logo_url }));
       message.success('Tải logo thành công!');
     } catch (error) {
@@ -102,13 +102,13 @@ export default function CompanyProfile() {
 
   // Handle banner upload
   const handleBannerUpload = async (file) => {
-    if (!company?.id) {
+    if (!company?.company_id) {
       message.error('Không tìm thấy thông tin công ty');
       return;
     }
 
     try {
-      const result = await companyService.uploadBanner(company.id, file);
+      const result = await companyService.uploadBanner(company.company_id, file);
       setCompany(prev => ({ ...prev, banner_url: result.banner_url }));
       message.success('Tải banner thành công!');
     } catch (error) {
@@ -167,32 +167,38 @@ export default function CompanyProfile() {
       <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Company Header with Banner */}
         <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-          {/* Banner */}
-          <div className="h-40 bg-gradient-to-r from-orange-400 to-red-500 relative">
-            {company?.banner_url && (
-              <img 
-                src={company.banner_url} 
-                alt="Company banner" 
-                className="w-full h-full object-cover"
-              />
-            )}
-          </div>
-          
-          {/* Company Info Header */}
-          <div className="px-6 pb-6">
-            <div className="flex items-end gap-4 -mt-10 mb-4">
-              {/* Company Logo */}
-              <div className="w-24 h-24 rounded-xl bg-white border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
+          {/* Banner with overlay logo */}
+          <div className="relative">
+            {/* Banner */}
+            <div className="h-48 bg-gradient-to-r from-orange-400 to-red-500 relative">
+              {company?.banner_url && (
+                <img 
+                  src={company.banner_url} 
+                  alt="Company banner" 
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+            
+            {/* Company Logo - Positioned to overlay on banner */}
+            <div className="absolute -bottom-12 left-6">
+              <div className="w-28 h-28 rounded-xl bg-white border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
                 {company?.logo_url ? (
                   <img 
                     src={company.logo_url} 
-                    alt={company.name || 'Company'} 
+                    alt={company?.name || 'Company'} 
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <Building2 className="w-10 h-10 text-gray-400" />
+                  <Building2 className="w-12 h-12 text-gray-400" />
                 )}
               </div>
+            </div>
+          </div>
+          
+          {/* Company Info Header - with padding top for logo overlay */}
+          <div className="px-6 pt-16 pb-6">
+            <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3">
                   <h2 className="text-2xl font-bold text-gray-900">

@@ -276,10 +276,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Create session object from localStorage for socket connection
+  const session = isAuthenticated ? {
+    access_token: localStorage.getItem('accessToken'),
+    refresh_token: localStorage.getItem('refreshToken')
+  } : null;
+
   const value = {
     user,
     loading,
     isAuthenticated,
+    session, // Add session for socket connection
     login,
     register,
     logout,

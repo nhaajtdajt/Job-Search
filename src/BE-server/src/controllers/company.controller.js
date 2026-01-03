@@ -20,9 +20,17 @@ class CompanyController {
       }
 
       const { companyId } = req.params;
-      const employerId = req.user.employer_id;
+      // Use employer_id if available, fallback to user_id
+      const employerIdOrUserId = req.user.employer_id || req.user.user_id;
+      
+      console.log('[CompanyController.uploadLogo] Request:', {
+        companyId,
+        employer_id: req.user.employer_id,
+        user_id: req.user.user_id,
+        employerIdOrUserId
+      });
 
-      const result = await CompanyService.uploadLogo(companyId, employerId, req.file.buffer);
+      const result = await CompanyService.uploadLogo(companyId, employerIdOrUserId, req.file.buffer);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -48,9 +56,17 @@ class CompanyController {
       }
 
       const { companyId } = req.params;
-      const employerId = req.user.employer_id;
+      // Use employer_id if available, fallback to user_id
+      const employerIdOrUserId = req.user.employer_id || req.user.user_id;
+      
+      console.log('[CompanyController.uploadBanner] Request:', {
+        companyId,
+        employer_id: req.user.employer_id,
+        user_id: req.user.user_id,
+        employerIdOrUserId
+      });
 
-      const result = await CompanyService.uploadBanner(companyId, employerId, req.file.buffer);
+      const result = await CompanyService.uploadBanner(companyId, employerIdOrUserId, req.file.buffer);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,

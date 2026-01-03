@@ -65,9 +65,10 @@ class EmployerController {
    */
   static async getProfile(req, res, next) {
     try {
-      const employerId = req.user.employer_id;
+      // Use employer_id if available, fallback to user_id
+      const employerIdOrUserId = req.user.employer_id || req.user.user_id;
 
-      const employer = await EmployerService.getProfile(employerId);
+      const employer = await EmployerService.getProfile(employerIdOrUserId);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,
@@ -85,10 +86,11 @@ class EmployerController {
    */
   static async updateProfile(req, res, next) {
     try {
-      const employerId = req.user.employer_id;
+      // Use employer_id if available, fallback to user_id
+      const employerIdOrUserId = req.user.employer_id || req.user.user_id;
       const updateData = req.body;
 
-      const employer = await EmployerService.updateProfile(employerId, updateData);
+      const employer = await EmployerService.updateProfile(employerIdOrUserId, updateData);
 
       return ResponseHandler.success(res, {
         status: HTTP_STATUS.OK,

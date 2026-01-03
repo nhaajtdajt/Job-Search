@@ -56,7 +56,7 @@ class CompanyService {
   static async update(companyId, employerId, updateData) {
     // Check if employer belongs to this company
     const employer = await EmployerRepository.findById(employerId);
-    if (!employer || employer.company_id !== parseInt(companyId)) {
+    if (!employer || parseInt(employer.company_id) !== parseInt(companyId)) {
       throw new ForbiddenError('Not authorized to update this company');
     }
 
@@ -118,18 +118,30 @@ class CompanyService {
   /**
    * Upload company logo
    * @param {number} companyId - Company ID
-   * @param {number} employerId - Employer ID (for permission check)
+   * @param {number|string} employerIdOrUserId - Employer ID or User ID (for permission check)
    * @param {Buffer} fileBuffer - Image buffer
    * @returns {Object} Upload result with URL
    */
-  static async uploadLogo(companyId, employerId, fileBuffer) {
+  static async uploadLogo(companyId, employerIdOrUserId, fileBuffer) {
     if (!fileBuffer) {
       throw new BadRequestError('No logo file provided');
     }
 
-    // Check permission
-    const employer = await EmployerRepository.findById(employerId);
-    if (!employer || employer.company_id !== parseInt(companyId)) {
+    // Check permission - support both employer_id and user_id
+    let employer = await EmployerRepository.findById(employerIdOrUserId);
+    
+    // If not found by employer_id, try to find by user_id
+    if (!employer) {
+      employer = await EmployerRepository.findByUserId(employerIdOrUserId);
+    }
+    
+    console.log('[CompanyService.uploadLogo] Permission check:', {
+      companyId,
+      employerIdOrUserId,
+      employer: employer ? { employer_id: employer.employer_id, company_id: employer.company_id } : null
+    });
+
+    if (!employer || parseInt(employer.company_id) !== parseInt(companyId)) {
       throw new ForbiddenError('Not authorized to update this company');
     }
 
@@ -160,7 +172,7 @@ class CompanyService {
   static async deleteLogo(companyId, employerId) {
     // Check permission
     const employer = await EmployerRepository.findById(employerId);
-    if (!employer || employer.company_id !== parseInt(companyId)) {
+    if (!employer || parseInt(employer.company_id) !== parseInt(companyId)) {
       throw new ForbiddenError('Not authorized to update this company');
     }
 
@@ -179,18 +191,30 @@ class CompanyService {
   /**
    * Upload company banner
    * @param {number} companyId - Company ID
-   * @param {number} employerId - Employer ID (for permission check)
+   * @param {number|string} employerIdOrUserId - Employer ID or User ID (for permission check)
    * @param {Buffer} fileBuffer - Image buffer
    * @returns {Object} Upload result with URL
    */
-  static async uploadBanner(companyId, employerId, fileBuffer) {
+  static async uploadBanner(companyId, employerIdOrUserId, fileBuffer) {
     if (!fileBuffer) {
       throw new BadRequestError('No banner file provided');
     }
 
-    // Check permission
-    const employer = await EmployerRepository.findById(employerId);
-    if (!employer || employer.company_id !== parseInt(companyId)) {
+    // Check permission - support both employer_id and user_id
+    let employer = await EmployerRepository.findById(employerIdOrUserId);
+    
+    // If not found by employer_id, try to find by user_id
+    if (!employer) {
+      employer = await EmployerRepository.findByUserId(employerIdOrUserId);
+    }
+    
+    console.log('[CompanyService.uploadBanner] Permission check:', {
+      companyId,
+      employerIdOrUserId,
+      employer: employer ? { employer_id: employer.employer_id, company_id: employer.company_id } : null
+    });
+
+    if (!employer || parseInt(employer.company_id) !== parseInt(companyId)) {
       throw new ForbiddenError('Not authorized to update this company');
     }
 
@@ -221,7 +245,7 @@ class CompanyService {
   static async deleteBanner(companyId, employerId) {
     // Check permission
     const employer = await EmployerRepository.findById(employerId);
-    if (!employer || employer.company_id !== parseInt(companyId)) {
+    if (!employer || parseInt(employer.company_id) !== parseInt(companyId)) {
       throw new ForbiddenError('Not authorized to update this company');
     }
 

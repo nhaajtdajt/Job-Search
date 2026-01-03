@@ -7,7 +7,7 @@ export default function EmployerHeader() {
 
   const primaryLinks = [
     { label: "Dashboard", to: "/employer/dashboard" },
-    { label: "Đăng tin", to: "/employer/post-job" },
+    { label: "Đăng tin", to: "/employer/jobs/create" },
     { label: "Hồ sơ", to: "/employer/profile" },
     { label: "Công ty", to: "/employer/company" },
   ];
@@ -80,9 +80,12 @@ export default function EmployerHeader() {
                 </Link>
               ))}
               {isAuthenticated && (
-                <button className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition-all duration-200 hover:bg-white/15 hover:text-white link-smooth transform hover:scale-105">
+                <Link
+                  to="/employer/notifications"
+                  className="rounded-full px-4 py-2 text-sm text-brand-50/90 transition-all duration-200 hover:bg-white/15 hover:text-white link-smooth transform hover:scale-105"
+                >
                   Thông báo
-                </button>
+                </Link>
               )}
             </nav>
             <div className="flex items-center gap-4">
