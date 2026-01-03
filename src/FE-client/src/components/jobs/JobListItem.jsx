@@ -71,7 +71,7 @@ function JobListItem({
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">{job.title}</h3>
+            <h3 className="font-semibold text-gray-900 truncate">{job.job_title || job.title}</h3>
             <p className="text-sm text-gray-600">{job.company_name}</p>
             <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
               <span className="flex items-center gap-1">
@@ -112,7 +112,7 @@ function JobListItem({
                 to={`/jobs/${job.job_id}`}
                 className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
               >
-                {job.title}
+                {job.job_title || job.title}
               </Link>
               <Link 
                 to={`/companies/${job.company_id}`}
@@ -203,7 +203,8 @@ function JobListItem({
 JobListItem.propTypes = {
   job: PropTypes.shape({
     job_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    title: PropTypes.string.isRequired,
+    job_title: PropTypes.string,
+    title: PropTypes.string,
     company_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     company_name: PropTypes.string,
     company_logo: PropTypes.string,

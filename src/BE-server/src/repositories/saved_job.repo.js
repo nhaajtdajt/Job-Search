@@ -14,6 +14,13 @@ class SavedJobRepository {
    * @returns {Object} Saved job record
    */
   static async save(userId, jobId) {
+    // Check if user exists in users table
+    const userExists = await db(MODULE.USERS).where('user_id', userId).first();
+    
+    if (!userExists) {
+      throw new Error(`User with ID ${userId} not found in users table`);
+    }
+    
     const [savedJob] = await db(MODULE.SAVED_JOB)
       .insert({
         user_id: userId,
@@ -80,12 +87,53 @@ class SavedJobRepository {
       .limit(limit)
       .offset(offset);
 
-    // Enrich with job info
+    // Enrich with job info and company info
     for (const savedJob of savedJobs) {
       const job = await db(MODULE.JOB)
-        .select('job_id', 'job_title', 'job_type', 'posted_at')
-        .where('job_id', savedJob.job_id)
+        .select(
+          'job.job_id', 
+          'job.job_title', 
+          'job.job_type', 
+          'job.posted_at',
+          'job.salary_min',
+          'job.salary_max',
+          'job.employer_id',
+          'job.status',
+          'job.expired_at'
+        )
+        .where('job.job_id', savedJob.job_id)
         .first();
+      
+      if (job) {
+        // Get employer and company info
+        const employer = await db(MODULE.EMPLOYER)
+          .select('employer_id', 'company_id')
+          .where('employer_id', job.employer_id)
+          .first();
+        
+        if (employer && employer.company_id) {
+          const company = await db(MODULE.COMPANY)
+            .select('company_id', 'company_name', 'logo_url', 'address')
+            .where('company_id', employer.company_id)
+            .first();
+          
+          if (company) {
+            job.company_id = company.company_id;
+            job.company_name = company.company_name;
+            job.company_logo = company.logo_url;
+            job.company_address = company.address;
+          }
+        }
+        
+        // Get locations
+        const locations = await db(MODULE.JOB_LOCATION)
+          .join(MODULE.LOCATION, 'job_location.location_id', 'location.location_id')
+          .select('location.location_name')
+          .where('job_location.job_id', savedJob.job_id);
+        
+        job.location = locations.map(l => l.location_name).join(', ') || null;
+      }
+      
       savedJob.job = job || null;
     }
 

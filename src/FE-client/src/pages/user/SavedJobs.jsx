@@ -39,10 +39,35 @@ function SavedJobs() {
     try {
       setLoading(true);
       const response = await savedService.getSavedJobs({ page: 1, limit: 20 });
-      if (response.success) {
-        setSavedJobs(response.data || []);
-        setHasMore(response.pagination?.hasMore || false);
+      
+      // Handle different response formats
+      // response = { success: true, data: { data: [...], total, page, limit } }
+      // OR response = { data: [...], total, page, limit }
+      let jobsData = [];
+      let pagination = {};
+      
+      if (response.success && response.data) {
+        // Format: { success: true, data: { data: [...], total, page, limit } }
+        jobsData = response.data.data || response.data || [];
+        pagination = {
+          total: response.data.total,
+          page: response.data.page,
+          limit: response.data.limit,
+          hasMore: (response.data.page * response.data.limit) < response.data.total
+        };
+      } else if (response.data) {
+        // Format: { data: [...], total, page, limit }
+        jobsData = response.data;
+        pagination = {
+          total: response.total,
+          hasMore: (response.page * response.limit) < response.total
+        };
+      } else if (Array.isArray(response)) {
+        jobsData = response;
       }
+      
+      setSavedJobs(Array.isArray(jobsData) ? jobsData : []);
+      setHasMore(pagination.hasMore || false);
     } catch (error) {
       console.error('Error loading saved jobs:', error);
       message.error('Không thể tải danh sách việc làm đã lưu');
@@ -86,8 +111,10 @@ function SavedJobs() {
   const filteredJobs = jobsArray.filter(item => {
     if (!searchTerm) return true;
     const job = item.job || item;
-    return job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           job.company_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const title = job.job_title || job.title || '';
+    const companyName = job.company_name || '';
+    return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           companyName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
@@ -179,9 +206,9 @@ function SavedJobs() {
                                 to={`/jobs/${job.job_id}`}
                                 className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
                               >
-                                {job.title}
+                                {job.job_title || job.title}
                               </Link>
-                              <p className="text-blue-600 font-medium">{job.company_name}</p>
+                              <p className="text-blue-600 font-medium">{job.company_name || 'Công ty'}</p>
                             </div>
                             <div className="flex items-center gap-2">
                               <button
