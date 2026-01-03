@@ -7,12 +7,32 @@ import { useAuth } from '../../contexts/AuthContext';
  * Usage:
  * <Route element={<ProtectedRoute><YourComponent /></ProtectedRoute>} />
  * 
- * Or with role requirement:
+ * Or with explicit role requirement:
  * <Route element={<ProtectedRoute requiredRole="employer"><Dashboard /></ProtectedRoute>} />
+ * 
+ * Role is auto-detected from path if not specified:
+ * - /user/* → requires 'job_seeker'
+ * - /employer/* → requires 'employer'  
+ * - /admin/* → requires 'admin'
+ * 
+ * Pass requiredRole={null} explicitly to allow any authenticated user.
  */
-function ProtectedRoute({ children, requiredRole = null }) {
+function ProtectedRoute({ children, requiredRole }) {
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
+
+  // Auto-detect required role from path if not explicitly specified
+  const getDefaultRole = () => {
+    const path = location.pathname;
+    if (path.startsWith('/user')) return 'job_seeker';
+    if (path.startsWith('/employer')) return 'employer';
+    if (path.startsWith('/admin')) return 'admin';
+    return null; // No role requirement for other paths
+  };
+
+  // Use explicit requiredRole if provided, otherwise auto-detect
+  // undefined = auto-detect, null = no role check, string = specific role
+  const effectiveRole = requiredRole === undefined ? getDefaultRole() : requiredRole;
 
   // Show loading while checking auth status
   if (loading) {
@@ -37,8 +57,8 @@ function ProtectedRoute({ children, requiredRole = null }) {
     return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 
-  // Check role if specified
-  if (requiredRole && user?.role !== requiredRole) {
+  // Check role if required
+  if (effectiveRole && user?.role !== effectiveRole) {
     // Redirect to appropriate dashboard based on user's actual role
     const redirectPath = {
       'job_seeker': '/user/dashboard',
@@ -46,6 +66,7 @@ function ProtectedRoute({ children, requiredRole = null }) {
       'admin': '/admin/dashboard'
     }[user?.role] || '/';
     
+    console.log(`[ProtectedRoute] Role mismatch: required=${effectiveRole}, actual=${user?.role}, redirecting to ${redirectPath}`);
     return <Navigate to={redirectPath} replace />;
   }
 
@@ -53,3 +74,4 @@ function ProtectedRoute({ children, requiredRole = null }) {
 }
 
 export default ProtectedRoute;
+
