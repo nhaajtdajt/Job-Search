@@ -5,12 +5,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import UserSidebar from '../../components/user/UserSidebar';
 import { 
-  User, 
-  FileText, 
-  Briefcase, 
-  Bell, 
-  Settings,
   Heart,
   Bookmark,
   MapPin,
@@ -20,7 +16,8 @@ import {
   Trash2,
   ExternalLink,
   Loader2,
-  Search
+  Search,
+  Briefcase
 } from 'lucide-react';
 import { message } from 'antd';
 import savedService from '../../services/savedService';
@@ -33,17 +30,6 @@ function SavedJobs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-
-  // Sidebar menu items
-  const menuItems = [
-    { icon: User, label: 'Tổng quan', path: '/user/overview' },
-    { icon: FileText, label: 'Hồ sơ của tôi', path: '/user/profile' },
-    { icon: FileText, label: 'Quản lý CV', path: '/user/resumes' },
-    { icon: Briefcase, label: 'Việc làm của tôi', path: '/user/my-jobs' },
-    { icon: Bookmark, label: 'Việc làm đã lưu', path: '/user/saved-jobs', active: true },
-    { icon: Bell, label: 'Thông báo việc làm', path: '/user/job-notifications' },
-    { icon: Settings, label: 'Quản lý tài khoản', path: '/user/account' },
-  ];
 
   useEffect(() => {
     loadSavedJobs();
@@ -95,8 +81,9 @@ function SavedJobs() {
     return date.toLocaleDateString('vi-VN');
   };
 
-  // Filter saved jobs
-  const filteredJobs = savedJobs.filter(item => {
+  // Filter saved jobs - ensure savedJobs is an array
+  const jobsArray = Array.isArray(savedJobs) ? savedJobs : [];
+  const filteredJobs = jobsArray.filter(item => {
     if (!searchTerm) return true;
     const job = item.job || item;
     return job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -107,38 +94,8 @@ function SavedJobs() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex gap-8">
-          {/* Sidebar */}
-          <aside className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-4 bg-gradient-to-r from-blue-500 to-blue-600">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                    {user?.avatar_url ? (
-                      <img src={user.avatar_url} alt={user.name} className="w-12 h-12 rounded-full object-cover" />
-                    ) : (
-                      <User className="w-6 h-6 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">{user?.name || 'Người dùng'}</p>
-                    <p className="text-sm text-blue-100">Người tìm việc</p>
-                  </div>
-                </div>
-              </div>
-              <nav className="p-2">
-                {menuItems.map((item) => (
-                  <Link key={item.path} to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      item.active ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          </aside>
+          {/* Sidebar - Using shared component */}
+          <UserSidebar />
 
           {/* Main Content */}
           <main className="flex-1">

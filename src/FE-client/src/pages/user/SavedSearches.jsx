@@ -5,12 +5,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import UserSidebar from '../../components/user/UserSidebar';
 import { 
-  User, 
-  FileText, 
-  Briefcase, 
-  Bell, 
-  Settings,
   Bookmark,
   Search,
   Plus,
@@ -34,18 +30,6 @@ function SavedSearches() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingSearch, setEditingSearch] = useState(null);
 
-  // Sidebar menu items
-  const menuItems = [
-    { icon: User, label: 'Tổng quan', path: '/user/overview' },
-    { icon: FileText, label: 'Hồ sơ của tôi', path: '/user/profile' },
-    { icon: FileText, label: 'Quản lý CV', path: '/user/resumes' },
-    { icon: Briefcase, label: 'Việc làm của tôi', path: '/user/my-jobs' },
-    { icon: Bookmark, label: 'Việc làm đã lưu', path: '/user/saved-jobs' },
-    { icon: Search, label: 'Tìm kiếm đã lưu', path: '/user/saved-searches', active: true },
-    { icon: Bell, label: 'Thông báo việc làm', path: '/user/job-notifications' },
-    { icon: Settings, label: 'Quản lý tài khoản', path: '/user/account' },
-  ];
-
   useEffect(() => {
     loadSavedSearches();
   }, []);
@@ -54,12 +38,13 @@ function SavedSearches() {
     try {
       setLoading(true);
       const response = await savedService.getSavedSearches();
-      if (response.success) {
-        setSavedSearches(response.data || []);
-      }
+      // Response is the data directly (or { data: [...] } from API)
+      const searches = Array.isArray(response) ? response : (response?.data || []);
+      setSavedSearches(searches);
     } catch (error) {
       console.error('Error loading saved searches:', error);
       message.error('Không thể tải danh sách tìm kiếm đã lưu');
+      setSavedSearches([]);
     } finally {
       setLoading(false);
     }
@@ -115,38 +100,8 @@ function SavedSearches() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex gap-8">
-          {/* Sidebar */}
-          <aside className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-4 bg-gradient-to-r from-blue-500 to-blue-600">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                    {user?.avatar_url ? (
-                      <img src={user.avatar_url} alt={user.name} className="w-12 h-12 rounded-full object-cover" />
-                    ) : (
-                      <User className="w-6 h-6 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">{user?.name || 'Người dùng'}</p>
-                    <p className="text-sm text-blue-100">Người tìm việc</p>
-                  </div>
-                </div>
-              </div>
-              <nav className="p-2">
-                {menuItems.map((item) => (
-                  <Link key={item.path} to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      item.active ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          </aside>
+          {/* Sidebar - Using shared component */}
+          <UserSidebar />
 
           {/* Main Content */}
           <main className="flex-1">
@@ -170,7 +125,7 @@ function SavedSearches() {
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
               </div>
-            ) : savedSearches.length === 0 ? (
+            ) : !Array.isArray(savedSearches) || savedSearches.length === 0 ? (
               <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
                 <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center">
                   <Search className="w-10 h-10 text-purple-400" />

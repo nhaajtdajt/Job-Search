@@ -4,6 +4,7 @@ import { userService } from '../../services/user.service';
 import { useNavigate, Link } from 'react-router-dom';
 import { notificationService } from '../../services/notificationService';
 import applicationService from '../../services/applicationService';
+import UserSidebar from '../../components/user/UserSidebar';
 import { 
   User, 
   Briefcase,
@@ -126,89 +127,27 @@ export default function Overview() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex gap-8">
           {/* Left Sidebar */}
-          <div className="lg:col-span-3">
-            {/* Profile Card */}
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-lg mb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="relative mb-4">
-                  <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border-4 border-white/30">
-                    {profile?.avatar_url ? (
-                      <img 
-                        src={profile.avatar_url} 
-                        alt={profile.name || 'User'} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="w-12 h-12 text-white/80" />
-                    )}
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold mb-1">{profile?.name || 'Chưa cập nhật tên'}</h3>
-                <p className="text-sm text-blue-100">{profile?.job_title || 'Chưa cập nhật chức danh'}</p>
-              </div>
-            </div>
-
-            {/* Resume Search Status */}
+          <UserSidebar>
+            {/* Resume Search Status - Custom widget */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
               <h4 className="font-semibold text-blue-900 mb-2">Cho phép tìm kiếm hồ sơ</h4>
               <p className="text-sm text-blue-700 mb-3">
                 Hồ sơ chưa đủ điều kiện cho phép tìm kiếm
               </p>
               <Link 
-                to="/profile" 
+                to="/user/profile" 
                 className="text-blue-600 hover:text-blue-700 font-medium text-sm"
               >
                 Thiết Lập Hồ Sơ
               </Link>
             </div>
-
-            {/* Navigation Menu */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <nav className="p-2">
-                <Link
-                  to="/overview"
-                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-all duration-200 hover:bg-blue-100 hover:translate-x-1 link-smooth"
-                >
-                  <BarChart3 className="w-5 h-5 transition-transform duration-200" />
-                  <span>Tổng Quan</span>
-                </Link>
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
-                >
-                  <FileText className="w-5 h-5 transition-transform duration-200" />
-                  <span>Hồ Sơ Của Tôi</span>
-                </Link>
-                <Link
-                  to="/my-jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
-                >
-                  <Briefcase className="w-5 h-5 transition-transform duration-200" />
-                  <span>Việc Làm Của Tôi</span>
-                </Link>
-                <Link
-                  to="/job-notifications"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
-                >
-                  <Bell className="w-5 h-5 transition-transform duration-200" />
-                  <span>Thông Báo Việc Làm</span>
-                </Link>
-                <Link
-                  to="/account-management"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
-                >
-                  <Settings className="w-5 h-5 transition-transform duration-200" />
-                  <span>Quản Lý Tài Khoản</span>
-                </Link>
-              </nav>
-            </div>
-          </div>
+          </UserSidebar>
 
           {/* Main Content */}
-          <div className="lg:col-span-9">
+          <main className="flex-1">
             {/* Header */}
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-gray-900">Tổng Quan</h1>
@@ -235,7 +174,7 @@ export default function Overview() {
                   </div>
                 </div>
                 <Link
-                  to="/profile"
+                  to="/user/profile"
                   className="ml-6 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200 font-medium whitespace-nowrap btn-smooth transform hover:scale-105 active:scale-95"
                 >
                   Cập nhật hồ sơ
@@ -451,7 +390,7 @@ export default function Overview() {
                 </Link>
               </div>
             </div>
-          </div>
+          </main>
         </div>
       </div>
     </div>

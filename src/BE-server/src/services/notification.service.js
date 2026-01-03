@@ -1,6 +1,7 @@
 const NotificationRepository = require('../repositories/notification.repo');
 const UserRepository = require('../repositories/user.repo');
 const AppError = require('../errors/app.error');
+const { emitToUser, emitToAll } = require('../configs/socket');
 
 /**
  * Notification Service
@@ -90,12 +91,25 @@ class NotificationService {
      * @returns {Object} Created notification
      */
     static async createNotification(userId, title, message, metadata = null) {
-        return await NotificationRepository.create({
+        const notification = await NotificationRepository.create({
             user_id: userId,
             title: title,
             note: message,
             metadata: metadata
         });
+
+        // Emit real-time notification to user
+        try {
+            const unreadCount = await NotificationRepository.countUnread(userId);
+            emitToUser(userId, 'new_notification', {
+                notification,
+                unreadCount
+            });
+        } catch (error) {
+            console.error('[NotificationService] Error emitting notification:', error.message);
+        }
+
+        return notification;
     }
 
     /**
@@ -123,6 +137,17 @@ class NotificationService {
                 title: title ? title.trim() : null,
                 note: message.trim()
             });
+
+            // Emit real-time notification
+            try {
+                const unreadCount = await NotificationRepository.countUnread(target_user_id);
+                emitToUser(target_user_id, 'new_notification', {
+                    notification,
+                    unreadCount
+                });
+            } catch (error) {
+                console.error('[NotificationService] Error emitting notification:', error.message);
+            }
 
             return {
                 message: 'Notification sent successfully',
@@ -166,6 +191,23 @@ class NotificationService {
         }));
 
         const count = await NotificationRepository.createBulk(notifications);
+
+        // Emit real-time notifications to all targeted users
+        try {
+            for (const user of users) {
+                const unreadCount = await NotificationRepository.countUnread(user.user_id);
+                emitToUser(user.user_id, 'new_notification', {
+                    notification: {
+                        title: title ? title.trim() : null,
+                        note: message.trim(),
+                        seen: false
+                    },
+                    unreadCount
+                });
+            }
+        } catch (error) {
+            console.error('[NotificationService] Error emitting bulk notifications:', error.message);
+        }
 
         return {
             message: 'Notifications sent successfully',

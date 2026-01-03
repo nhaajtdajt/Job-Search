@@ -56,7 +56,7 @@ function ApplicationDetail() {
         setApplication(app);
       } else {
         message.error('Không tìm thấy đơn ứng tuyển');
-        navigate('/user/my-jobs');
+        navigate('/user/applications');
       }
     } catch (error) {
       console.error('Error loading application:', error);
@@ -78,7 +78,7 @@ function ApplicationDetail() {
           setWithdrawing(true);
           await applicationService.deleteApplication(applicationId);
           message.success('Đã rút đơn ứng tuyển');
-          navigate('/user/my-jobs');
+          navigate('/user/applications');
         } catch (error) {
           console.error('Error withdrawing application:', error);
           message.error('Không thể rút đơn ứng tuyển');
@@ -129,7 +129,7 @@ function ApplicationDetail() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back Button */}
         <Link
-          to="/user/my-jobs"
+          to="/user/applications"
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft className="w-4 h-4" />

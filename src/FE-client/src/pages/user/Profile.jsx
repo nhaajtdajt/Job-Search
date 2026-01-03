@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { userService } from '../../services/user.service';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import UserSidebar from '../../components/user/UserSidebar';
 import { 
   User, 
   Mail, 
@@ -216,78 +217,7 @@ export default function Profile() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar */}
           <div className="lg:col-span-3">
-            {/* Profile Card */}
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-lg mb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="relative mb-4">
-                  <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border-4 border-white/30">
-                    {avatarPreview ? (
-                      <img 
-                        src={avatarPreview} 
-                        alt={formData.name || 'User'} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="w-12 h-12 text-white/80" />
-                    )}
-                  </div>
-                  {isEditing && (
-                    <label className="absolute bottom-0 right-0 bg-white rounded-full p-2 cursor-pointer shadow-lg hover:bg-gray-100 transition">
-                      <Camera className="w-4 h-4 text-blue-600" />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleAvatarChange}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-                <h3 className="text-xl font-bold mb-1">{formData.name || 'Chưa cập nhật tên'}</h3>
-                <p className="text-sm text-blue-100">{authUser?.email || ''}</p>
-              </div>
-            </div>
-
-            {/* Navigation Menu */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <nav className="p-2">
-                <Link
-                  to="/overview"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 link-smooth"
-                >
-                  <User className="w-5 h-5 transition-transform duration-200" />
-                  <span>Tổng Quan</span>
-                </Link>
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition-all duration-200 hover:bg-blue-100 hover:translate-x-1 mt-1 link-smooth"
-                >
-                  <FileText className="w-5 h-5 transition-transform duration-200" />
-                  <span>Hồ Sơ Của Tôi</span>
-                </Link>
-                <Link
-                  to="/my-jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
-                >
-                  <Briefcase className="w-5 h-5 transition-transform duration-200" />
-                  <span>Việc Làm Của Tôi</span>
-                </Link>
-                <Link
-                  to="/job-notifications"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
-                >
-                  <Bell className="w-5 h-5 transition-transform duration-200" />
-                  <span>Thông Báo Việc Làm</span>
-                </Link>
-                <Link
-                  to="/account-management"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:translate-x-1 mt-1 link-smooth"
-                >
-                  <Settings className="w-5 h-5 transition-transform duration-200" />
-                  <span>Quản Lý Tài Khoản</span>
-                </Link>
-              </nav>
-            </div>
+            <UserSidebar />
           </div>
 
           {/* Main Content */}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { userService } from '../../services/user.service';
 import { useNavigate, Link } from 'react-router-dom';
+import UserSidebar from '../../components/user/UserSidebar';
 import { 
   User, 
   Mail, 
@@ -371,92 +372,13 @@ export default function ProfileComplete() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex gap-8">
           {/* Left Sidebar */}
-          <div className="lg:col-span-3">
-            {/* Profile Card */}
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-lg mb-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="relative mb-4">
-                  <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border-4 border-white/30">
-                    {profile?.avatar_url ? (
-                      <img 
-                        src={profile.avatar_url} 
-                        alt={profile.name || 'User'} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="w-12 h-12 text-white/80" />
-                    )}
-                  </div>
-                  {/* Avatar upload button */}
-                  <label className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-gray-100 transition">
-                    <Camera className="w-4 h-4 text-blue-600" />
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handleAvatarUpload}
-                      className="hidden"
-                      disabled={uploading}
-                    />
-                  </label>
-                  {/* Loading overlay */}
-                  {uploading && (
-                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                    </div>
-                  )}
-                </div>
-                <h3 className="text-xl font-bold mb-1">{profile?.name || 'Chưa cập nhật tên'}</h3>
-                <p className="text-sm text-blue-100">{profile?.job_title || 'Chưa cập nhật chức danh'}</p>
-              </div>
-            </div>
-
-            {/* Navigation Menu */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <nav className="p-2">
-                <Link
-                  to="/overview"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50"
-                >
-                  <BarChart3 className="w-5 h-5" />
-                  <span>Tổng Quan</span>
-                </Link>
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium transition hover:bg-blue-100 mt-1"
-                >
-                  <FileText className="w-5 h-5" />
-                  <span>Hồ Sơ Của Tôi</span>
-                </Link>
-                <Link
-                  to="/my-jobs"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Briefcase className="w-5 h-5" />
-                  <span>Việc Làm Của Tôi</span>
-                </Link>
-                <Link
-                  to="/job-notifications"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Bell className="w-5 h-5" />
-                  <span>Thông Báo Việc Làm</span>
-                </Link>
-                <Link
-                  to="/account-management"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg transition hover:bg-gray-50 mt-1"
-                >
-                  <Settings className="w-5 h-5" />
-                  <span>Quản Lý Tài Khoản</span>
-                </Link>
-              </nav>
-            </div>
-          </div>
+          <UserSidebar />
 
           {/* Main Content */}
-          <div className="lg:col-span-9">
+          <main className="flex-1">
             {/* Personal Information Section */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -574,7 +496,7 @@ export default function ProfileComplete() {
                 </div>
               </div>
             </div>
-          </div>
+          </main>
         </div>
       </div>
 

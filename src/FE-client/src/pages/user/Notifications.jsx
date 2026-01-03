@@ -1,39 +1,74 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { notificationService } from '../../services/notificationService';
+import { subscribeToNotifications, getSocket, connectSocket } from '../../services/socketService';
 import { useNavigate, Link } from 'react-router-dom';
+import UserSidebar from '../../components/user/UserSidebar';
 import { 
   Bell, 
   Check, 
   CheckCheck, 
   Trash2, 
   Clock,
-  User,
-  FileText,
-  Briefcase,
-  Settings,
-  Bookmark,
-  Search,
   Filter
 } from 'lucide-react';
 import { message, Tooltip } from 'antd';
 
 export default function Notifications() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, session } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, unread
+  const [isConnected, setIsConnected] = useState(false);
 
-  // Sidebar menu items (reused from SavedSearches for consistency)
-  const menuItems = [
-    { icon: User, label: 'Tổng quan', path: '/user/overview' },
-    { icon: FileText, label: 'Hồ sơ của tôi', path: '/user/profile' },
-    { icon: FileText, label: 'Quản lý CV', path: '/user/resumes' },
-    { icon: Briefcase, label: 'Việc làm của tôi', path: '/user/my-jobs' },
-    { icon: Bell, label: 'Thông báo', path: '/user/notifications', active: true },
-    { icon: Settings, label: 'Quản lý tài khoản', path: '/user/account' },
-  ];
+  // Handle new notification from WebSocket
+  const handleNewNotification = useCallback((notification) => {
+    console.log('[Notifications] New notification received:', notification);
+    
+    // Add new notification to the top of the list
+    setNotifications(prev => {
+      // Check if notification already exists
+      const exists = prev.some(n => n.notification_id === notification.notification_id);
+      if (exists) return prev;
+      
+      return [notification, ...prev];
+    });
+
+    // Show success message
+    message.info({
+      content: 'Bạn có thông báo mới!',
+      duration: 3
+    });
+  }, []);
+
+  // Connect socket and subscribe to WebSocket events
+  useEffect(() => {
+    let unsubscribe = () => {};
+
+    if (isAuthenticated && session?.access_token) {
+      // Connect socket first
+      const socket = connectSocket(session.access_token);
+      
+      // Then subscribe to events (subscribeToNotifications handles waiting for connection)
+      unsubscribe = subscribeToNotifications(handleNewNotification, null);
+      
+      // Check connection status
+      const checkConnection = () => {
+        const socket = getSocket();
+        setIsConnected(socket?.connected || false);
+      };
+      checkConnection();
+      const interval = setInterval(checkConnection, 5000);
+      
+      return () => {
+        clearInterval(interval);
+        unsubscribe();
+      };
+    }
+
+    return () => unsubscribe();
+  }, [isAuthenticated, session, handleNewNotification]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -123,39 +158,9 @@ export default function Notifications() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="w-full lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-24">
-              <div className="p-4 bg-gradient-to-r from-blue-500 to-blue-600">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                    {user?.avatar_url ? (
-                      <img src={user.avatar_url} alt={user.name} className="w-12 h-12 rounded-full object-cover" />
-                    ) : (
-                      <User className="w-6 h-6 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white truncate max-w-[150px]">{user?.name || 'Người dùng'}</p>
-                    <p className="text-sm text-blue-100">Người tìm việc</p>
-                  </div>
-                </div>
-              </div>
-              <nav className="p-2">
-                {menuItems.map((item) => (
-                  <Link key={item.path} to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      item.active ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          </aside>
+        <div className="flex gap-8">
+          {/* Sidebar - Using shared component */}
+          <UserSidebar />
 
           {/* Main Content */}
           <main className="flex-1">

@@ -8,7 +8,6 @@ import { AuthProvider } from './contexts/AuthContext.jsx'
 
 // Layouts
 import EmployerLayout from './layouts/EmployerLayout.jsx'
-import UserLayout from './layouts/UserLayout.jsx'
 
 // Auth Components
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx'
@@ -93,34 +92,24 @@ const router = createBrowserRouter([
       { path: 'forgot-password', element: <ForgotPassword /> },
       { path: 'reset-password', element: <ResetPassword /> },
       { path: 'verify-email', element: <VerifyEmail /> },
-    ],
-  },
 
-  // ============================================================
-  // USER ROUTES (Protected - with UserLayout sidebar)
-  // ============================================================
-  {
-    path: '/user',
-    element: (
-      <ProtectedRoute requiredRole="job_seeker">
-        <UserLayout />
-      </ProtectedRoute>
-    ),
-    children: [
-      { index: true, element: <Overview /> },
-      { path: 'dashboard', element: <Overview /> },
-      { path: 'profile', element: <Profile /> },
-      { path: 'resumes', element: <ResumeList /> },
-      { path: 'resumes/create', element: <ResumeCreate /> },
-      { path: 'resumes/:resumeId', element: <ResumePreview /> },
-      { path: 'resumes/:resumeId/edit', element: <ResumeEdit /> },
-      { path: 'applications', element: <MyJobs /> },
-      { path: 'applications/:applicationId', element: <UserApplicationDetail /> },
-      { path: 'saved-jobs', element: <SavedJobs /> },
-      { path: 'saved-searches', element: <SavedSearches /> },
-      { path: 'notifications', element: <Notifications /> },
-      { path: 'job-notifications', element: <JobNotifications /> },
-      { path: 'settings', element: <AccountManagement /> },
+      // ============================================================
+      // USER ROUTES (Protected - with App layout Header/Footer)
+      // ============================================================
+      { path: 'user', element: <ProtectedRoute><Overview /></ProtectedRoute> },
+      { path: 'user/dashboard', element: <ProtectedRoute><Overview /></ProtectedRoute> },
+      { path: 'user/profile', element: <ProtectedRoute><Profile /></ProtectedRoute> },
+      { path: 'user/resumes', element: <ProtectedRoute><ResumeList /></ProtectedRoute> },
+      { path: 'user/resumes/create', element: <ProtectedRoute><ResumeCreate /></ProtectedRoute> },
+      { path: 'user/resumes/:resumeId', element: <ProtectedRoute><ResumePreview /></ProtectedRoute> },
+      { path: 'user/resumes/:resumeId/edit', element: <ProtectedRoute><ResumeEdit /></ProtectedRoute> },
+      { path: 'user/applications', element: <ProtectedRoute><MyJobs /></ProtectedRoute> },
+      { path: 'user/applications/:applicationId', element: <ProtectedRoute><UserApplicationDetail /></ProtectedRoute> },
+      { path: 'user/saved-jobs', element: <ProtectedRoute><SavedJobs /></ProtectedRoute> },
+      { path: 'user/saved-searches', element: <ProtectedRoute><SavedSearches /></ProtectedRoute> },
+      { path: 'user/notifications', element: <ProtectedRoute><Notifications /></ProtectedRoute> },
+      { path: 'user/job-notifications', element: <ProtectedRoute><JobNotifications /></ProtectedRoute> },
+      { path: 'user/settings', element: <ProtectedRoute><AccountManagement /></ProtectedRoute> },
     ],
   },
 
