@@ -69,9 +69,14 @@ export default function CompanyProfile() {
   const handleSaveCompany = async (formData) => {
     try {
       setSaving(true);
-      // For now, we just close the modal since backend might not have company update API yet
-      // When backend has full company update, replace with: await companyService.update(company.id, formData);
-      setCompany(prev => ({ ...prev, ...formData }));
+      
+      if (!company?.company_id) {
+        message.error('Không tìm thấy thông tin công ty');
+        return;
+      }
+
+      const updatedCompany = await companyService.update(company.company_id, formData);
+      setCompany(prev => ({ ...prev, ...updatedCompany }));
       setIsModalOpen(false);
       message.success('Cập nhật thông tin công ty thành công!');
     } catch (error) {
@@ -202,7 +207,7 @@ export default function CompanyProfile() {
               <div className="flex-1">
                 <div className="flex items-center gap-3">
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {company?.name || 'Chưa có thông tin công ty'}
+                    {company?.company_name || company?.name || 'Chưa có thông tin công ty'}
                   </h2>
                   <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${verificationStatus.className}`}>
                     {verificationStatus.icon}
@@ -255,7 +260,7 @@ export default function CompanyProfile() {
                     <Users className="w-5 h-5 text-gray-400 mt-1" />
                     <div>
                       <p className="text-sm text-gray-500">Quy mô</p>
-                      <p className="text-gray-900">{company?.size || 'Chưa cập nhật'}</p>
+                      <p className="text-gray-900">{company?.company_size || company?.size || 'Chưa cập nhật'}</p>
                     </div>
                   </div>
 

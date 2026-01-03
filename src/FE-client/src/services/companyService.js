@@ -90,5 +90,16 @@ export const companyService = {
     const response = await api.delete(`/companies/${companyId}/banner`);
     return response.data;
   },
+
+  /**
+   * Update company information
+   * @param {string} companyId - Company ID
+   * @param {Object} updateData - Company data to update
+   * @returns {Promise<Object>} Updated company
+   */
+  async update(companyId, updateData) {
+    const response = await api.put(`/companies/${companyId}`, updateData);
+    return response.data.data;
+  },
 };
 

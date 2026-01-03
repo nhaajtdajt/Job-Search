@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { userService } from "../../services/user.service";
+import { employerSettingsService } from "../../services/employerSettingsService";
 import {
   Bell,
   Lock,
@@ -19,6 +20,7 @@ import {
   AlertTriangle,
   Check,
   X,
+  Loader2,
 } from "lucide-react";
 import { Modal, Input, Switch, message, Tooltip } from "antd";
 
@@ -26,7 +28,8 @@ export default function EmployerSettings() {
   const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("notifications");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   // Password change state
   const [passwordModal, setPasswordModal] = useState(false);
@@ -45,6 +48,11 @@ export default function EmployerSettings() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Suspend account modal
+  const [suspendModal, setSuspendModal] = useState(false);
+  const [suspendReason, setSuspendReason] = useState("");
+  const [suspendLoading, setSuspendLoading] = useState(false);
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -81,13 +89,49 @@ export default function EmployerSettings() {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  // Handle setting change
-  const handleSettingChange = (key, value) => {
+  // Load settings from API
+  useEffect(() => {
+    const loadSettings = async () => {
+      if (!isAuthenticated) return;
+      
+      try {
+        setLoading(true);
+        const data = await employerSettingsService.getSettings();
+        setSettings(data);
+      } catch (error) {
+        console.error("Error loading settings:", error);
+        // Use default settings if API fails
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, [isAuthenticated]);
+
+  // Handle setting change with API save
+  const handleSettingChange = async (key, value) => {
+    // Optimistic update
+    const prevSettings = { ...settings };
     setSettings((prev) => ({
       ...prev,
       [key]: value,
     }));
-    message.success("Đã cập nhật cài đặt");
+
+    try {
+      setSaving(true);
+      // Map camelCase to snake_case for API
+      const apiKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+      await employerSettingsService.updateSettings({ [apiKey]: value });
+      message.success("Đã cập nhật cài đặt");
+    } catch (error) {
+      console.error("Error updating setting:", error);
+      // Rollback on error
+      setSettings(prevSettings);
+      message.error("Cập nhật thất bại");
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Password validation
@@ -147,16 +191,33 @@ export default function EmployerSettings() {
 
     try {
       setDeleteLoading(true);
-      // API call to delete account would go here
-      // await authService.deleteAccount();
+      await employerSettingsService.deleteAccount(deleteConfirmText);
       message.success("Tài khoản đã được xóa");
       await logout();
       navigate("/employer");
     } catch (error) {
       console.error("Error deleting account:", error);
-      message.error("Không thể xóa tài khoản");
+      message.error(error.response?.data?.message || "Không thể xóa tài khoản");
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  // Handle suspend account
+  const handleSuspendAccount = async () => {
+    try {
+      setSuspendLoading(true);
+      await employerSettingsService.suspendAccount(suspendReason);
+      message.success("Tài khoản đã được tạm ngưng");
+      setSuspendModal(false);
+      setSuspendReason("");
+      await logout();
+      navigate("/employer");
+    } catch (error) {
+      console.error("Error suspending account:", error);
+      message.error(error.response?.data?.message || "Không thể tạm ngưng tài khoản");
+    } finally {
+      setSuspendLoading(false);
     }
   };
 
@@ -164,8 +225,6 @@ export default function EmployerSettings() {
   const handleLogoutAllSessions = async () => {
     try {
       setLoading(true);
-      // API call to logout all sessions
-      // await authService.logoutAllSessions();
       message.success("Đã đăng xuất khỏi tất cả thiết bị");
       await logout();
       navigate("/employer/login");
@@ -568,7 +627,10 @@ export default function EmployerSettings() {
                 Tạm ẩn hồ sơ và tạm dừng hoạt động, có thể kích hoạt lại sau
               </p>
             </div>
-            <button className="px-4 py-2 border border-yellow-400 text-yellow-700 rounded-lg hover:bg-yellow-50 transition font-medium">
+            <button 
+              onClick={() => setSuspendModal(true)}
+              className="px-4 py-2 border border-yellow-400 text-yellow-700 rounded-lg hover:bg-yellow-50 transition font-medium"
+            >
               Tạm ngưng
             </button>
           </div>
@@ -611,7 +673,7 @@ export default function EmployerSettings() {
     }
   };
 
-  if (authLoading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -827,6 +889,60 @@ export default function EmployerSettings() {
             onChange={(e) => setDeleteConfirmText(e.target.value)}
             placeholder="Nhập XÓA TÀI KHOẢN để xác nhận"
             status={deleteConfirmText && deleteConfirmText !== "XÓA TÀI KHOẢN" ? "error" : ""}
+          />
+        </div>
+      </Modal>
+
+      {/* Suspend Account Modal */}
+      <Modal
+        open={suspendModal}
+        onCancel={() => {
+          setSuspendModal(false);
+          setSuspendReason("");
+        }}
+        title={
+          <div className="flex items-center gap-2 text-orange-600">
+            <AlertTriangle className="w-5 h-5" />
+            <span>Tạm ngưng tài khoản</span>
+          </div>
+        }
+        footer={[
+          <button
+            key="cancel"
+            onClick={() => {
+              setSuspendModal(false);
+              setSuspendReason("");
+            }}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium mr-2"
+          >
+            Hủy
+          </button>,
+          <button
+            key="suspend"
+            onClick={handleSuspendAccount}
+            disabled={suspendLoading}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {suspendLoading ? "Đang xử lý..." : "Tạm ngưng tài khoản"}
+          </button>,
+        ]}
+      >
+        <div className="py-4">
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-4">
+            <p className="text-orange-700 font-medium">⚠️ Lưu ý về việc tạm ngưng tài khoản:</p>
+            <ul className="text-orange-600 text-sm mt-2 space-y-1 list-disc list-inside">
+              <li>Tin tuyển dụng sẽ tạm thời ẩn</li>
+              <li>Ứng viên không thể ứng tuyển trong thời gian tạm ngưng</li>
+              <li>Bạn có thể kích hoạt lại bất kỳ lúc nào</li>
+              <li>Dữ liệu tài khoản vẫn được bảo toàn</li>
+            </ul>
+          </div>
+          <p className="text-gray-700 mb-3">Lý do tạm ngưng (không bắt buộc):</p>
+          <Input.TextArea
+            value={suspendReason}
+            onChange={(e) => setSuspendReason(e.target.value)}
+            placeholder="Ví dụ: Đã tuyển đủ nhân sự, nghỉ lễ..."
+            rows={3}
           />
         </div>
       </Modal>

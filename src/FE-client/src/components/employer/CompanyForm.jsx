@@ -31,13 +31,15 @@ const industryOptions = [
 
 export default function CompanyForm({ initialData, onSave, onCancel, saving }) {
   const [formData, setFormData] = useState({
-    name: initialData?.name || '',
+    company_name: initialData?.company_name || initialData?.name || '',
     description: initialData?.description || '',
     industry: initialData?.industry || '',
-    size: initialData?.size || '',
+    company_size: initialData?.company_size || initialData?.size || '',
     website: initialData?.website || '',
     address: initialData?.address || '',
     founded_year: initialData?.founded_year || '',
+    phone: initialData?.phone || '',
+    email: initialData?.email || '',
   });
 
   const handleChange = (name, value) => {
@@ -49,7 +51,14 @@ export default function CompanyForm({ initialData, onSave, onCancel, saving }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    // Filter out empty values
+    const dataToSave = {};
+    Object.keys(formData).forEach(key => {
+      if (formData[key]) {
+        dataToSave[key] = formData[key];
+      }
+    });
+    onSave(dataToSave);
   };
 
   return (
@@ -59,8 +68,8 @@ export default function CompanyForm({ initialData, onSave, onCancel, saving }) {
           Tên công ty <span className="text-red-500">*</span>
         </label>
         <Input
-          value={formData.name}
-          onChange={(e) => handleChange('name', e.target.value)}
+          value={formData.company_name}
+          onChange={(e) => handleChange('company_name', e.target.value)}
           placeholder="Nhập tên công ty"
         />
       </div>
@@ -84,8 +93,8 @@ export default function CompanyForm({ initialData, onSave, onCancel, saving }) {
             Quy mô công ty
           </label>
           <Select
-            value={formData.size || undefined}
-            onChange={(value) => handleChange('size', value)}
+            value={formData.company_size || undefined}
+            onChange={(value) => handleChange('company_size', value)}
             placeholder="Chọn quy mô"
             className="w-full"
             options={companySizeOptions}
@@ -116,6 +125,31 @@ export default function CompanyForm({ initialData, onSave, onCancel, saving }) {
             placeholder="VD: 2020"
             min="1900"
             max={new Date().getFullYear()}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email công ty
+          </label>
+          <Input
+            type="email"
+            value={formData.email}
+            onChange={(e) => handleChange('email', e.target.value)}
+            placeholder="contact@company.com"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Số điện thoại
+          </label>
+          <Input
+            value={formData.phone}
+            onChange={(e) => handleChange('phone', e.target.value)}
+            placeholder="0123 456 789"
           />
         </div>
       </div>
