@@ -44,6 +44,7 @@ import CandidateProfile from './pages/employer/CandidateProfile.jsx'
 import SavedCandidates from './pages/employer/SavedCandidates.jsx'
 import Analytics from './pages/employer/Analytics.jsx'
 import EmployerNotifications from './pages/employer/EmployerNotifications.jsx'
+import EmployerSettings from './pages/employer/EmployerSettings.jsx'
 
 // User (Job Seeker) Pages
 import Profile from './pages/user/ProfileComplete.jsx'
@@ -219,6 +220,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiredRole="employer">
             <EmployerNotifications />
+          </ProtectedRoute>
+        ) 
+      },
+      { 
+        path: 'settings', 
+        element: (
+          <ProtectedRoute requiredRole="employer">
+            <EmployerSettings />
           </ProtectedRoute>
         ) 
       },
