@@ -17,7 +17,11 @@ import RecentApplications from '../../components/employer/RecentApplications';
 import QuickActions from '../../components/employer/QuickActions';
 import JobStatusOverview from '../../components/employer/JobStatusOverview';
 import TimeRangeFilter from '../../components/employer/TimeRangeFilter';
-import EmployerSidebar from '../../components/employer/EmployerSidebar';
+import EmployerSidebarResponsive from '../../components/employer/EmployerSidebarResponsive';
+
+// Loading & Error Components
+import { CardSkeleton, ChartSkeleton } from '../../components/common/Skeleton';
+import { ErrorState } from '../../components/common/ErrorState';
 
 // Chart Components
 import ApplicationTrendChart from '../../components/employer/ApplicationTrendChart';
@@ -133,8 +137,8 @@ export default function EmployerDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <EmployerSidebar 
+      {/* Sidebar - Responsive with mobile drawer */}
+      <EmployerSidebarResponsive 
         collapsed={sidebarCollapsed} 
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
       />
