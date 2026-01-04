@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { applicationService } from '../../services/application.service';
+import applicationService from '../../services/applicationService';
 import { userService } from '../../services/user.service';
 import { useNavigate, Link } from 'react-router-dom';
 import UserSidebar from '../../components/user/UserSidebar';

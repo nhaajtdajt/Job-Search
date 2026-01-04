@@ -11,6 +11,9 @@ const searchRoutes = require('./search.route');
 const notificationRoutes = require('./notification.route');
 const adminRoutes = require('./admin.route');
 const savedCandidateRoutes = require('./saved_candidate.route');
+const savedJobRoutes = require('./saved_job.route');
+const savedSearchRoutes = require('./saved_search.route');
+const employerSettingsRoutes = require('./employer-settings.route');
 
 const initRoute = (app) => {
   // Swagger Documentation (public, no auth)
@@ -39,10 +42,12 @@ const initRoute = (app) => {
         },
         users: "/api/users",
         employers: "/api/employers",
+        employerSettings: "/api/employer-settings",
         companies: "/api/companies",
         resumes: "/api/resumes",
         applications: "/api/applications",
         savedJobs: "/api/saved-jobs",
+        savedSearches: "/api/saved-searches",
         searches: "/api/searches",
         notifications: "/api/notifications",
         admin: "/api/admin",
@@ -57,9 +62,12 @@ const initRoute = (app) => {
   app.use("/api/jobs", jobRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/employers", employerRoutes);
+  app.use("/api/employer-settings", employerSettingsRoutes);
   app.use("/api/companies", companyRoutes);
   app.use("/api/resumes", resumeRoutes);
   app.use("/api/applications", applicationRoutes);
+  app.use("/api/saved-jobs", savedJobRoutes);
+  app.use("/api/saved-searches", savedSearchRoutes);
   app.use("/api/searches", searchRoutes);  // Saved searches (protected)
   app.use("/api/search", searchRoutes);    // Search suggestions (public)
   app.use("/api/notifications", notificationRoutes);
@@ -76,4 +84,5 @@ const initRoute = (app) => {
 };
 
 module.exports = initRoute;
+
 

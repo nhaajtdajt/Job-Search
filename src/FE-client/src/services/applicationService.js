@@ -43,6 +43,20 @@ const applicationService = {
   },
 
   /**
+   * Get user's applications (alias for getMyApplications - backward compatibility)
+   * @param {number} page - Page number
+   * @param {number} limit - Items per page
+   * @param {Object} filters - Optional filters { status }
+   * @returns {Promise<Object>} Paginated applications
+   */
+  async getUserApplications(page = 1, limit = 10, filters = {}) {
+    const response = await api.get('/applications', {
+      params: { page, limit, ...filters }
+    });
+    return response.data.data;
+  },
+
+  /**
    * Check if user applied to a job
    * @param {string} jobId - Job ID
    * @returns {Promise<boolean>} True if applied
