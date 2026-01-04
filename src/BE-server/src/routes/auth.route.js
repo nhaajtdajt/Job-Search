@@ -4,11 +4,16 @@ const AuthController = require("../controllers/auth.controller");
 const AuthMiddleware = require("../middlewares/auth.middleware");
 const AuthValidator = require("../validators/auth.validator");
 const ValidateMiddleware = require("../middlewares/validate.middleware");
+const { authLimiter, strictLimiter } = require("../middlewares/rate-limit.middleware");
 
 /**
  * Auth Routes
  * All authentication endpoints with validation
+ * Rate limited to 10 requests per 15 minutes to prevent brute-force attacks
  */
+
+// Apply stricter rate limiting to all auth routes
+router.use(authLimiter);
 
 // Public routes (no authentication required)
 router.post("/register", 
