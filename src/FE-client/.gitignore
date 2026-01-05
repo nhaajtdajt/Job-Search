@@ -13,7 +13,10 @@ dist-ssr
 *.local
 
 .env
-
+# testing
+/coverage
+__tests__
+__mocks__
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
