@@ -29,4 +29,7 @@ module.exports = {
   SKILL: "skill",
   SAVED_SEARCH: "saved_search",
   SAVED_CANDIDATE: "saved_candidate",
+  
+  // Company Follow
+  FOLLOWED_COMPANY: "followed_company",
 };

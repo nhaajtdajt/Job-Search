@@ -10,7 +10,11 @@ import {
   CheckCheck, 
   Trash2, 
   Clock,
-  Filter
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  Mail,
+  MailOpen
 } from 'lucide-react';
 import { message, Tooltip } from 'antd';
 
@@ -21,6 +25,7 @@ export default function Notifications() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, unread
   const [isConnected, setIsConnected] = useState(false);
+  const [expandedId, setExpandedId] = useState(null); // Track which notification is expanded
 
   // Handle new notification from WebSocket
   const handleNewNotification = useCallback((notification) => {
@@ -94,7 +99,10 @@ export default function Notifications() {
     }
   };
 
-  const handleMarkAsRead = async (id) => {
+  const handleMarkAsRead = async (id, e) => {
+    if (e) {
+      e.stopPropagation();
+    }
     try {
       await notificationService.markAsRead(id);
       setNotifications(prev => prev.map(n => 
@@ -116,14 +124,33 @@ export default function Notifications() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, e) => {
+    if (e) {
+      e.stopPropagation();
+    }
     try {
       await notificationService.deleteNotification(id);
       setNotifications(prev => prev.filter(n => n.notification_id !== id));
       message.success('Đã xóa thông báo');
+      // Close expanded view if deleting the expanded notification
+      if (expandedId === id) {
+        setExpandedId(null);
+      }
     } catch (error) {
       console.error('Error deleting notification:', error);
       message.error('Có lỗi xảy ra khi xóa');
+    }
+  };
+
+  const handleToggleExpand = async (notification) => {
+    const isExpanding = expandedId !== notification.notification_id;
+    
+    // Toggle expand
+    setExpandedId(isExpanding ? notification.notification_id : null);
+    
+    // Mark as read when expanding an unread notification
+    if (isExpanding && !notification.seen) {
+      handleMarkAsRead(notification.notification_id);
     }
   };
 
@@ -147,6 +174,13 @@ export default function Notifications() {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  // Truncate text for preview
+  const truncateText = (text, maxLength = 80) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
   };
 
   const filteredNotifications = filter === 'unread' 
@@ -224,53 +258,144 @@ export default function Notifications() {
                     <p className="text-gray-500 mt-2">Bạn sẽ nhận được thông báo khi có cập nhật mới.</p>
                   </div>
                 ) : (
-                  filteredNotifications.map((notification) => (
-                    <div 
-                      key={notification.notification_id} 
-                      className={`p-5 transition-colors hover:bg-gray-50 group ${
-                        !notification.seen ? 'bg-blue-50/40' : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className={`p-2 rounded-full flex-shrink-0 ${
-                          !notification.seen ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'
-                        }`}>
-                          <Bell className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-base ${!notification.seen ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
-                            {notification.note}
-                          </p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5" />
-                              {formatDate(notification.created_at)}
-                            </span>
+                  filteredNotifications.map((notification) => {
+                    const isExpanded = expandedId === notification.notification_id;
+                    const hasTitle = notification.title && notification.title.trim();
+                    const displayTitle = hasTitle ? notification.title : 'Thông báo hệ thống';
+                    
+                    return (
+                      <div 
+                        key={notification.notification_id} 
+                        className={`transition-all duration-200 cursor-pointer ${
+                          !notification.seen ? 'bg-blue-50/50' : 'bg-white'
+                        } hover:bg-gray-50`}
+                        onClick={() => handleToggleExpand(notification)}
+                      >
+                        {/* Collapsed View (Gmail-style) */}
+                        <div className={`p-4 ${isExpanded ? 'border-b border-gray-100' : ''}`}>
+                          <div className="flex items-center gap-4">
+                            {/* Mail Icon */}
+                            <div className={`p-2 rounded-full flex-shrink-0 ${
+                              !notification.seen ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
+                            }`}>
+                              {notification.seen ? (
+                                <MailOpen className="w-5 h-5" />
+                              ) : (
+                                <Mail className="w-5 h-5" />
+                              )}
+                            </div>
+                            
+                            {/* Title and Preview */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h3 className={`text-base truncate ${
+                                  !notification.seen ? 'font-bold text-gray-900' : 'font-medium text-gray-700'
+                                }`}>
+                                  {displayTitle}
+                                </h3>
+                                {!notification.seen && (
+                                  <span className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full"></span>
+                                )}
+                              </div>
+                              {!isExpanded && notification.note && (
+                                <p className="text-sm text-gray-500 truncate mt-0.5">
+                                  {truncateText(notification.note)}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Time and Actions */}
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <span className="text-xs text-gray-400 whitespace-nowrap">
+                                {formatDate(notification.created_at)}
+                              </span>
+                              
+                              {/* Action buttons */}
+                              <div className="flex items-center gap-1">
+                                {!notification.seen && (
+                                  <Tooltip title="Đánh dấu đã đọc">
+                                    <button
+                                      onClick={(e) => handleMarkAsRead(notification.notification_id, e)}
+                                      className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
+                                    >
+                                      <Check className="w-4 h-4" />
+                                    </button>
+                                  </Tooltip>
+                                )}
+                                <Tooltip title="Xóa thông báo">
+                                  <button
+                                    onClick={(e) => handleDelete(notification.notification_id, e)}
+                                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </Tooltip>
+                                {isExpanded ? (
+                                  <ChevronUp className="w-4 h-4 text-gray-400" />
+                                ) : (
+                                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {!notification.seen && (
-                            <Tooltip title="Đánh dấu đã đọc">
-                              <button
-                                onClick={() => handleMarkAsRead(notification.notification_id)}
-                                className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
-                              >
-                                <Check className="w-4 h-4" />
-                              </button>
-                            </Tooltip>
-                          )}
-                          <Tooltip title="Xóa thông báo">
-                            <button
-                              onClick={() => handleDelete(notification.notification_id)}
-                              className="p-1.5 text-red-500 hover:bg-red-100 rounded-full transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </Tooltip>
-                        </div>
+
+                        {/* Expanded View (Full Content) */}
+                        {isExpanded && (
+                          <div className="px-4 pb-4 pl-16 animate-fadeIn">
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                              {notification.note ? (
+                                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                                  {notification.note}
+                                </p>
+                              ) : (
+                                <p className="text-gray-400 italic">Không có nội dung chi tiết.</p>
+                              )}
+                              
+                              {/* Action buttons based on notification type */}
+                              {notification.metadata?.job_id && (
+                                <div className="mt-4 pt-3 border-t border-gray-200">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(`/jobs/${notification.metadata.job_id}`);
+                                    }}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                  >
+                                    <Bell className="w-4 h-4" />
+                                    Xem công việc & Ứng tuyển
+                                  </button>
+                                </div>
+                              )}
+                              
+                              {/* Application status link */}
+                              {notification.metadata?.application_id && (
+                                <div className="mt-4 pt-3 border-t border-gray-200">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate('/user/applications');
+                                    }}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                    Xem trạng thái ứng tuyển
+                                  </button>
+                                </div>
+                              )}
+
+                              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-200">
+                                <Clock className="w-3.5 h-3.5 text-gray-400" />
+                                <span className="text-xs text-gray-500">
+                                  {formatDate(notification.created_at)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -280,3 +405,4 @@ export default function Notifications() {
     </div>
   );
 }
+

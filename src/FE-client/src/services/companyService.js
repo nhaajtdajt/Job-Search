@@ -101,5 +101,57 @@ export const companyService = {
     const response = await api.put(`/companies/${companyId}`, updateData);
     return response.data.data;
   },
+
+  // ==========================================
+  // Follow Company APIs
+  // ==========================================
+
+  /**
+   * Toggle follow status for a company
+   * @param {number} companyId - Company ID
+   * @returns {Promise<Object>} { is_following: boolean }
+   */
+  async toggleFollow(companyId) {
+    const response = await api.post(`/followed-companies/${companyId}/toggle`);
+    return response.data.data;
+  },
+
+  /**
+   * Check if a company is followed by current user
+   * @param {number} companyId - Company ID
+   * @returns {Promise<boolean>} true if followed
+   */
+  async checkIsFollowed(companyId) {
+    try {
+      const response = await api.get(`/followed-companies/${companyId}/check`);
+      return response.data.data?.is_followed || false;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * Get all followed companies for current user
+   * @param {Object} params - { page, limit }
+   * @returns {Promise<Object>} Paginated followed companies
+   */
+  async getFollowedCompanies(params = {}) {
+    const response = await api.get('/followed-companies', { params });
+    return response.data;
+  },
+
+  /**
+   * Get followers count for a company (public)
+   * @param {number} companyId - Company ID
+   * @returns {Promise<number>} Followers count
+   */
+  async getFollowersCount(companyId) {
+    try {
+      const response = await api.get(`/companies/${companyId}/followers/count`);
+      return response.data.data?.count || 0;
+    } catch {
+      return 0;
+    }
+  },
 };
 

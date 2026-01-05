@@ -78,8 +78,10 @@ function SaveJobButton({
     <button
       onClick={handleToggleSave}
       disabled={isLoading}
+      aria-label={isSaved ? 'Bỏ lưu việc làm này' : 'Lưu việc làm này'}
+      aria-pressed={isSaved}
       className={`
-        inline-flex items-center gap-2 rounded-lg transition-all duration-200
+        inline-flex items-center gap-2 rounded-lg transition-all duration-200 focus-ring
         ${sizeClasses[size]}
         ${isSaved 
           ? 'text-red-500 bg-red-50 hover:bg-red-100' 

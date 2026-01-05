@@ -19,6 +19,8 @@ import savedService from '../../services/savedService';
 import { useAuth } from '../../contexts/AuthContext';
 import JobListItem from '../../components/jobs/JobListItem';
 import AdvancedFilters from '../../components/jobs/AdvancedFilters';
+import { SkeletonJobList } from '../../components/common/SkeletonLoader';
+import { EmptyState } from '../../components/common/EmptyState';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Mới nhất' },
@@ -48,6 +50,7 @@ export default function Jobs() {
     salary_range: searchParams.get('salary') || '',
     is_remote: searchParams.get('remote') === 'true',
     posted_within: searchParams.get('posted') || '',
+    skills: searchParams.get('skills') ? searchParams.get('skills').split(',') : [],
   });
 
   // Fetch saved job IDs for authenticated user
@@ -86,6 +89,7 @@ export default function Jobs() {
         exp: filters.experience_levels.length > 0 ? filters.experience_levels : undefined,
         posted: filters.posted_within || undefined,
         is_remote: filters.is_remote || undefined,
+        skills: filters.skills && filters.skills.length > 0 ? filters.skills.join(',') : undefined,
       };
 
       // Handle salary range
@@ -176,52 +180,87 @@ export default function Jobs() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Search Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-6">
-            Tìm việc làm phù hợp với bạn
+      {/* Search Header - Premium glassmorphism design */}
+      <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 py-6 sticky top-0 z-20 overflow-hidden">
+        {/* Animated background decorations */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '1s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Title with fade animation */}
+          <h1 className="text-xl md:text-2xl font-bold text-white mb-5 animate-fadeInUp text-center md:text-left">
+            <span className="inline-block">Tìm việc làm</span>{' '}
+            <span className="inline-block bg-gradient-to-r from-orange-300 to-yellow-200 bg-clip-text text-transparent">
+              phù hợp với bạn
+            </span>
           </h1>
           
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="Chức danh, kỹ năng, công ty..."
-                className="w-full pl-12 pr-4 py-3.5 rounded-lg border-0 focus:ring-2 focus:ring-blue-300 text-gray-900"
-              />
+          {/* Search Bar - Glassmorphism container */}
+          <form 
+            onSubmit={handleSearch} 
+            className="relative bg-white/10 backdrop-blur-xl rounded-2xl p-2 md:p-3 border border-white/20 shadow-2xl animate-fadeInUp stagger-1"
+          >
+            <div className="flex flex-col md:flex-row gap-2 md:gap-3">
+              {/* Keyword input */}
+              <div className="flex-1 relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-blue-500" />
+                <input
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  placeholder="Chức danh, kỹ năng, công ty..."
+                  className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/95 border-2 border-transparent 
+                    text-gray-900 placeholder-gray-400
+                    transition-all duration-300 ease-out
+                    focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:bg-white
+                    hover:bg-white hover:shadow-md"
+                />
+              </div>
+              
+              {/* Location input */}
+              <div className="md:w-72 relative group">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-blue-500" />
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Địa điểm làm việc"
+                  className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/95 border-2 border-transparent 
+                    text-gray-900 placeholder-gray-400
+                    transition-all duration-300 ease-out
+                    focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:bg-white
+                    hover:bg-white hover:shadow-md"
+                />
+              </div>
+              
+              {/* Search button with pulse effect */}
+              <button
+                type="submit"
+                className="relative px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl 
+                  transition-all duration-300 ease-out
+                  hover:from-orange-600 hover:to-orange-700 hover:shadow-lg hover:shadow-orange-500/30 hover:scale-[1.02]
+                  active:scale-[0.98]
+                  flex items-center justify-center gap-2 overflow-hidden group"
+              >
+                {/* Button shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <Search className="w-5 h-5 relative z-10" />
+                <span className="relative z-10">Tìm kiếm</span>
+              </button>
             </div>
-            <div className="md:w-64 relative">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Địa điểm"
-                className="w-full pl-12 pr-4 py-3.5 rounded-lg border-0 focus:ring-2 focus:ring-blue-300 text-gray-900"
-              />
-            </div>
-            <button
-              type="submit"
-              className="px-8 py-3.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
-            >
-              <Search className="w-5 h-5" />
-              Tìm kiếm
-            </button>
           </form>
 
-          {/* Quick filters */}
-          <div className="flex flex-wrap gap-2 mt-4">
+          {/* Quick filters with stagger animation */}
+          <div className="flex flex-wrap gap-2 mt-3 animate-fadeInUp stagger-2">
             {[
-              { label: 'Remote', value: 'remote' },
-              { label: 'Full-time', value: 'full-time' },
-              { label: 'Part-time', value: 'part-time' },
-              { label: 'Internship', value: 'internship' }
-            ].map((item) => (
+              { label: 'Làm từ xa', value: 'remote' },
+              { label: 'Toàn thời gian', value: 'full-time' },
+              { label: 'Bán thời gian', value: 'part-time' },
+              { label: 'Thực tập', value: 'internship' }
+            ].map((item, index) => (
               <button
                 key={item.value}
                 onClick={() => {
@@ -236,12 +275,19 @@ export default function Jobs() {
                     }));
                   }
                 }}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  (item.value === 'remote' && filters.is_remote) ||
-                  filters.job_types.includes(item.value)
-                    ? 'bg-white text-blue-600'
-                    : 'bg-blue-500/30 text-white hover:bg-blue-500/50'
-                }`}
+                className={`
+                  px-4 py-2 rounded-full text-sm font-medium 
+                  transition-all duration-300 ease-out
+                  backdrop-blur-sm border
+                  hover:scale-105 active:scale-95
+                  ${
+                    (item.value === 'remote' && filters.is_remote) ||
+                    filters.job_types.includes(item.value)
+                      ? 'bg-white text-blue-700 border-white shadow-lg shadow-white/20'
+                      : 'bg-white/10 text-white border-white/30 hover:bg-white/20 hover:border-white/50'
+                  }
+                `}
+                style={{ animationDelay: `${index * 50}ms` }}
               >
                 {item.label}
               </button>
@@ -364,26 +410,13 @@ export default function Jobs() {
 
             {/* Jobs List */}
             {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-              </div>
+              <SkeletonJobList count={5} />
             ) : jobs.length === 0 ? (
-              <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                  <Briefcase className="w-10 h-10 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Không tìm thấy việc làm
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Thử thay đổi từ khóa hoặc bộ lọc tìm kiếm
-                </p>
-                <button
-                  onClick={handleClearSearch}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Xóa bộ lọc
-                </button>
+              <div className="bg-white rounded-xl border border-gray-200">
+                <EmptyState
+                  variant="no-jobs-user"
+                  onAction={handleClearSearch}
+                />
               </div>
             ) : (
               <div className="space-y-4">

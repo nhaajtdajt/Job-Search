@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const CompanyController = require('../controllers/company.controller');
+const FollowedCompanyController = require('../controllers/followed_company.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const{ uploadLogoSafe, uploadBannerSafe } = require('../middlewares/upload.middleware');
 
@@ -20,6 +21,16 @@ router.post(
 
 // Get company by ID (public)
 router.get('/:companyId', CompanyController.getById);
+
+// Get followers count for a company (public)
+router.get('/:companyId/followers/count', FollowedCompanyController.getFollowersCount);
+
+// Get followers list for a company (requires auth - for employers)
+router.get(
+  '/:companyId/followers',
+  authMiddleware.authenticate,
+  FollowedCompanyController.getFollowers
+);
 
 // Update company (requires employer/admin auth - TODO: add permission check)
 router.put(

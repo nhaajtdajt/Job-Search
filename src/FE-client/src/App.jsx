@@ -11,7 +11,7 @@ function Header() {
     { label: "Trang chủ", to: "/" },
     { label: "Việc làm", to: "/jobs" },
     { label: "Công ty", to: "/companies" },
-    { label: "Kỹ năng", to: "#" },
+    { label: "Kỹ năng", to: "/skills" },
   ];
 
   const supportLinks = [

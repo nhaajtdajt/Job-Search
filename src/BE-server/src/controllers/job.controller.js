@@ -50,6 +50,13 @@ class JobController {
       if (req.query.type) filters.job_type = req.query.type; 
       if (req.query.exp) filters.experience_level = req.query.exp;
       if (req.query.posted) filters.posted_within = req.query.posted;
+      
+      // Skills filter - can be comma-separated string or array
+      if (req.query.skills) {
+        filters.skills = Array.isArray(req.query.skills) 
+          ? req.query.skills 
+          : req.query.skills.split(',').map(s => s.trim());
+      }
 
       const result = await JobService.getJobs(page, limit, filters);
 
@@ -236,6 +243,25 @@ class JobController {
         status: HTTP_STATUS.OK,
         message: "Employer jobs retrieved successfully",
         data: jobs,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * GET /api/jobs/skills
+   * Get all skills with job count
+   */
+  static async getAllSkills(req, res, next) {
+    try {
+      const JobRepository = require('../repositories/job.repo');
+      const skills = await JobRepository.getAllSkills();
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: "Skills retrieved successfully",
+        data: skills,
       });
     } catch (error) {
       return next(error);

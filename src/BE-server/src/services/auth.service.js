@@ -170,15 +170,58 @@ class AuthService {
           // Employer already exists, use existing ID
           employerId = existingEmployer.employer_id;
         } else {
-          // Create new employer record
-          // Use raw SQL with ON CONFLICT to handle race conditions
+          // First, create company if company_name is provided
+          let companyId = additionalData.company_id || null;
+          
+          if (!companyId && additionalData.company_name) {
+            try {
+              // Check if company already exists with this name
+              const existingCompany = await db('company')
+                .where('company_name', additionalData.company_name)
+                .first();
+              
+              if (existingCompany) {
+                companyId = existingCompany.company_id;
+              } else {
+                // Create new company
+                const [newCompany] = await db('company')
+                  .insert({
+                    company_name: additionalData.company_name,
+                    address: additionalData.company_address || additionalData.address || 'Chưa cập nhật',
+                    description: additionalData.company_description || null,
+                    website: additionalData.company_website || null,
+                    logo_url: additionalData.company_logo || null
+                  })
+                  .returning('company_id');
+                
+                companyId = newCompany.company_id;
+              }
+            } catch (companyError) {
+              console.error('Failed to create company:', companyError);
+              // If company creation fails due to duplicate name, try to get existing
+              if (companyError.code === '23505' || companyError.message.includes('duplicate key')) {
+                const existing = await db('company')
+                  .where('company_name', additionalData.company_name)
+                  .first();
+                if (existing) {
+                  companyId = existing.company_id;
+                }
+              }
+              // If still no companyId, throw error
+              if (!companyId) {
+                throw new BadRequestError(`Failed to create company: ${companyError.message}`);
+              }
+            }
+          }
+
+          // Create new employer record with company_id
           const employerData = {
             user_id: userId,
-            full_name: name || 'Employer',
+            full_name: userName || 'Employer',
             email: email,
             role: additionalData.employer_role || 'HR Manager',
             status: additionalData.status || 'verified',  // Default to 'verified' (valid values: 'verified' or 'suspended')
-            company_id: additionalData.company_id || null  // Nullable now
+            company_id: companyId
           };
 
           // Try insert, if fails due to duplicate, try to get existing record

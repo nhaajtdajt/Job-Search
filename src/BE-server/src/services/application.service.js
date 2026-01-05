@@ -334,6 +334,11 @@ class ApplicationService {
       console.error('Failed to send status update email:', err.message);
     });
 
+    // Send in-app notification to user (async, don't block response)
+    this.notifyApplicantStatusChange(application.user_id, job, currentStatus, status, applicationId).catch(err => {
+      console.error('Failed to send status change notification:', err.message);
+    });
+
     return updatedApplication;
   }
 
@@ -386,6 +391,12 @@ class ApplicationService {
         this.sendStatusUpdateEmail(application.user_id, job, application.status, status).catch(err => {
           console.error(`Failed to send status update email for application ${applicationId}:`, err.message);
         });
+
+        // Send in-app notification (async, don't block)
+        this.notifyApplicantStatusChange(application.user_id, job, application.status, status, applicationId).catch(err => {
+          console.error(`Failed to send status notification for application ${applicationId}:`, err.message);
+        });
+
       } catch (error) {
         failed++;
         errors.push({ id: applicationId, error: error.message });
@@ -584,7 +595,70 @@ class ApplicationService {
       // Don't throw, just log - notifications are not critical
     }
   }
+
+  /**
+   * Create notification for job seeker when application status changes
+   * @private
+   * @param {string} userId - User ID of the applicant
+   * @param {Object} job - Job object
+   * @param {string} oldStatus - Previous status
+   * @param {string} newStatus - New status
+   * @param {number} applicationId - Application ID for deep linking
+   */
+  static async notifyApplicantStatusChange(userId, job, oldStatus, newStatus, applicationId) {
+    try {
+      const jobTitle = job.job_title || 'vị trí tuyển dụng';
+      const companyName = job.employer?.company?.company_name || 'Công ty';
+
+      // Status-specific messages
+      const statusMessages = {
+        'reviewing': `Hồ sơ ứng tuyển "${jobTitle}" tại ${companyName} đang được xem xét.`,
+        'shortlisted': `🎉 Chúc mừng! Bạn đã lọt vào danh sách ngắn cho vị trí "${jobTitle}" tại ${companyName}.`,
+        'interview': `📅 Bạn được mời phỏng vấn cho vị trí "${jobTitle}" tại ${companyName}. Vui lòng kiểm tra email!`,
+        'offer': `🎊 Tin tuyệt vời! ${companyName} đã gửi cho bạn đề nghị làm việc cho vị trí "${jobTitle}".`,
+        'hired': `✅ Chúc mừng bạn đã được nhận vào làm việc tại ${companyName} cho vị trí "${jobTitle}"!`,
+        'accepted': `✅ Đơn ứng tuyển của bạn cho vị trí "${jobTitle}" tại ${companyName} đã được chấp nhận.`,
+        'rejected': `Rất tiếc, đơn ứng tuyển của bạn cho vị trí "${jobTitle}" tại ${companyName} không được chấp nhận.`,
+        'withdrawn': `Đơn ứng tuyển của bạn cho vị trí "${jobTitle}" tại ${companyName} đã được rút lại.`
+      };
+
+      // Status-specific titles
+      const statusTitles = {
+        'reviewing': 'Đang xem xét hồ sơ',
+        'shortlisted': 'Vào danh sách ngắn',
+        'interview': 'Mời phỏng vấn',
+        'offer': 'Đề nghị làm việc',
+        'hired': 'Được nhận làm việc',
+        'accepted': 'Đơn được chấp nhận',
+        'rejected': 'Đơn không được chấp nhận',
+        'withdrawn': 'Đơn đã rút lại'
+      };
+
+      const title = statusTitles[newStatus] || 'Cập nhật trạng thái đơn ứng tuyển';
+      const message = statusMessages[newStatus] || 
+        `Trạng thái đơn ứng tuyển của bạn cho vị trí "${jobTitle}" đã được cập nhật thành "${newStatus}".`;
+
+      await NotificationService.createNotification(
+        userId,
+        title,
+        message,
+        {
+          type: 'application_status_change',
+          application_id: applicationId,
+          job_id: job.job_id,
+          old_status: oldStatus,
+          new_status: newStatus
+        }
+      );
+
+      console.log(`🔔 Status change notification sent to user ${userId}: ${oldStatus} -> ${newStatus}`);
+    } catch (error) {
+      console.error('Error creating applicant status notification:', error.message);
+      // Don't throw, just log - notifications are not critical
+    }
+  }
 }
+
 
 module.exports = ApplicationService;
 

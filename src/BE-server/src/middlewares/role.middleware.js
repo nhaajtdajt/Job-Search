@@ -81,30 +81,41 @@ class RoleMiddleware {
   static requireVerifiedEmployer() {
     return async (req, res, next) => {
       try {
+        console.log('[requireVerifiedEmployer] Checking auth...');
+        console.log('[requireVerifiedEmployer] req.user:', req.user ? { user_id: req.user.user_id, role: req.user.role } : 'null');
+        
         if (!req.user) {
+          console.log('[requireVerifiedEmployer] FAIL: No req.user');
           return next(new ForbiddenError('Authentication required'));
         }
 
         // Check role first
         if (req.user.role !== ROLES.EMPLOYER) {
+          console.log('[requireVerifiedEmployer] FAIL: Role is', req.user.role, 'not employer');
           return next(new ForbiddenError('Employer role required'));
         }
 
         // Get employer record to check status
         const employer = await EmployerRepository.findByUserId(req.user.user_id);
+        console.log('[requireVerifiedEmployer] employer found:', employer ? { employer_id: employer.employer_id, status: employer.status } : 'null');
 
         if (!employer) {
+          console.log('[requireVerifiedEmployer] FAIL: No employer profile for user_id', req.user.user_id);
           return next(new ForbiddenError('Employer profile not found'));
         }
 
         if (employer.status === EMPLOYER_STATUS.SUSPENDED) {
+          console.log('[requireVerifiedEmployer] FAIL: Employer is suspended');
           return next(new ForbiddenError('Your employer account has been suspended. Contact admin for assistance.'));
         }
 
+        console.log('[requireVerifiedEmployer] SUCCESS - employer_id:', employer.employer_id);
         // Attach employer to request for later use
         req.employer = employer;
+        req.user.employer_id = employer.employer_id; // Also attach employer_id to user
         next();
       } catch (error) {
+        console.error('[requireVerifiedEmployer] ERROR:', error.message);
         next(error);
       }
     };

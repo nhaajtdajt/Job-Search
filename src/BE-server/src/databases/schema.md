@@ -1,7 +1,7 @@
 # Database Schema - Job Search Platform
 
 ## Tổng Quan
-Database sử dụng PostgreSQL với 20 bảng chính.
+Database sử dụng PostgreSQL với 21 bảng chính.
 
 ---
 
@@ -18,7 +18,8 @@ users (1) ─────────────────┬── (n) resum
   ├── (n) saved_job ──────── (1) job
   ├── (n) saved_search
   ├── (n) notification
-  └── (n) saved_candidate ── (1) employer
+  ├── (n) saved_candidate ── (1) employer
+  └── (n) followed_company ─ (1) company
 
 employer (1) ─────┬── (n) job ────┬── (n) job_location ── (1) location
   │               │               ├── (n) job_skill ───── (1) skill
@@ -459,6 +460,28 @@ CREATE TABLE public.resume_view (
 
 ---
 
+### 21. followed_company
+Bảng công ty đã theo dõi (User/Job Seeker).
+
+```sql
+CREATE TABLE public.followed_company (
+  user_id uuid NOT NULL,
+  company_id bigint NOT NULL,
+  followed_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT followed_company_pkey PRIMARY KEY (user_id, company_id),
+  CONSTRAINT followed_company_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON DELETE CASCADE,
+  CONSTRAINT followed_company_company_id_foreign FOREIGN KEY (company_id) REFERENCES public.company(company_id) ON DELETE CASCADE
+);
+```
+
+| Cột | Kiểu | Mô tả |
+|-----|------|-------|
+| user_id | uuid | PK, FK → users |
+| company_id | bigint | PK, FK → company |
+| followed_at | timestamptz | Ngày follow |
+
+---
+
 ## Bảng Hệ Thống Knex
 
 ### knex_migrations
@@ -499,6 +522,7 @@ CREATE TABLE public.knex_migrations_lock (
 | saved_job | Job đã lưu |
 | saved_search | Tìm kiếm đã lưu |
 | saved_candidate | Ứng viên đã lưu |
+| followed_company | Công ty đã theo dõi |
 | skill | Kỹ năng |
 | job_skill | Job-Skill |
 | resume_skill | Resume-Skill |

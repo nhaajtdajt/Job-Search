@@ -43,6 +43,52 @@ export const EmptyState = memo(function EmptyState({
       defaultAction: 'Tạo tin mới',
       defaultActionLink: '/employer/jobs/create'
     },
+    // Job Seeker specific variants
+    'no-jobs-user': {
+      icon: Briefcase,
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-500',
+      defaultTitle: 'Không tìm thấy việc làm',
+      defaultDescription: 'Thử thay đổi từ khóa hoặc bộ lọc tìm kiếm để tìm việc phù hợp hơn.',
+      defaultAction: 'Xóa bộ lọc',
+      defaultActionLink: '/jobs'
+    },
+    'no-saved-jobs': {
+      icon: BookmarkX,
+      iconBg: 'bg-pink-100',
+      iconColor: 'text-pink-500',
+      defaultTitle: 'Chưa lưu việc làm nào',
+      defaultDescription: 'Lưu những việc làm yêu thích để dễ dàng theo dõi và ứng tuyển sau.',
+      defaultAction: 'Tìm việc làm',
+      defaultActionLink: '/jobs'
+    },
+    'no-saved-searches': {
+      icon: Search,
+      iconBg: 'bg-indigo-100',
+      iconColor: 'text-indigo-500',
+      defaultTitle: 'Chưa lưu tìm kiếm nào',
+      defaultDescription: 'Lưu các tìm kiếm để nhận thông báo khi có việc làm phù hợp.',
+      defaultAction: 'Tìm việc ngay',
+      defaultActionLink: '/jobs'
+    },
+    'no-applications-user': {
+      icon: FileText,
+      iconBg: 'bg-green-100',
+      iconColor: 'text-green-500',
+      defaultTitle: 'Chưa ứng tuyển công việc nào',
+      defaultDescription: 'Bắt đầu tìm kiếm và ứng tuyển những công việc phù hợp với bạn.',
+      defaultAction: 'Khám phá việc làm',
+      defaultActionLink: '/jobs'
+    },
+    'no-resumes': {
+      icon: FileText,
+      iconBg: 'bg-purple-100',
+      iconColor: 'text-purple-500',
+      defaultTitle: 'Chưa có CV nào',
+      defaultDescription: 'Tạo CV chuyên nghiệp để tăng cơ hội được nhà tuyển dụng chú ý.',
+      defaultAction: 'Tạo CV mới',
+      defaultActionLink: '/user/resumes/create'
+    },
     applications: {
       icon: Users,
       iconBg: 'bg-green-100',
@@ -57,7 +103,7 @@ export const EmptyState = memo(function EmptyState({
       iconBg: 'bg-blue-100',
       iconColor: 'text-blue-500',
       defaultTitle: 'Không có thông báo mới',
-      defaultDescription: 'Bạn đã xem hết tất cả thông báo.'
+      defaultDescription: 'Khi có cập nhật về đơn ứng tuyển, bạn sẽ nhận được thông báo tại đây.'
     },
     search: {
       icon: Search,

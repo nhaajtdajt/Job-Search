@@ -74,6 +74,17 @@ class JobRepository {
       }
     }
 
+    // Filter by Skills (join with job_skill table)
+    if (filters.skills && filters.skills.length > 0) {
+      const skillIds = Array.isArray(filters.skills) ? filters.skills : [filters.skills];
+      query = query.whereExists(function() {
+        this.select('*')
+          .from('job_skill')
+          .whereRaw('job_skill.job_id = job.job_id')
+          .whereIn('job_skill.skill_id', skillIds);
+      });
+    }
+
     if (filters.salary_min) {
       query = query.where('salary_max', '>=', filters.salary_min);
     }
@@ -358,6 +369,21 @@ class JobRepository {
     await db(MODULE.JOB_SKILL)
       .where('job_id', jobId)
       .del();
+  }
+
+  /**
+   * Get all skills with job count
+   * @returns {Array} Skills with job_count
+   */
+  static async getAllSkills() {
+    const skills = await db('skill')
+      .select('skill.skill_id', 'skill.skill_name')
+      .leftJoin('job_skill', 'skill.skill_id', 'job_skill.skill_id')
+      .count('job_skill.job_id as job_count')
+      .groupBy('skill.skill_id', 'skill.skill_name')
+      .orderBy('job_count', 'desc');
+    
+    return skills;
   }
 
   /**

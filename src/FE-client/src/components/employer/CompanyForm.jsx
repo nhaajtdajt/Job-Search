@@ -13,20 +13,24 @@ const companySizeOptions = [
   { value: '1000+', label: 'Trên 1000 nhân viên' },
 ];
 
-// Industry options
+// Industry options - use same values as Companies.jsx filter
 const industryOptions = [
-  { value: 'technology', label: 'Công nghệ thông tin' },
-  { value: 'finance', label: 'Tài chính - Ngân hàng' },
-  { value: 'retail', label: 'Bán lẻ - Thương mại' },
-  { value: 'manufacturing', label: 'Sản xuất - Chế tạo' },
-  { value: 'healthcare', label: 'Y tế - Sức khỏe' },
-  { value: 'education', label: 'Giáo dục - Đào tạo' },
-  { value: 'real_estate', label: 'Bất động sản' },
-  { value: 'hospitality', label: 'Khách sạn - Du lịch' },
-  { value: 'media', label: 'Truyền thông - Quảng cáo' },
-  { value: 'consulting', label: 'Tư vấn' },
-  { value: 'logistics', label: 'Vận tải - Logistics' },
-  { value: 'other', label: 'Khác' },
+  { value: 'Công nghệ thông tin', label: 'Công nghệ thông tin' },
+  { value: 'Thương mại điện tử', label: 'Thương mại điện tử' },
+  { value: 'Viễn thông', label: 'Viễn thông' },
+  { value: 'Fintech', label: 'Fintech' },
+  { value: 'Tài chính - Ngân hàng', label: 'Tài chính - Ngân hàng' },
+  { value: 'Bán lẻ - Thương mại', label: 'Bán lẻ - Thương mại' },
+  { value: 'Sản xuất - Chế tạo', label: 'Sản xuất - Chế tạo' },
+  { value: 'Y tế - Sức khỏe', label: 'Y tế - Sức khỏe' },
+  { value: 'Giáo dục - Đào tạo', label: 'Giáo dục - Đào tạo' },
+  { value: 'Bất động sản', label: 'Bất động sản' },
+  { value: 'Khách sạn - Du lịch', label: 'Khách sạn - Du lịch' },
+  { value: 'Truyền thông - Quảng cáo', label: 'Truyền thông - Quảng cáo' },
+  { value: 'Tư vấn', label: 'Tư vấn' },
+  { value: 'Vận tải - Logistics', label: 'Vận tải - Logistics' },
+  { value: 'Đa ngành', label: 'Đa ngành' },
+  { value: 'Khác', label: 'Khác' },
 ];
 
 export default function CompanyForm({ initialData, onSave, onCancel, saving }) {
