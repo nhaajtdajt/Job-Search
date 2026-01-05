@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   Mail,
@@ -13,7 +13,8 @@ import {
 
 export default function EmployerLogin() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, socialLogin } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -23,6 +24,16 @@ export default function EmployerLogin() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [socialLoading, setSocialLoading] = useState({ google: false, facebook: false });
+
+  // Check for error passed from callback redirect
+  useEffect(() => {
+    if (location.state?.error) {
+      setApiError(location.state.error);
+      // Clear the error from navigation state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -82,6 +93,22 @@ export default function EmployerLogin() {
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleSocialLogin = async (provider) => {
+    try {
+      setSocialLoading(prev => ({ ...prev, [provider]: true }));
+      setApiError("");
+
+      // Pass 'employer' as accountType for employer social login
+      await socialLogin(provider, 'employer');
+      // Redirect handled by OAuth flow -> EmployerAuthCallback
+    } catch (error) {
+      console.error(`${provider} login error:`, error);
+      setApiError(`Đăng nhập bằng ${provider} thất bại. Vui lòng thử lại.`);
+    } finally {
+      setSocialLoading(prev => ({ ...prev, [provider]: false }));
     }
   };
 
@@ -317,9 +344,12 @@ export default function EmployerLogin() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
+                {/* Google Login Button */}
                 <button
                   type="button"
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  onClick={() => handleSocialLogin('google')}
+                  disabled={isLoading || socialLoading.google}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                     <path
@@ -341,9 +371,12 @@ export default function EmployerLogin() {
                   </svg>
                   Google
                 </button>
+                {/* Facebook Login Button */}
                 <button
                   type="button"
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  onClick={() => handleSocialLogin('facebook')}
+                  disabled={isLoading || socialLoading.facebook}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     className="w-5 h-5 mr-2"

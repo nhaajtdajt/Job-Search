@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   Mail,
@@ -14,6 +14,7 @@ import {
 export default function JobSeekerLogin() {
   const { login, socialLogin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -24,6 +25,15 @@ export default function JobSeekerLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [socialLoading, setSocialLoading] = useState({ google: false });
+
+  // Check for error passed from callback redirect
+  useEffect(() => {
+    if (location.state?.error) {
+      setApiError(location.state.error);
+      // Clear the error from navigation state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -86,7 +96,7 @@ export default function JobSeekerLogin() {
     try {
       setSocialLoading(prev => ({ ...prev, [provider]: true }));
       setApiError("");
-      
+
       await socialLogin(provider);
       // Redirect handled by specific provider flow or default callback
     } catch (error) {

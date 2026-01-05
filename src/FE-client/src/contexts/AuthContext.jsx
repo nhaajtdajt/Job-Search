@@ -201,16 +201,23 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Social login (Google/Facebook)
+   * @param {string} provider - OAuth provider ('google' or 'facebook')
+   * @param {string} accountType - Account type ('job_seeker' or 'employer')
    */
-  const socialLogin = async (provider = 'google') => {
+  const socialLogin = async (provider = 'google', accountType = 'job_seeker') => {
     try {
       const { supabase } = await import('../config/supabase');
+
+      // Determine redirect URL based on account type
+      const redirectTo = accountType === 'employer'
+        ? `${window.location.origin}/employer/auth/callback`
+        : `${window.location.origin}/auth/callback`;
 
       // Sign in with OAuth provider
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -231,8 +238,9 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Handle social login callback
+   * @param {string} accountType - Account type ('job_seeker' or 'employer')
    */
-  const handleSocialCallback = async () => {
+  const handleSocialCallback = async (accountType = 'job_seeker') => {
     try {
       const { supabase } = await import('../config/supabase');
 
@@ -250,8 +258,8 @@ export const AuthProvider = ({ children }) => {
       // Get provider from session (try to detect from user metadata or default to google)
       const provider = session.provider_token ? 'google' : 'facebook'; // Simple detection
 
-      // Call backend to sync user and get JWT tokens
-      const result = await authService.socialLoginCallback(session.access_token, provider);
+      // Call backend to sync user and get JWT tokens with accountType
+      const result = await authService.socialLoginCallback(session.access_token, provider, accountType);
 
       // Save tokens FIRST - this is critical for API interceptor
       localStorage.setItem('accessToken', result.accessToken);

@@ -157,7 +157,7 @@ class AuthController {
    */
   static async socialLoginCallback(req, res, next) {
     try {
-      const { accessToken, provider } = req.body;
+      const { accessToken, provider, accountType } = req.body;
 
       if (!accessToken) {
         return ResponseHandler.error(res, {
@@ -166,7 +166,7 @@ class AuthController {
         });
       }
 
-      const result = await AuthService.socialLoginCallback(accessToken, provider);
+      const result = await AuthService.socialLoginCallback(accessToken, provider, accountType);
       return ResponseHandler.success(res, {
         message: 'Social login successful',
         data: result
