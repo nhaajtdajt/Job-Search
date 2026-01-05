@@ -99,11 +99,11 @@ export const authService = {
    * Social login callback
    * @param {string} accessToken - Supabase access token
    * @param {string} provider - Provider name ('google' or 'facebook')
+   * @param {string} accountType - Account type ('job_seeker' or 'employer')
    * @returns {Promise<Object>} { user, accessToken, refreshToken }
    */
-  async socialLoginCallback(accessToken, provider = 'google') {
-    const response = await api.post('/auth/social/callback', { accessToken, provider });
+  async socialLoginCallback(accessToken, provider = 'google', accountType = 'job_seeker') {
+    const response = await api.post('/auth/social/callback', { accessToken, provider, accountType });
     return response.data.data;
   },
 };
-

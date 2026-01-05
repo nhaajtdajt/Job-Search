@@ -172,14 +172,14 @@ class AuthService {
         } else {
           // First, create company if company_name is provided
           let companyId = additionalData.company_id || null;
-          
+
           if (!companyId && additionalData.company_name) {
             try {
               // Check if company already exists with this name
               const existingCompany = await db('company')
                 .where('company_name', additionalData.company_name)
                 .first();
-              
+
               if (existingCompany) {
                 companyId = existingCompany.company_id;
               } else {
@@ -193,7 +193,7 @@ class AuthService {
                     logo_url: additionalData.company_logo || null
                   })
                   .returning('company_id');
-                
+
                 companyId = newCompany.company_id;
               }
             } catch (companyError) {
@@ -845,9 +845,10 @@ class AuthService {
    * Handles OAuth callback from social providers (Google, Facebook)
    * @param {string} accessToken - Supabase access token from OAuth
    * @param {string} provider - Provider name ('google' or 'facebook')
+   * @param {string} accountType - Account type ('job_seeker' or 'employer')
    * @returns {Object} { user, tokens }
    */
-  static async socialLoginCallback(accessToken, provider = 'google') {
+  static async socialLoginCallback(accessToken, provider = 'google', accountType = 'job_seeker') {
     if (!accessToken) {
       throw new BadRequestError('Access token is required');
     }
@@ -932,14 +933,60 @@ class AuthService {
       }
     }
 
-    // Get user role (from employer table if exists, else job_seeker)
-    let role = ROLES.JOB_SEEKER;
-    let employerId = null;
-    let finalAvatarUrl = user.avatar_url || avatarUrl; // Default: user's avatar or Google avatar
-
-    const employer = await db('employer')
+    // Check existing employer record
+    let employer = await db('employer')
       .where('user_id', userId)
       .first();
+
+    // Validate account type conflicts using auth.users.created_at timestamp
+    // If user was created more than 30 seconds ago, they are an EXISTING user
+    // An existing user without employer record is a job_seeker
+    const userCreatedAt = new Date(authUser.created_at);
+    const now = new Date();
+    const secondsSinceCreation = (now - userCreatedAt) / 1000;
+    const isExistingUser = secondsSinceCreation > 30; // User was created more than 30 seconds ago
+
+    if (accountType === 'employer') {
+      // User wants to login as employer
+
+      // If user is EXISTING (not new) and has NO employer record → they are job_seeker → block
+      if (isExistingUser && !employer) {
+        throw new BadRequestError('Tài khoản Google này đã được đăng nhập ở người tìm việc không thể sử dụng cho nhà tuyển dụng');
+      }
+
+      // If no employer record exists, create one
+      if (!employer) {
+        try {
+          const [newEmployer] = await db('employer')
+            .insert({
+              user_id: userId,
+              full_name: user.name || name,
+              email: email,
+              role: 'HR Manager',
+              status: 'verified',
+              avatar_url: user.avatar_url || avatarUrl
+            })
+            .returning('*');
+          employer = newEmployer;
+        } catch (insertError) {
+          console.error('Lỗi khi tạo tài khoản nhà tuyển dụng:', insertError);
+          throw new BadRequestError('Không thể tạo tài khoản nhà tuyển dụng. Vui lòng thử lại.');
+        }
+      }
+
+    } else {
+      // User wants to login as job seeker
+
+      // If employer record exists → they are employer → block
+      if (employer) {
+        throw new BadRequestError('Tài khoản Google này đã được đăng nhập ở nhà tuyển dụng không thể sử dụng cho người tìm việc');
+      }
+    }
+
+    // Get user role based on accountType and employer record
+    let role = accountType === 'employer' ? ROLES.EMPLOYER : ROLES.JOB_SEEKER;
+    let employerId = employer ? employer.employer_id : null;
+    let finalAvatarUrl = user.avatar_url || avatarUrl; // Default: user's avatar or Google avatar
 
     if (employer) {
       role = ROLES.EMPLOYER;

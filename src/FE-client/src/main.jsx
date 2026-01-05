@@ -30,6 +30,7 @@ import VerifyEmail from './pages/auth/VerifyEmail.jsx'
 import ResetPassword from './pages/auth/ResetPassword.jsx'
 import EmployerLogin from './pages/auth/EmployerLogin.jsx'
 import EmployerRegister from './pages/auth/EmployerRegister.jsx'
+import EmployerAuthCallback from './pages/auth/EmployerAuthCallback.jsx'
 
 // Employer Pages
 import EmployerLanding from './pages/employer/EmployerLanding.jsx'
@@ -87,7 +88,7 @@ const router = createBrowserRouter([
       { path: 'companies', element: <Companies /> },
       { path: 'companies/:id', element: <CompanyDetail /> },
       { path: 'skills', element: <Skills /> },
-      
+
       // Auth Pages (public)
       { path: 'login', element: <JobSeekerLogin /> },
       { path: 'register', element: <JobSeekerRegister /> },
@@ -127,111 +128,112 @@ const router = createBrowserRouter([
       { index: true, element: <EmployerLanding /> },
       { path: 'login', element: <EmployerLogin /> },
       { path: 'register', element: <EmployerRegister /> },
-      
+      { path: 'auth/callback', element: <EmployerAuthCallback /> },
+
       // Protected employer pages (wrapped individually for flexibility)
-      { 
-        path: 'dashboard', 
+      {
+        path: 'dashboard',
         element: (
           <ProtectedRoute requiredRole="employer">
             <EmployerDashboard />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'profile', 
+      {
+        path: 'profile',
         element: (
           <ProtectedRoute requiredRole="employer">
             <EmployerProfile />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'company', 
+      {
+        path: 'company',
         element: (
           <ProtectedRoute requiredRole="employer">
             <CompanyProfile />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'jobs', 
+      {
+        path: 'jobs',
         element: (
           <ProtectedRoute requiredRole="employer">
             <JobList />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'jobs/create', 
+      {
+        path: 'jobs/create',
         element: (
           <ProtectedRoute requiredRole="employer">
             <JobCreate />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'jobs/:id/edit', 
+      {
+        path: 'jobs/:id/edit',
         element: (
           <ProtectedRoute requiredRole="employer">
             <JobEdit />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'applications', 
+      {
+        path: 'applications',
         element: (
           <ProtectedRoute requiredRole="employer">
             <ApplicationList />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'applications/:id', 
+      {
+        path: 'applications/:id',
         element: (
           <ProtectedRoute requiredRole="employer">
             <ApplicationDetail />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'candidates/:id', 
+      {
+        path: 'candidates/:id',
         element: (
           <ProtectedRoute requiredRole="employer">
             <CandidateProfile />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'saved-candidates', 
+      {
+        path: 'saved-candidates',
         element: (
           <ProtectedRoute requiredRole="employer">
             <SavedCandidates />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'analytics', 
+      {
+        path: 'analytics',
         element: (
           <ProtectedRoute requiredRole="employer">
             <Analytics />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'notifications', 
+      {
+        path: 'notifications',
         element: (
           <ProtectedRoute requiredRole="employer">
             <EmployerNotifications />
           </ProtectedRoute>
-        ) 
+        )
       },
-      { 
-        path: 'settings', 
+      {
+        path: 'settings',
         element: (
           <ProtectedRoute requiredRole="employer">
             <EmployerSettings />
           </ProtectedRoute>
-        ) 
+        )
       },
     ],
   },
@@ -245,7 +247,7 @@ const router = createBrowserRouter([
       // Admin login (standalone, no layout)
       { index: true, element: <AdminLogin /> },
       { path: 'login', element: <AdminLogin /> },
-      
+
       // Protected admin pages (with AdminLayout)
       {
         element: (
