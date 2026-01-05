@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import PageTransition from '../../components/common/PageTransition';
 import {
     LayoutDashboard, Users, Building2, Briefcase, Bell, TrendingUp,
     Settings, LogOut, Menu, X, Download, FileText
@@ -246,7 +247,9 @@ export default function AdminLayout() {
 
                 {/* Page Content */}
                 <main className="flex-1 p-4 lg:p-6 overflow-auto">
-                    <Outlet />
+                    <PageTransition animation="fade-slide" duration={450}>
+                        <Outlet />
+                    </PageTransition>
                 </main>
             </div>
 

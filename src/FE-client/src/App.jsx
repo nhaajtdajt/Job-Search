@@ -2,6 +2,7 @@ import { Outlet, Link } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import UserDropdown from "./components/common/UserDropdown";
 import NotificationBell from "./components/notifications/NotificationBell";
+import PageTransition from "./components/common/PageTransition";
 import "./App.css";
 
 function Header() {
@@ -73,7 +74,7 @@ function Header() {
                   {item.label}
                 </Link>
               ))}
-<NotificationBell />
+              <NotificationBell />
             </nav>
             <div className="flex items-center gap-4">
               {/* Only show "Nhà tuyển dụng" button when NOT authenticated */}
@@ -207,7 +208,9 @@ function App() {
     <div className="min-h-dvh flex flex-col bg-white text-slate-900">
       <Header />
       <main className="flex-1">
-        <Outlet />
+        <PageTransition animation="fade-slide" duration={450}>
+          <Outlet />
+        </PageTransition>
       </main>
       <Footer />
     </div>

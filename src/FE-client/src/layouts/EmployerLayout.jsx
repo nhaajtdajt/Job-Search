@@ -1,6 +1,7 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import EmployerHeader from "../components/employer/EmployerHeader";
+import PageTransition from "../components/common/PageTransition";
 import { useAuth } from "../contexts/AuthContext";
 
 function EmployerFooter() {
@@ -129,7 +130,9 @@ export default function EmployerLayout() {
     <div className="min-h-dvh flex flex-col bg-white text-slate-900">
       <EmployerHeader />
       <main className="flex-1">
-        <Outlet />
+        <PageTransition animation="fade-slide" duration={450}>
+          <Outlet />
+        </PageTransition>
       </main>
       <EmployerFooter />
     </div>

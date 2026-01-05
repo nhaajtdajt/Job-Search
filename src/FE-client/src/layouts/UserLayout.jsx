@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import PageTransition from '../components/common/PageTransition';
 import {
   UserOutlined,
   FileTextOutlined,
@@ -15,45 +16,45 @@ import {
 import { useState } from 'react';
 
 const menuItems = [
-  { 
-    path: '/user/dashboard', 
-    label: 'Tổng quan', 
-    icon: <DashboardOutlined /> 
+  {
+    path: '/user/dashboard',
+    label: 'Tổng quan',
+    icon: <DashboardOutlined />
   },
-  { 
-    path: '/user/profile', 
-    label: 'Hồ sơ cá nhân', 
-    icon: <UserOutlined /> 
+  {
+    path: '/user/profile',
+    label: 'Hồ sơ cá nhân',
+    icon: <UserOutlined />
   },
-  { 
-    path: '/user/resumes', 
-    label: 'Quản lý CV', 
-    icon: <FileTextOutlined /> 
+  {
+    path: '/user/resumes',
+    label: 'Quản lý CV',
+    icon: <FileTextOutlined />
   },
-  { 
-    path: '/user/applications', 
-    label: 'Việc làm đã ứng tuyển', 
-    icon: <FileTextOutlined /> 
+  {
+    path: '/user/applications',
+    label: 'Việc làm đã ứng tuyển',
+    icon: <FileTextOutlined />
   },
-  { 
-    path: '/user/saved-jobs', 
-    label: 'Việc làm đã lưu', 
-    icon: <HeartOutlined /> 
+  {
+    path: '/user/saved-jobs',
+    label: 'Việc làm đã lưu',
+    icon: <HeartOutlined />
   },
-  { 
-    path: '/user/saved-searches', 
-    label: 'Tìm kiếm đã lưu', 
-    icon: <SearchOutlined /> 
+  {
+    path: '/user/saved-searches',
+    label: 'Tìm kiếm đã lưu',
+    icon: <SearchOutlined />
   },
-  { 
-    path: '/user/notifications', 
-    label: 'Thông báo', 
-    icon: <BellOutlined /> 
+  {
+    path: '/user/notifications',
+    label: 'Thông báo',
+    icon: <BellOutlined />
   },
-  { 
-    path: '/user/settings', 
-    label: 'Cài đặt tài khoản', 
-    icon: <SettingOutlined /> 
+  {
+    path: '/user/settings',
+    label: 'Cài đặt tài khoản',
+    icon: <SettingOutlined />
   },
 ];
 
@@ -70,10 +71,9 @@ function UserLayout() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <aside 
-        className={`${
-          collapsed ? 'w-20' : 'w-64'
-        } bg-white shadow-lg transition-all duration-300 flex flex-col`}
+      <aside
+        className={`${collapsed ? 'w-20' : 'w-64'
+          } bg-white shadow-lg transition-all duration-300 flex flex-col`}
       >
         {/* User Info */}
         <div className="p-4 border-b">
@@ -101,10 +101,9 @@ function UserLayout() {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-600 font-medium'
-                    : 'text-gray-600 hover:bg-gray-100'
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
+                  ? 'bg-blue-50 text-blue-600 font-medium'
+                  : 'text-gray-600 hover:bg-gray-100'
                 }`
               }
             >
@@ -135,7 +134,9 @@ function UserLayout() {
 
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-auto">
-        <Outlet />
+        <PageTransition animation="fade-slide" duration={450}>
+          <Outlet />
+        </PageTransition>
       </main>
     </div>
   );
