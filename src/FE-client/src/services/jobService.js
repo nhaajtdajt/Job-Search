@@ -16,6 +16,15 @@ export const jobService = {
   },
 
   /**
+   * Get all skills with job count (public)
+   * @returns {Promise<Array>} Skills list with job_count
+   */
+  async getSkills() {
+    const response = await api.get('/jobs/skills');
+    return response.data;
+  },
+
+  /**
    * Get employer's own jobs
    * @param {Object} params - Query parameters { page, limit, status }
    * @returns {Promise<Object>} Paginated jobs list

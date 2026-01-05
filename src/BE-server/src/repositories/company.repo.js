@@ -44,7 +44,8 @@ class CompanyRepository {
       'address',
       'description',
       'logo_url',
-      'banner_url'
+      'banner_url',
+      'industry'
     ];
 
     const filteredData = {};

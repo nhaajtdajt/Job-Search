@@ -9,7 +9,18 @@ const INDUSTRIES = [
   "Thương mại điện tử",
   "Viễn thông",
   "Fintech",
+  "Tài chính - Ngân hàng",
+  "Bán lẻ - Thương mại",
+  "Sản xuất - Chế tạo",
+  "Y tế - Sức khỏe",
+  "Giáo dục - Đào tạo",
+  "Bất động sản",
+  "Khách sạn - Du lịch",
+  "Truyền thông - Quảng cáo",
+  "Tư vấn",
+  "Vận tải - Logistics",
   "Đa ngành",
+  "Khác",
 ];
 
 export default function CompanyPage() {
@@ -60,40 +71,75 @@ export default function CompanyPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-100 py-10">
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Các Công Ty</h1>
-
-        {/* Thanh tìm kiếm + nút */}
-        <div className="w-full md:w-2/3 lg:w-1/2 bg-blue-100 p-4 rounded-xl mb-6 mx-auto lg:mx-0">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Tìm công ty theo tên..."
-                className="w-full pl-10 pr-4 py-2 border bg-white rounded-lg shadow-sm 
-                          focus:border-blue-500 focus:ring-blue-500 outline-none"
-              />
-            </div>
-            
-            <select
-              value={selectedIndustry}
-              onChange={(e) => setSelectedIndustry(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white min-w-[150px]"
-            >
-              <option value="">Tất cả lĩnh vực</option>
-              {INDUSTRIES.map((ind) => (
-                <option key={ind} value={ind}>
-                  {ind}
-                </option>
-              ))}
-            </select>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Search Header - Premium glassmorphism design (synced with Jobs page) */}
+      <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 py-6 overflow-hidden">
+        {/* Animated background decorations */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '1s' }} />
         </div>
 
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Title with fade animation */}
+          <h1 className="text-xl md:text-2xl font-bold text-white mb-5 animate-fadeInUp">
+            <span className="inline-block">Khám phá</span>{' '}
+            <span className="inline-block bg-gradient-to-r from-orange-300 to-yellow-200 bg-clip-text text-transparent">
+              Công ty hàng đầu
+            </span>
+          </h1>
+          
+          {/* Search Bar - Glassmorphism container */}
+          <div className="relative bg-white/10 backdrop-blur-xl rounded-2xl p-2 md:p-3 border border-white/20 shadow-2xl animate-fadeInUp stagger-1">
+            <div className="flex flex-col md:flex-row gap-2 md:gap-3">
+              {/* Search input */}
+              <div className="flex-1 relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-blue-500" />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Tìm công ty theo tên..."
+                  className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/95 border-2 border-transparent 
+                    text-gray-900 placeholder-gray-400
+                    transition-all duration-300 ease-out
+                    focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:bg-white
+                    hover:bg-white hover:shadow-md"
+                />
+              </div>
+              
+              {/* Industry select */}
+              <div className="md:w-56 relative group">
+                <select
+                  value={selectedIndustry}
+                  onChange={(e) => setSelectedIndustry(e.target.value)}
+                  className="w-full px-4 py-4 rounded-xl bg-white/95 border-2 border-transparent 
+                    text-gray-900 appearance-none cursor-pointer
+                    transition-all duration-300 ease-out
+                    focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:bg-white
+                    hover:bg-white hover:shadow-md"
+                >
+                  <option value="">Tất cả lĩnh vực</option>
+                  {INDUSTRIES.map((ind) => (
+                    <option key={ind} value={ind}>
+                      {ind}
+                    </option>
+                  ))}
+                </select>
+                {/* Custom dropdown arrow */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white shadow-xl p-6 rounded-xl">
           {/* Header */}
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-3">

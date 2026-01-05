@@ -34,17 +34,25 @@ const experienceLevelOptions = [
 
 // Industry options
 const industryOptions = [
-  { value: 'technology', label: 'Công nghệ thông tin' },
-  { value: 'finance', label: 'Tài chính - Ngân hàng' },
-  { value: 'marketing', label: 'Marketing - Truyền thông' },
-  { value: 'sales', label: 'Kinh doanh - Bán hàng' },
-  { value: 'hr', label: 'Nhân sự' },
-  { value: 'accounting', label: 'Kế toán - Kiểm toán' },
-  { value: 'engineering', label: 'Kỹ thuật' },
-  { value: 'design', label: 'Thiết kế' },
-  { value: 'healthcare', label: 'Y tế - Sức khỏe' },
-  { value: 'education', label: 'Giáo dục' },
-  { value: 'other', label: 'Khác' },
+  { value: 'Công nghệ thông tin', label: 'Công nghệ thông tin' },
+  { value: 'Thương mại điện tử', label: 'Thương mại điện tử' },
+  { value: 'Viễn thông', label: 'Viễn thông' },
+  { value: 'Fintech', label: 'Fintech' },
+  { value: 'Tài chính - Ngân hàng', label: 'Tài chính - Ngân hàng' },
+  { value: 'Marketing - Truyền thông', label: 'Marketing - Truyền thông' },
+  { value: 'Kinh doanh - Bán hàng', label: 'Kinh doanh - Bán hàng' },
+  { value: 'Nhân sự', label: 'Nhân sự' },
+  { value: 'Kế toán - Kiểm toán', label: 'Kế toán - Kiểm toán' },
+  { value: 'Kỹ thuật', label: 'Kỹ thuật' },
+  { value: 'Thiết kế', label: 'Thiết kế' },
+  { value: 'Sản xuất - Chế tạo', label: 'Sản xuất - Chế tạo' },
+  { value: 'Y tế - Sức khỏe', label: 'Y tế - Sức khỏe' },
+  { value: 'Giáo dục - Đào tạo', label: 'Giáo dục - Đào tạo' },
+  { value: 'Bất động sản', label: 'Bất động sản' },
+  { value: 'Khách sạn - Du lịch', label: 'Khách sạn - Du lịch' },
+  { value: 'Tư vấn', label: 'Tư vấn' },
+  { value: 'Vận tải - Logistics', label: 'Vận tải - Logistics' },
+  { value: 'Khác', label: 'Khác' },
 ];
 
 const steps = [

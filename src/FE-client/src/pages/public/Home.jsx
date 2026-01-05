@@ -370,6 +370,8 @@ export default function Home() {
   const [mainTool, ...otherTools] = careerTools;
 
   const [dashboardStats, setDashboardStats] = useState(null);
+  const [showAllTopJobs, setShowAllTopJobs] = useState(false);
+  const [showAllSuggestedJobs, setShowAllSuggestedJobs] = useState(false);
 
   // Redirect employer users to employer dashboard
   useEffect(() => {
@@ -534,12 +536,22 @@ export default function Home() {
       <section className="relative z-10 -mt-16 sm:-mt-20 lg:-mt-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl bg-white/95 p-6 shadow-2xl ring-1 ring-white/60 backdrop-blur">
-            <SectionTitle title="Việc làm tốt nhất" action="Xem tất cả" />
+            <SectionTitle title="Việc làm tốt nhất" action="Xem tất cả" actionLink="/jobs" />
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {topJobs.map((job) => (
+              {(showAllTopJobs ? topJobs : topJobs.slice(0, 6)).map((job) => (
                 <Card key={`${job.title}-${job.company}`} job={job} />
               ))}
             </div>
+            {!showAllTopJobs && topJobs.length > 6 && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => setShowAllTopJobs(true)}
+                  className="px-6 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors focus-ring"
+                >
+                  Xem thêm {topJobs.length - 6} việc làm
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -547,22 +559,24 @@ export default function Home() {
       <section className="mt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionTitle title="Ngành nghề trọng điểm" />
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Horizontal scroll on mobile, grid on larger screens */}
+          <div className="mt-6 flex gap-4 overflow-x-auto pb-4 scrollbar-hide lg:grid lg:grid-cols-4 lg:overflow-visible">
             {categories.map((category) => (
-              <div
+              <Link
+                to={`/jobs?industry=${encodeURIComponent(category.name)}`}
                 key={category.name}
-                className="group flex flex-col gap-3 rounded-2xl border border-white/60 bg-white/95 p-6 shadow hover:border-brand-200 hover:shadow-glow transition"
+                className="group flex-shrink-0 w-48 lg:w-auto flex flex-col gap-3 rounded-2xl border border-white/60 bg-white/95 p-4 lg:p-6 shadow hover:border-blue-200 hover:shadow-lg transition focus-ring"
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-2xl text-brand-600 group-hover:bg-brand-100">
-                  <img src={category.image} alt="" />
+                <div className="flex h-12 w-12 lg:h-16 lg:w-16 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-600 group-hover:bg-blue-100 overflow-hidden">
+                  <img src={category.image} alt="" className="w-full h-full object-cover" />
                 </div>
-                <p className="text-lg font-semibold text-gray-900 group-hover:text-brand-600 transition">
+                <p className="text-base lg:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition line-clamp-1">
                   {category.name}
                 </p>
                 <p className="text-sm text-gray-500">
                   {category.jobs.toLocaleString("vi-VN")} việc làm
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -570,12 +584,22 @@ export default function Home() {
 
       <section className="mt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionTitle title="Việc làm gợi ý" action="Xem tất cả" />
+          <SectionTitle title="Việc làm gợi ý" action="Xem tất cả" actionLink="/jobs" />
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {suggestedJobs.map((job) => (
+            {(showAllSuggestedJobs ? suggestedJobs : suggestedJobs.slice(0, 4)).map((job) => (
               <SimpleJobCard key={`${job.title}-${job.company}`} job={job} />
             ))}
           </div>
+          {!showAllSuggestedJobs && suggestedJobs.length > 4 && (
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setShowAllSuggestedJobs(true)}
+                className="px-6 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors focus-ring"
+              >
+                Xem thêm {suggestedJobs.length - 4} việc làm
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

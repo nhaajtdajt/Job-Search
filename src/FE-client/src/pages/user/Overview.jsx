@@ -20,6 +20,8 @@ import {
   XCircle,
   AlertCircle
 } from 'lucide-react';
+import { EmptyStateInline } from '../../components/common/EmptyState';
+import ActivityChart from '../../components/user/ActivityChart';
 
 export default function Overview() {
   const { user: authUser, isAuthenticated } = useAuth();
@@ -186,112 +188,40 @@ export default function Overview() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Hoạt Động Của Bạn</h2>
               
-              {/* Simple Chart Visualization */}
-              <div className="mb-6">
-                {(() => {
-                  // Calculate bar heights based on actual data
-                  const maxHeight = 200; // Maximum bar height in pixels
-                  const minHeight = 20; // Minimum bar height for visibility
-                  
-                  // Find the maximum value for scaling
-                  const maxValue = Math.max(
-                    activityData.applications,
-                    activityData.jobViews,
-                    activityData.jobSearches,
-                    1 // Minimum 1 to avoid division by zero
-                  );
-                  
-                  // Calculate heights for each bar
-                  const applicationsHeight = activityData.applications === 0 
-                    ? minHeight 
-                    : Math.max(minHeight, (activityData.applications / maxValue) * maxHeight);
-                  
-                  const jobViewsHeight = activityData.jobViews === 0 
-                    ? minHeight 
-                    : Math.max(minHeight, (activityData.jobViews / maxValue) * maxHeight);
-                  
-                  const jobSearchesHeight = activityData.jobSearches === 0 
-                    ? minHeight 
-                    : Math.max(minHeight, (activityData.jobSearches / maxValue) * maxHeight);
-                  
-                  return (
-                    <div className="h-64 flex items-end justify-center gap-4 mb-4">
-                      {/* Applications bar (green) */}
-                      <div className="flex flex-col items-center gap-2">
-                        <div 
-                          className="w-16 bg-green-500 rounded-t transition-all duration-300" 
-                          style={{ height: `${applicationsHeight}px` }}
-                        ></div>
-                        <span className="text-xs text-gray-500 font-medium">{activityData.applications}</span>
-                      </div>
-                      {/* Job Views bar (blue) */}
-                      <div className="flex flex-col items-center gap-2">
-                        <div 
-                          className="w-16 bg-blue-500 rounded-t transition-all duration-300" 
-                          style={{ height: `${jobViewsHeight}px` }}
-                        ></div>
-                        <span className="text-xs text-gray-500 font-medium">{activityData.jobViews}</span>
-                      </div>
-                      {/* Job Searches bar (orange) */}
-                      <div className="flex flex-col items-center gap-2">
-                        <div 
-                          className="w-16 bg-orange-500 rounded-t transition-all duration-300" 
-                          style={{ height: `${jobSearchesHeight}px` }}
-                        ></div>
-                        <span className="text-xs text-gray-500 font-medium">{activityData.jobSearches}</span>
-                      </div>
-                    </div>
-                  );
-                })()}
-                
-                {/* Legend */}
-                <div className="flex items-center justify-center gap-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-green-500 rounded"></div>
-                    <span className="text-gray-700">Việc đã ứng tuyển</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                    <span className="text-gray-700">Lượt xem việc làm</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-orange-500 rounded"></div>
-                    <span className="text-gray-700">Lượt tìm việc làm</span>
-                  </div>
-                </div>
-              </div>
+              {/* Interactive Activity Chart */}
+              <ActivityChart data={activityData} className="mb-6" />
 
               {/* Activity Summary */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
                 <Link
-                  to="#"
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 card-smooth"
+                  to="/user/applications"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 card-smooth focus-ring"
                 >
                   <div>
                     <p className="text-2xl font-bold text-gray-900">{activityData.applications}</p>
                     <p className="text-sm text-gray-600">Việc đã ứng tuyển</p>
                   </div>
-                  <Briefcase className="w-6 h-6 text-gray-400 transition-transform duration-200 hover:scale-110" />
+                  <Briefcase className="w-6 h-6 text-gray-400 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
                 </Link>
                 <Link
-                  to="#"
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 card-smooth"
+                  to="/user/saved-jobs"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 card-smooth focus-ring"
                 >
                   <div>
                     <p className="text-2xl font-bold text-gray-900">{activityData.jobViews}</p>
-                    <p className="text-sm text-gray-600">Lượt xem việc làm</p>
+                    <p className="text-sm text-gray-600">Việc làm đã lưu</p>
                   </div>
-                  <Eye className="w-6 h-6 text-gray-400 transition-transform duration-200 hover:scale-110" />
+                  <Eye className="w-6 h-6 text-gray-400 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
                 </Link>
                 <Link
-                  to="#"
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 card-smooth"
+                  to="/user/saved-searches"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 card-smooth focus-ring"
                 >
                   <div>
                     <p className="text-2xl font-bold text-gray-900">{activityData.jobSearches}</p>
-                    <p className="text-sm text-gray-600">Lượt tìm việc làm</p>
+                    <p className="text-sm text-gray-600">Tìm kiếm đã lưu</p>
                   </div>
-                  <Search className="w-6 h-6 text-gray-400 transition-transform duration-200 hover:scale-110" />
+                  <Search className="w-6 h-6 text-gray-400 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
                 </Link>
               </div>
             </div>
@@ -324,7 +254,11 @@ export default function Overview() {
                             </div>
                         ))
                     ) : (
-                        <p className="text-gray-500 text-sm text-center py-4">Không có thông báo nào</p>
+                        <EmptyStateInline
+                          icon={Bell}
+                          message="Chưa có thông báo mới"
+                          className="py-6"
+                        />
                     )}
                 </div>
               </div>
@@ -363,7 +297,13 @@ export default function Overview() {
                             </div>
                         ))
                     ) : (
-                        <p className="text-gray-500 text-sm text-center py-4">Chưa ứng tuyển công việc nào</p>
+                        <EmptyStateInline
+                          icon={Briefcase}
+                          message="Chưa ứng tuyển công việc nào"
+                          actionLabel="Tìm việc ngay"
+                          onAction={() => navigate('/jobs')}
+                          className="py-6"
+                        />
                     )}
                 </div>
               </div>

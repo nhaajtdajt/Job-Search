@@ -382,24 +382,58 @@ export default function ProfileComplete() {
             {/* Personal Information Section */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {profile?.name || 'Chưa cập nhật tên'}
-                  </h2>
-                  <p className="text-gray-600 mt-1">
-                    {profile?.job_title || 'Chưa cập nhật chức danh'}
-                    {(() => {
-                      const expYears = profile?.experience_years;
-                      if (expYears === null || expYears === undefined || expYears === '') {
-                        return null;
-                      }
-                      const numYears = Number(expYears);
-                      if (numYears === 0) {
-                        return ' - Chưa có kinh nghiệm';
-                      }
-                      return ` - ${numYears} năm kinh nghiệm`;
-                    })()}
-                  </p>
+                <div className="flex items-center gap-4">
+                  {/* Avatar with upload button */}
+                  <div className="relative group">
+                    <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                      {profile?.avatar_url ? (
+                        <img 
+                          src={profile.avatar_url} 
+                          alt="Avatar" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-10 h-10 text-gray-400" />
+                      )}
+                    </div>
+                    {/* Upload overlay */}
+                    <label 
+                      className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      title="Đổi ảnh đại diện"
+                    >
+                      {uploading ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+                      ) : (
+                        <Camera className="w-6 h-6 text-white" />
+                      )}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleAvatarUpload}
+                        className="hidden"
+                        disabled={uploading}
+                      />
+                    </label>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {profile?.name || 'Chưa cập nhật tên'}
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      {profile?.job_title || 'Chưa cập nhật chức danh'}
+                      {(() => {
+                        const expYears = profile?.experience_years;
+                        if (expYears === null || expYears === undefined || expYears === '') {
+                          return null;
+                        }
+                        const numYears = Number(expYears);
+                        if (numYears === 0) {
+                          return ' - Chưa có kinh nghiệm';
+                        }
+                        return ` - ${numYears} năm kinh nghiệm`;
+                      })()}
+                    </p>
+                  </div>
                 </div>
                 <button
                   onClick={() => setIsModalOpen(true)}

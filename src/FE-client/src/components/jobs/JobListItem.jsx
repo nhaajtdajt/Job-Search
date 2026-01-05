@@ -46,13 +46,32 @@ function JobListItem({
   const getJobTypeColor = (type) => {
     const colors = {
       'Full-time': 'bg-blue-100 text-blue-700',
+      'Toàn thời gian': 'bg-blue-100 text-blue-700',
       'Part-time': 'bg-purple-100 text-purple-700',
+      'Bán thời gian': 'bg-purple-100 text-purple-700',
       'Contract': 'bg-orange-100 text-orange-700',
+      'Hợp đồng': 'bg-orange-100 text-orange-700',
       'Freelance': 'bg-green-100 text-green-700',
+      'Tự do': 'bg-green-100 text-green-700',
       'Internship': 'bg-pink-100 text-pink-700',
+      'Thực tập': 'bg-pink-100 text-pink-700',
       'Remote': 'bg-teal-100 text-teal-700',
+      'Làm từ xa': 'bg-teal-100 text-teal-700',
     };
     return colors[type] || 'bg-gray-100 text-gray-700';
+  };
+
+  // Translate job type to Vietnamese
+  const translateJobType = (type) => {
+    const translations = {
+      'Full-time': 'Toàn thời gian',
+      'Part-time': 'Bán thời gian',
+      'Contract': 'Hợp đồng',
+      'Freelance': 'Tự do',
+      'Internship': 'Thực tập',
+      'Remote': 'Làm từ xa',
+    };
+    return translations[type] || type;
   };
 
   if (compact) {
@@ -93,7 +112,11 @@ function JobListItem({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-blue-200 transition-all duration-200 group">
+    <div 
+      className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-blue-200 transition-all duration-200 group"
+      role="article"
+      aria-label={`Việc làm: ${job.job_title || job.title} tại ${job.company_name}`}
+    >
       <div className="flex gap-4">
         {/* Company Logo */}
         <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:ring-2 group-hover:ring-blue-200 transition-all">
@@ -110,13 +133,13 @@ function JobListItem({
             <div>
               <Link 
                 to={`/jobs/${job.job_id}`}
-                className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
+                className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-1 focus-ring rounded"
               >
                 {job.job_title || job.title}
               </Link>
               <Link 
                 to={`/companies/${job.company_id}`}
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                className="text-blue-600 hover:text-blue-700 font-medium focus-ring rounded"
               >
                 {job.company_name}
               </Link>
@@ -126,70 +149,80 @@ function JobListItem({
             )}
           </div>
 
-          {/* Meta Info */}
+          {/* Level 1: Always visible - Core info */}
           <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 text-sm text-gray-600">
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-gray-400" />
-              {job.location || 'Chưa xác định'}
+              <MapPin className="w-4 h-4 text-gray-400" aria-hidden="true" />
+              <span>{job.location || 'Chưa xác định'}</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <DollarSign className="w-4 h-4 text-green-500" />
+              <DollarSign className="w-4 h-4 text-green-500" aria-hidden="true" />
               <span className="font-medium text-green-600">
                 {formatSalary(job.salary_min, job.salary_max)}
               </span>
             </span>
-            {job.experience_level && (
-              <span className="flex items-center gap-1.5">
-                <Briefcase className="w-4 h-4 text-gray-400" />
-                {job.experience_level}
-              </span>
-            )}
-            {job.application_count > 0 && (
-              <span className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-gray-400" />
-                {job.application_count} ứng viên
+            {/* Job type badge - always visible as it's important */}
+            {job.job_type && (
+              <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getJobTypeColor(job.job_type)}`}>
+                {translateJobType(job.job_type)}
               </span>
             )}
           </div>
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {job.job_type && (
-              <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${getJobTypeColor(job.job_type)}`}>
-                {job.job_type}
-              </span>
-            )}
-            {job.is_urgent && (
-              <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">
-                🔥 Tuyển gấp
-              </span>
-            )}
-            {job.is_hot && (
-              <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700">
-                ⭐ Hot
-              </span>
-            )}
-            {job.skills?.slice(0, 3).map(skill => (
-              <span key={skill} className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
-                {skill}
-              </span>
-            ))}
-            {job.skills?.length > 3 && (
-              <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-500">
-                +{job.skills.length - 3}
-              </span>
-            )}
+          {/* Level 2: Progressive disclosure - Show on hover with animation */}
+          <div className="overflow-hidden transition-all duration-300 ease-out max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mt-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Urgent/Hot badges */}
+              {job.is_urgent && (
+                <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 animate-fadeIn">
+                  🔥 Tuyển gấp
+                </span>
+              )}
+              {job.is_hot && (
+                <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700 animate-fadeIn">
+                  ⭐ Hot
+                </span>
+              )}
+              {/* Experience level */}
+              {job.experience_level && (
+                <span className="flex items-center gap-1 text-xs text-gray-500 animate-fadeIn">
+                  <Briefcase className="w-3 h-3" aria-hidden="true" />
+                  {job.experience_level}
+                </span>
+              )}
+              {/* Application count */}
+              {job.application_count > 0 && (
+                <span className="flex items-center gap-1 text-xs text-gray-500 animate-fadeIn">
+                  <Users className="w-3 h-3" aria-hidden="true" />
+                  {job.application_count} ứng viên
+                </span>
+              )}
+              {/* Skills - limited to 2 on hover */}
+              {job.skills?.slice(0, 2).map((skill, index) => (
+                <span 
+                  key={skill} 
+                  className={`px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600 animate-fadeIn stagger-${index + 1}`}
+                >
+                  {skill}
+                </span>
+              ))}
+              {job.skills?.length > 2 && (
+                <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-500 animate-fadeIn stagger-3">
+                  +{job.skills.length - 2}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Footer */}
           <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-            <span className="text-xs text-gray-500 flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
+            <span className="text-xs text-accessible-gray flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" aria-hidden="true" />
               {formatDate(job.created_at)}
             </span>
             <Link
               to={`/jobs/${job.job_id}`}
-              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 focus-ring rounded px-1"
             >
               Xem chi tiết →
             </Link>

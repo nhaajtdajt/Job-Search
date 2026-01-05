@@ -6,6 +6,9 @@ const { authenticate, authorize } = require("../middlewares/auth.middleware");
 const RoleMiddleware = require("../middlewares/role.middleware");
 
 // Public routes
+// GET /api/jobs/skills - Get all skills with job count
+router.get("/skills", JobController.getAllSkills);
+
 // GET /api/jobs - Get jobs list with pagination
 router.get("/", JobController.getJobs);
 

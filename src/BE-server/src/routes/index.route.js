@@ -14,6 +14,7 @@ const savedCandidateRoutes = require('./saved_candidate.route');
 const savedJobRoutes = require('./saved_job.route');
 const savedSearchRoutes = require('./saved_search.route');
 const employerSettingsRoutes = require('./employer-settings.route');
+const followedCompanyRoutes = require('./followed_company.route');
 
 const initRoute = (app) => {
   // Swagger Documentation (public, no auth)
@@ -52,6 +53,7 @@ const initRoute = (app) => {
         notifications: "/api/notifications",
         admin: "/api/admin",
         savedCandidates: "/api/saved-candidates",
+        followedCompanies: "/api/followed-companies",
         docs: "GET /docs"
       },
     });
@@ -73,6 +75,7 @@ const initRoute = (app) => {
   app.use("/api/notifications", notificationRoutes);
   app.use("/api/admin", adminRoutes);
   app.use("/api/saved-candidates", savedCandidateRoutes);
+  app.use("/api/followed-companies", followedCompanyRoutes);
 
   // 404 handler - must be after all routes
   app.use((req, res) => {

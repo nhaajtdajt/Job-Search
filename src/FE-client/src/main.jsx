@@ -19,6 +19,7 @@ import Jobs from './pages/public/Jobs.jsx'
 import JobDetail from './pages/public/JobDetail.jsx'
 import Companies from './pages/public/Companies.jsx'
 import CompanyDetail from './pages/public/CompanyDetail.jsx'
+import Skills from './pages/public/Skills.jsx'
 
 // Auth Pages
 import JobSeekerLogin from './pages/auth/JobSeekerLogin.jsx'
@@ -85,6 +86,7 @@ const router = createBrowserRouter([
       { path: 'jobs/:id', element: <JobDetail /> },
       { path: 'companies', element: <Companies /> },
       { path: 'companies/:id', element: <CompanyDetail /> },
+      { path: 'skills', element: <Skills /> },
       
       // Auth Pages (public)
       { path: 'login', element: <JobSeekerLogin /> },
