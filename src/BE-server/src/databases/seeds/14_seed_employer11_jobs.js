@@ -11,7 +11,7 @@ exports.seed = async function (knex) {
   console.log('💼 Seeding 10 jobs for employer_id = 11...');
 
   // Check if employer 11 exists
-  const employer = await knex('employer').where('employer_id', 11).first();
+  let employer = await knex('employer').where('employer_id', 11).first();
   if (!employer) {
     console.log('⚠️  Employer ID 11 not found. Creating...');
     // Get any company
@@ -20,15 +20,33 @@ exports.seed = async function (knex) {
       console.log('❌ No companies found. Please run seed companies first.');
       return;
     }
-    await knex('employer').insert({
-      employer_id: 11,
-      full_name: 'Test Employer',
-      email: 'employer11@example.com',
-      role: 'HR Manager',
-      status: 'verified',
-      company_id: company.company_id,
-      user_id: null
-    });
+
+    try {
+      await knex('employer').insert({
+        employer_id: 11,
+        full_name: 'Test Employer',
+        email: 'employer11@example.com',
+        role: 'HR Manager',
+        status: 'verified',
+        company_id: company.company_id,
+        user_id: null
+      });
+    } catch (insertError) {
+      // If insert fails due to duplicate, try to fetch existing
+      if (insertError.code === '23505') {
+        employer = await knex('employer').where('employer_id', 11).first();
+        if (!employer) {
+          // Try to find by email instead
+          employer = await knex('employer').where('email', 'employer11@example.com').first();
+        }
+        if (!employer) {
+          console.log('⚠️  Could not find or create employer 11, skipping...');
+          return;
+        }
+      } else {
+        throw insertError;
+      }
+    }
   }
 
   // Calculate dates

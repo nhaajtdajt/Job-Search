@@ -4,7 +4,7 @@ const MODULE = require('../../constants/module');
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.seed = async function(knex) {
+exports.seed = async function (knex) {
   console.log('🚀 Seeding supplemental data (TechStar)...');
 
   // 1. Insert/Find Company
@@ -40,24 +40,48 @@ exports.seed = async function(knex) {
     .select('employer_id');
 
   if (!employer) {
-    [employer] = await knex(MODULE.EMPLOYER).insert({
-      full_name: 'TechStar Recruiter',
-      role: 'HR Manager',
-      status: 'verified',
-      company_id: company.company_id,
-      email: 'hr@techstar.com',
-      user_id: userId
-    }).returning('employer_id');
+    // Also check by email to avoid conflicts
+    [employer] = await knex(MODULE.EMPLOYER)
+      .where({ email: 'hr@techstar.com' })
+      .select('employer_id');
+  }
+
+  if (!employer) {
+    try {
+      [employer] = await knex(MODULE.EMPLOYER).insert({
+        full_name: 'TechStar Recruiter',
+        role: 'HR Manager',
+        status: 'verified',
+        company_id: company.company_id,
+        email: 'hr@techstar.com',
+        user_id: userId
+      }).returning('employer_id');
+    } catch (insertError) {
+      // If insert fails due to duplicate, try to fetch existing
+      if (insertError.code === '23505') {
+        [employer] = await knex(MODULE.EMPLOYER)
+          .where({ email: 'hr@techstar.com' })
+          .orWhere({ full_name: 'TechStar Recruiter' })
+          .select('employer_id');
+
+        if (!employer) {
+          console.log('⚠️  Could not find or create TechStar employer, skipping...');
+          return;
+        }
+      } else {
+        throw insertError;
+      }
+    }
   }
 
   // 3. Find Locations (HCM, Remote)
   const hcmLoc = await knex(MODULE.LOCATION).where('location_name', 'Hồ Chí Minh').first();
-  const remoteLoc = await knex(MODULE.LOCATION).where('location_name', 'Remote').first() || 
-                    await knex(MODULE.LOCATION).insert({ location_name: 'Remote' }).returning('*').then(rows => rows[0]);
+  const remoteLoc = await knex(MODULE.LOCATION).where('location_name', 'Remote').first() ||
+    await knex(MODULE.LOCATION).insert({ location_name: 'Remote' }).returning('*').then(rows => rows[0]);
 
   // 4. Insert Jobs if not exist
   // We check by title + employer
-  
+
   const jobsData = [
     {
       employer_id: employer.employer_id,
@@ -95,18 +119,18 @@ exports.seed = async function(knex) {
 
   for (const jobData of jobsData) {
     const existingJob = await knex(MODULE.JOB)
-      .where({ 
-        employer_id: jobData.employer_id, 
-        job_title: jobData.job_title 
+      .where({
+        employer_id: jobData.employer_id,
+        job_title: jobData.job_title
       })
       .first();
 
     if (!existingJob) {
       // Extract location_id to handle relation
       const { location_id, ...jobFields } = jobData;
-      
+
       const [newJob] = await knex(MODULE.JOB).insert(jobFields).returning('job_id');
-      
+
       if (location_id) {
         await knex(MODULE.JOB_LOCATION).insert({
           job_id: newJob.job_id,

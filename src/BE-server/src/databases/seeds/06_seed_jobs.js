@@ -30,125 +30,81 @@ exports.seed = async function (knex) {
     return;
   }
 
-  // Employer user IDs (sample data for employers - prefix 'e' for employer users)
-  // These will be inserted into users table to link employers with notifications
-  const employerUserIds = [
-    'e0000000-0000-0000-0000-000000000001', // FPT
-    'e0000000-0000-0000-0000-000000000002', // VinGroup  
-    'e0000000-0000-0000-0000-000000000003', // Viettel
-    'e0000000-0000-0000-0000-000000000004', // Sendo
-    'e0000000-0000-0000-0000-000000000005', // Tiki
-    'e0000000-0000-0000-0000-000000000006', // TMA
-    'e0000000-0000-0000-0000-000000000007', // Lazada
-    'e0000000-0000-0000-0000-000000000008', // Shopee
-    'e0000000-0000-0000-0000-000000000009', // MoMo
-    'e0000000-0000-0000-0000-000000000010', // VNG
-  ];
+  // NOTE: We cannot insert fake UUIDs into users table because it has a foreign key
+  // constraint referencing auth.users in Supabase. Employers will be created without
+  // user_id links. In production, employers are linked when they register via Supabase Auth.
 
-  // Insert employer users into users table for notifications
-  console.log('👥 Creating employer user profiles...');
-  for (let i = 0; i < employerUserIds.length; i++) {
-    const employerNames = [
-      'Nguyễn Thị Hương', 'Trần Văn Đức', 'Lê Thị Mai', 'Phạm Văn Hùng', 'Hoàng Thị Lan',
-      'Võ Văn Nam', 'Đỗ Thị Hoa', 'Bùi Văn Long', 'Ngô Thị Linh', 'Lý Văn Tuấn'
-    ];
-    await knex.raw(`
-      INSERT INTO users (user_id, name, gender, phone, address, avatar_url)
-      VALUES (?, ?, ?, ?, ?, ?)
-      ON CONFLICT (user_id) 
-      DO UPDATE SET name = EXCLUDED.name
-    `, [
-      employerUserIds[i],
-      employerNames[i],
-      i % 2 === 0 ? 'Female' : 'Male',
-      `093${i}234567`,
-      'TP. Hồ Chí Minh',
-      null
-    ]);
-  }
-  console.log(`✅ Created ${employerUserIds.length} employer user profiles`);
-
-  // Insert employers for each company (now with user_id linked)
+  // Insert employers for each company (without user_id for seed data)
   const employers = await knex('employer').insert([
     {
       full_name: 'Nguyễn Thị Hương',
       email: 'hr.fpt@example.com',
       role: 'HR Manager',
       status: 'verified',
-      company_id: companyMap['FPT Software'],
-      user_id: employerUserIds[0]
+      company_id: companyMap['FPT Software']
     },
     {
       full_name: 'Trần Văn Đức',
       email: 'recruiter.vingroup@example.com',
       role: 'Senior Recruiter',
       status: 'verified',
-      company_id: companyMap['VinGroup'],
-      user_id: employerUserIds[1]
+      company_id: companyMap['VinGroup']
     },
     {
       full_name: 'Lê Thị Mai',
       email: 'talent.viettel@example.com',
       role: 'Talent Acquisition Manager',
       status: 'verified',
-      company_id: companyMap['Viettel Solutions'],
-      user_id: employerUserIds[2]
+      company_id: companyMap['Viettel Solutions']
     },
     {
       full_name: 'Phạm Văn Hùng',
       email: 'hr.sendo@example.com',
       role: 'HR Specialist',
       status: 'verified',
-      company_id: companyMap['Sendo'],
-      user_id: employerUserIds[3]
+      company_id: companyMap['Sendo']
     },
     {
       full_name: 'Hoàng Thị Lan',
       email: 'recruiter.tiki@example.com',
       role: 'Recruitment Lead',
       status: 'verified',
-      company_id: companyMap['Tiki'],
-      user_id: employerUserIds[4]
+      company_id: companyMap['Tiki']
     },
     {
       full_name: 'Võ Văn Nam',
       email: 'hr.tma@example.com',
       role: 'HR Director',
       status: 'verified',
-      company_id: companyMap['TMA Solutions'],
-      user_id: employerUserIds[5]
+      company_id: companyMap['TMA Solutions']
     },
     {
       full_name: 'Đỗ Thị Hoa',
       email: 'talent.lazada@example.com',
       role: 'Talent Manager',
       status: 'verified',
-      company_id: companyMap['Lazada Vietnam'],
-      user_id: employerUserIds[6]
+      company_id: companyMap['Lazada Vietnam']
     },
     {
       full_name: 'Bùi Văn Long',
       email: 'hr.shopee@example.com',
       role: 'HR Business Partner',
       status: 'verified',
-      company_id: companyMap['Shopee Vietnam'],
-      user_id: employerUserIds[7]
+      company_id: companyMap['Shopee Vietnam']
     },
     {
       full_name: 'Ngô Thị Linh',
       email: 'recruiter.momo@example.com',
       role: 'Senior Recruiter',
       status: 'verified',
-      company_id: companyMap['MoMo'],
-      user_id: employerUserIds[8]
+      company_id: companyMap['MoMo']
     },
     {
       full_name: 'Lý Văn Tuấn',
       email: 'hr.vng@example.com',
       role: 'HR Manager',
       status: 'verified',
-      company_id: companyMap['VNG Corporation'],
-      user_id: employerUserIds[9]
+      company_id: companyMap['VNG Corporation']
     }
   ]).returning('*');
 
@@ -455,81 +411,81 @@ exports.seed = async function (knex) {
     { job_id: jobs[0].job_id, tag_id: tagMap['Senior'] },
     { job_id: jobs[0].job_id, tag_id: tagMap['Remote'] },
     { job_id: jobs[0].job_id, tag_id: tagMap['Hot'] },
-    
+
     // Job 1: Frontend React - Full-time, Mid-level, Hybrid
     { job_id: jobs[1].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[1].job_id, tag_id: tagMap['Mid-level'] },
     { job_id: jobs[1].job_id, tag_id: tagMap['Hybrid'] },
-    
+
     // Job 2: Python AI/ML - Full-time, Mid-level, Hot
     { job_id: jobs[2].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[2].job_id, tag_id: tagMap['Mid-level'] },
     { job_id: jobs[2].job_id, tag_id: tagMap['Hot'] },
-    
+
     // Job 3: Junior Java - Full-time, Fresher
     { job_id: jobs[3].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[3].job_id, tag_id: tagMap['Fresher'] },
     { job_id: jobs[3].job_id, tag_id: tagMap['Junior'] },
-    
+
     // Job 4: Backend Node.js - Full-time, Mid-level
     { job_id: jobs[4].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[4].job_id, tag_id: tagMap['Mid-level'] },
-    
+
     // Job 5: Mobile React Native - Full-time, Mid-level
     { job_id: jobs[5].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[5].job_id, tag_id: tagMap['Mid-level'] },
-    
+
     // Job 6: DevOps - Full-time, Senior
     { job_id: jobs[6].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[6].job_id, tag_id: tagMap['Senior'] },
-    
+
     // Job 7: QA Automation - Full-time, Mid-level
     { job_id: jobs[7].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[7].job_id, tag_id: tagMap['Mid-level'] },
-    
+
     // Job 8: Full Stack Sendo - Full-time, Mid-level
     { job_id: jobs[8].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[8].job_id, tag_id: tagMap['Mid-level'] },
-    
+
     // Job 9: Data Engineer - Full-time, Senior, Hot
     { job_id: jobs[9].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[9].job_id, tag_id: tagMap['Senior'] },
     { job_id: jobs[9].job_id, tag_id: tagMap['Hot'] },
-    
+
     // Job 10: Backend Shopee - Full-time, Mid-level
     { job_id: jobs[10].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[10].job_id, tag_id: tagMap['Mid-level'] },
-    
+
     // Job 11: Senior Backend MoMo - Full-time, Senior, Hot
     { job_id: jobs[11].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[11].job_id, tag_id: tagMap['Senior'] },
     { job_id: jobs[11].job_id, tag_id: tagMap['Hot'] },
-    
+
     // Job 12: Mobile Flutter - Full-time, Mid-level
     { job_id: jobs[12].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[12].job_id, tag_id: tagMap['Mid-level'] },
-    
+
     // Job 13: Game Developer - Full-time, Mid-level
     { job_id: jobs[13].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[13].job_id, tag_id: tagMap['Mid-level'] },
-    
+
     // Job 14: Backend VNG - Full-time, Senior
     { job_id: jobs[14].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[14].job_id, tag_id: tagMap['Senior'] },
-    
+
     // Job 15: UI/UX Designer - Full-time, Mid-level
     { job_id: jobs[15].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[15].job_id, tag_id: tagMap['Mid-level'] },
-    
+
     // Job 16: Frontend Vue.js - Full-time, Mid-level
     { job_id: jobs[16].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[16].job_id, tag_id: tagMap['Mid-level'] },
-    
+
     // Job 17: DevOps Remote - Full-time, Senior, Remote
     { job_id: jobs[17].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[17].job_id, tag_id: tagMap['Senior'] },
     { job_id: jobs[17].job_id, tag_id: tagMap['Remote'] },
-    
+
     // Job 18: Data Scientist - Full-time, Mid-level
     { job_id: jobs[18].job_id, tag_id: tagMap['Full-time'] },
     { job_id: jobs[18].job_id, tag_id: tagMap['Mid-level'] }
@@ -549,7 +505,7 @@ exports.seed = async function (knex) {
     { job_id: jobs[13].job_id, location_id: locationMap['Hồ Chí Minh'] },
     { job_id: jobs[14].job_id, location_id: locationMap['Hồ Chí Minh'] },
     { job_id: jobs[15].job_id, location_id: locationMap['Hồ Chí Minh'] },
-    
+
     // HN jobs
     { job_id: jobs[4].job_id, location_id: locationMap['Hà Nội'] },
     { job_id: jobs[5].job_id, location_id: locationMap['Hà Nội'] },
@@ -560,7 +516,7 @@ exports.seed = async function (knex) {
     { job_id: jobs[12].job_id, location_id: locationMap['Hà Nội'] },
     { job_id: jobs[16].job_id, location_id: locationMap['Hà Nội'] },
     { job_id: jobs[18].job_id, location_id: locationMap['Hà Nội'] },
-    
+
     // Remote job
     { job_id: jobs[17].job_id, location_id: locationMap['Remote'] || locationMap['Hồ Chí Minh'] }
   ];
@@ -574,83 +530,83 @@ exports.seed = async function (knex) {
     { job_id: jobs[0].job_id, skill_id: skillMap['Node.js'] },
     { job_id: jobs[0].job_id, skill_id: skillMap['TypeScript'] },
     { job_id: jobs[0].job_id, skill_id: skillMap['PostgreSQL'] },
-    
+
     // Job 1: React + Next.js + TypeScript
     { job_id: jobs[1].job_id, skill_id: skillMap['ReactJS'] },
     { job_id: jobs[1].job_id, skill_id: skillMap['Next.js'] },
     { job_id: jobs[1].job_id, skill_id: skillMap['TypeScript'] },
-    
+
     // Job 2: Python + Machine Learning + TensorFlow
     { job_id: jobs[2].job_id, skill_id: skillMap['Python'] },
     { job_id: jobs[2].job_id, skill_id: skillMap['Machine Learning'] },
     { job_id: jobs[2].job_id, skill_id: skillMap['TensorFlow'] },
-    
+
     // Job 3: Java + Spring Boot
     { job_id: jobs[3].job_id, skill_id: skillMap['Java'] },
     { job_id: jobs[3].job_id, skill_id: skillMap['Spring Boot'] },
-    
+
     // Job 4: Node.js + NestJS + PostgreSQL
     { job_id: jobs[4].job_id, skill_id: skillMap['Node.js'] },
     { job_id: jobs[4].job_id, skill_id: skillMap['NestJS'] },
     { job_id: jobs[4].job_id, skill_id: skillMap['PostgreSQL'] },
-    
+
     // Job 5: React Native + JavaScript
     { job_id: jobs[5].job_id, skill_id: skillMap['React Native'] },
     { job_id: jobs[5].job_id, skill_id: skillMap['JavaScript'] },
-    
+
     // Job 6: AWS + Docker + Kubernetes
     { job_id: jobs[6].job_id, skill_id: skillMap['AWS'] },
     { job_id: jobs[6].job_id, skill_id: skillMap['Docker'] },
     { job_id: jobs[6].job_id, skill_id: skillMap['Kubernetes'] },
-    
+
     // Job 7: Selenium + Jest
     { job_id: jobs[7].job_id, skill_id: skillMap['Selenium'] },
     { job_id: jobs[7].job_id, skill_id: skillMap['Jest'] },
-    
+
     // Job 8: Node.js + React + PostgreSQL
     { job_id: jobs[8].job_id, skill_id: skillMap['Node.js'] },
     { job_id: jobs[8].job_id, skill_id: skillMap['ReactJS'] },
     { job_id: jobs[8].job_id, skill_id: skillMap['PostgreSQL'] },
-    
+
     // Job 9: Python + SQL + AWS
     { job_id: jobs[9].job_id, skill_id: skillMap['Python'] },
     { job_id: jobs[9].job_id, skill_id: skillMap['PostgreSQL'] },
     { job_id: jobs[9].job_id, skill_id: skillMap['AWS'] },
-    
+
     // Job 10: Go + Java + MySQL
     { job_id: jobs[10].job_id, skill_id: skillMap['Go'] },
     { job_id: jobs[10].job_id, skill_id: skillMap['Java'] },
     { job_id: jobs[10].job_id, skill_id: skillMap['MySQL'] },
-    
+
     // Job 11: Java + Spring Boot + PostgreSQL
     { job_id: jobs[11].job_id, skill_id: skillMap['Java'] },
     { job_id: jobs[11].job_id, skill_id: skillMap['Spring Boot'] },
     { job_id: jobs[11].job_id, skill_id: skillMap['PostgreSQL'] },
-    
+
     // Job 12: Flutter + Dart
     { job_id: jobs[12].job_id, skill_id: skillMap['Flutter'] },
-    
+
     // Job 13: Unity + C#
     { job_id: jobs[13].job_id, skill_id: skillMap['C#'] },
-    
+
     // Job 14: Go + Node.js + PostgreSQL
     { job_id: jobs[14].job_id, skill_id: skillMap['Go'] },
     { job_id: jobs[14].job_id, skill_id: skillMap['Node.js'] },
     { job_id: jobs[14].job_id, skill_id: skillMap['PostgreSQL'] },
-    
+
     // Job 15: Figma + UI/UX Design
     { job_id: jobs[15].job_id, skill_id: skillMap['Figma'] },
     { job_id: jobs[15].job_id, skill_id: skillMap['UI/UX Design'] },
-    
+
     // Job 16: Vue.js + JavaScript
     { job_id: jobs[16].job_id, skill_id: skillMap['Vue.js'] },
     { job_id: jobs[16].job_id, skill_id: skillMap['JavaScript'] },
-    
+
     // Job 17: AWS + Docker + Kubernetes
     { job_id: jobs[17].job_id, skill_id: skillMap['AWS'] },
     { job_id: jobs[17].job_id, skill_id: skillMap['Docker'] },
     { job_id: jobs[17].job_id, skill_id: skillMap['Kubernetes'] },
-    
+
     // Job 18: Python + Machine Learning
     { job_id: jobs[18].job_id, skill_id: skillMap['Python'] },
     { job_id: jobs[18].job_id, skill_id: skillMap['Machine Learning'] }

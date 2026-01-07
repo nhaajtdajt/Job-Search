@@ -112,3 +112,11 @@ node scripts/fix-admin-profiles.js
 2. **Admin users được tạo trong Supabase Auth** - Script seed tạo admin trong Supabase Auth, nhưng bảng `users` local cần sync profile riêng
 
 3. **Employer cần có record trong bảng `employer`** - Khi đăng ký employer, system tự tạo. Nếu lỗi, kiểm tra JWT token có `employer_id`
+
+
+tài khoản employer có data
+1	demo.employer1@jobsearch.com	Demo@123456	FPT Software
+2	demo.employer2@jobsearch.com	Demo@123456	VinGroup
+3	demo.employer3@jobsearch.com	Demo@123456	Viettel Solutions
+4	demo.employer4@jobsearch.com	Demo@123456	Shopee Vietnam
+5	demo.employer5@jobsearch.com	Demo@123456	MoMo
