@@ -10,10 +10,10 @@
  */
 exports.seed = async function (knex) {
   console.log('🏢 Seeding companies...');
-  
+
   // Clear existing companies
   await knex('company').del();
-  
+
   await knex('company').insert([
     // Large Tech Corporations
     {
@@ -21,21 +21,24 @@ exports.seed = async function (knex) {
       website: 'https://fptsoftware.com',
       address: 'Khu Công Nghệ Cao, Quận 9, TP.HCM',
       description: 'Công ty phần mềm hàng đầu Việt Nam với hơn 30,000 nhân viên. Chuyên phát triển phần mềm cho thị trường quốc tế, đặc biệt là Nhật Bản và Mỹ. Cung cấp dịch vụ outsourcing, digital transformation, và AI solutions.',
-      logo_url: null
+      logo_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/FPT_logo_2010.svg/2560px-FPT_logo_2010.svg.png',
+      banner_url: 'https://fptnamdinh.vn/wp-content/uploads/2020/12/banner.jpg'
     },
     {
       company_name: 'VinGroup',
       website: 'https://vingroup.net',
       address: '458 Minh Khai, Hai Bà Trưng, Hà Nội',
       description: 'Tập đoàn kinh tế tư nhân đa ngành lớn nhất Việt Nam. Hoạt động trong lĩnh vực công nghệ (VinSmart, VinFast), bất động sản (Vinhomes), bán lẻ (VinMart), và giáo dục (Vinschool).',
-      logo_url: null
+      logo_url: 'https://upload.wikimedia.org/wikipedia/vi/thumb/9/98/Vingroup_logo.svg/2560px-Vingroup_logo.svg.png',
+      banner_url: 'https://upload.wikimedia.org/wikipedia/vi/thumb/9/98/Vingroup_logo.svg/2560px-Vingroup_logo.svg.png'
     },
     {
       company_name: 'Viettel Solutions',
       website: 'https://viettelsolutions.vn',
       address: '1 Giang Văn Minh, Ba Đình, Hà Nội',
       description: 'Công ty công nghệ số hàng đầu Việt Nam, thuộc Tập đoàn Viettel. Cung cấp giải pháp chuyển đổi số cho doanh nghiệp, chính phủ điện tử, và các dịch vụ công nghệ thông tin.',
-      logo_url: null
+      logo_url: 'https://solutions.viettel.vn/themes/vtsolution-version-2/images/viettel-solution.png',
+      banner_url: 'https://1900.com.vn/storage/uploads/companies/banner/8338/banner-tong-cong-ty-giai-phap-doanh-nghiep-viettel-11017-1737598507.jpg'
     },
     {
       company_name: 'TMA Solutions',
@@ -44,7 +47,7 @@ exports.seed = async function (knex) {
       description: 'Công ty phần mềm lớn tại Việt Nam với hơn 2,000 nhân viên. Chuyên phát triển phần mềm cho các khách hàng quốc tế, đặc biệt là Bắc Mỹ và Châu Âu.',
       logo_url: null
     },
-    
+
     // E-commerce & Tech Startups
     {
       company_name: 'Tiki',
@@ -72,16 +75,18 @@ exports.seed = async function (knex) {
       website: 'https://shopee.vn',
       address: 'Tầng 4, Tòa nhà Saigon Trade Center, 37 Tôn Đức Thắng, Quận 1, TP.HCM',
       description: 'Nền tảng thương mại điện tử hàng đầu Đông Nam Á tại Việt Nam. Ứng dụng mua sắm trực tuyến phổ biến với hàng triệu người dùng.',
-      logo_url: null
+      logo_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Shopee_logo.svg/1442px-Shopee_logo.svg.png',
+      banner_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Shopee_logo.svg/1442px-Shopee_logo.svg.png'
     },
-    
+
     // Fintech & Banking Tech
     {
       company_name: 'MoMo',
       website: 'https://momo.vn',
       address: 'Tầng 6, Tòa nhà Central Point, 219 Trung Kính, Cầu Giấy, Hà Nội',
       description: 'Ví điện tử và nền tảng thanh toán số hàng đầu Việt Nam. Cung cấp dịch vụ thanh toán, chuyển tiền, và các dịch vụ tài chính số.',
-      logo_url: null
+      logo_url: 'https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square.png',
+      banner_url: 'https://homepage.momocdn.net/img/momo-upload-api-211013100201-637697161213065257.jpg'
     },
     {
       company_name: 'VPBank',
@@ -97,7 +102,7 @@ exports.seed = async function (knex) {
       description: 'Ngân hàng thương mại cổ phần với công nghệ hiện đại. Đầu tư mạnh vào digital banking và fintech innovation.',
       logo_url: null
     },
-    
+
     // Gaming & Entertainment
     {
       company_name: 'VNG Corporation',
@@ -113,7 +118,7 @@ exports.seed = async function (knex) {
       description: 'Công ty công nghệ âm nhạc hàng đầu Việt Nam. Phát triển ứng dụng mobile music games với hàng trăm triệu người dùng toàn cầu.',
       logo_url: null
     },
-    
+
     // Software & Services
     {
       company_name: 'CMC Corporation',
@@ -136,7 +141,7 @@ exports.seed = async function (knex) {
       description: 'Công ty phần mềm Thụy Sĩ tại Việt Nam. Chuyên phát triển phần mềm và ứng dụng web/mobile cho khách hàng quốc tế.',
       logo_url: null
     },
-    
+
     // AI & Data
     {
       company_name: 'FPT.AI',
@@ -153,7 +158,7 @@ exports.seed = async function (knex) {
       logo_url: null
     }
   ]);
-  
+
   const count = await knex('company').count('* as count').first().then(r => r.count);
   console.log(`✅ Created ${count} companies`);
 };
