@@ -135,12 +135,6 @@ class CompanyService {
       employer = await EmployerRepository.findByUserId(employerIdOrUserId);
     }
     
-    console.log('[CompanyService.uploadLogo] Permission check:', {
-      companyId,
-      employerIdOrUserId,
-      employer: employer ? { employer_id: employer.employer_id, company_id: employer.company_id } : null
-    });
-
     if (!employer || parseInt(employer.company_id) !== parseInt(companyId)) {
       throw new ForbiddenError('Not authorized to update this company');
     }
@@ -208,12 +202,6 @@ class CompanyService {
       employer = await EmployerRepository.findByUserId(employerIdOrUserId);
     }
     
-    console.log('[CompanyService.uploadBanner] Permission check:', {
-      companyId,
-      employerIdOrUserId,
-      employer: employer ? { employer_id: employer.employer_id, company_id: employer.company_id } : null
-    });
-
     if (!employer || parseInt(employer.company_id) !== parseInt(companyId)) {
       throw new ForbiddenError('Not authorized to update this company');
     }

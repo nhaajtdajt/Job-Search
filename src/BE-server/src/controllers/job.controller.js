@@ -98,13 +98,7 @@ class JobController {
       const employerId = req.user.employer_id; // From auth middleware
       const jobData = req.body;
 
-      console.log('[JobController] createJob called');
-      console.log('[JobController] req.user:', JSON.stringify(req.user, null, 2));
-      console.log('[JobController] employerId:', employerId);
-      console.log('[JobController] jobData keys:', Object.keys(jobData));
-
       if (!employerId) {
-        console.error('[JobController] ERROR: employer_id is missing from token!');
         return res.status(400).json({
           success: false,
           message: 'Employer ID not found. Please log out and log in again.'
@@ -119,8 +113,6 @@ class JobController {
         data: job,
       });
     } catch (error) {
-      console.error('[JobController] createJob error:', error.message);
-      console.error('[JobController] Full error:', error);
       return next(error);
     }
   }

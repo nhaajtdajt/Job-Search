@@ -18,8 +18,6 @@ class JobMatchService {
      */
     static async checkAndNotifyMatches(job) {
         try {
-            console.log(`🔍 Checking job matches for job ID: ${job.job_id}`);
-
             // 1. Check saved search settings (Job Notifications)
             await this.checkSavedSearchMatches(job);
 
@@ -27,7 +25,7 @@ class JobMatchService {
             await this.checkSimilarityMatches(job);
 
         } catch (error) {
-            console.error('❌ Error in job matching:', error.message);
+            // Silently handle job matching errors
         }
     }
 
@@ -43,11 +41,8 @@ class JobMatchService {
                 .whereRaw("filter IS NOT NULL AND filter != '{}'");
 
             if (!savedSearches || savedSearches.length === 0) {
-                console.log('📋 No saved searches to check');
                 return;
             }
-
-            console.log(`📋 Checking ${savedSearches.length} saved searches...`);
 
             // Get job locations for matching
             const jobLocations = await db(MODULE.JOB_LOCATION)
@@ -105,22 +100,19 @@ class JobMatchService {
                         });
                     }
                 } catch (e) {
-                    console.error(`Error parsing saved search ${search.stt}:`, e.message);
+                    // Silently handle parsing errors
                 }
             }
 
             if (matchedUsers.length === 0) {
-                console.log('📋 No matching saved searches found');
                 return;
             }
-
-            console.log(`✅ Found ${matchedUsers.length} users with matching saved search`);
 
             // Send notifications
             await this.sendSavedSearchNotifications(job, matchedUsers, companyName);
 
         } catch (error) {
-            console.error('❌ Error checking saved search matches:', error.message);
+            // Silently handle saved search matching errors
         }
     }
 
@@ -219,7 +211,6 @@ class JobMatchService {
                             search_name: search_name
                         }
                     );
-                    console.log(`🔔 In-app notification sent to user ${user_id}`);
                 }
 
                 // Send email notification (if notify_via is 'email' or 'both')
@@ -236,12 +227,11 @@ class JobMatchService {
                             salaryMax: job.salary_max,
                             jobId: job.job_id
                         });
-                        console.log(`📧 Job match email sent to user ${user_id}`);
                     }
                 }
 
             } catch (error) {
-                console.error(`❌ Failed to notify user ${user_id}:`, error.message);
+                // Silently handle notification errors
             }
         }
     }
@@ -262,17 +252,14 @@ class JobMatchService {
             );
 
             if (!results || results.length === 0) {
-                console.log('📋 No users found with similar saved jobs');
                 return;
             }
-
-            console.log(`✅ Found ${results.length} users with similar saved job history`);
 
             // Send notifications (email only for backward compatibility)
             await this.sendSimilarityNotifications(job, results);
 
         } catch (error) {
-            console.error('❌ Error in job similarity check:', error.message);
+            // Silently handle similarity check errors
         }
     }
 
@@ -291,7 +278,6 @@ class JobMatchService {
                 const userEmail = await getUserEmailById(user_id);
 
                 if (!userEmail) {
-                    console.warn(`⚠️  Cannot send job match email: User ${user_id} email not found`);
                     continue;
                 }
 
@@ -307,10 +293,8 @@ class JobMatchService {
                     jobId: job.job_id
                 });
 
-                console.log(`📧 Job recommendation email sent to user ${user_id}`);
-
             } catch (error) {
-                console.error(`❌ Failed to send recommendation email to user ${user_id}:`, error.message);
+                // Silently handle email errors
             }
         }
     }

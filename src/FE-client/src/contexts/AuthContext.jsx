@@ -255,8 +255,28 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Không thể lấy session từ OAuth callback');
       }
 
-      // Get provider from session (try to detect from user metadata or default to google)
-      const provider = session.provider_token ? 'google' : 'facebook'; // Simple detection
+      // Get provider from session - check identities or app_metadata
+      let provider = 'google'; // default
+      if (session.user) {
+        // Check identities array (most reliable)
+        if (session.user.identities && session.user.identities.length > 0) {
+          const identityProvider = session.user.identities[0].provider;
+          if (identityProvider === 'facebook') {
+            provider = 'facebook';
+          } else if (identityProvider === 'google') {
+            provider = 'google';
+          }
+        }
+        // Fallback: check app_metadata
+        else if (session.user.app_metadata?.provider) {
+          const metaProvider = session.user.app_metadata.provider.toLowerCase();
+          if (metaProvider === 'facebook') {
+            provider = 'facebook';
+          } else if (metaProvider === 'google') {
+            provider = 'google';
+          }
+        }
+      }
 
       // Call backend to sync user and get JWT tokens with accountType
       const result = await authService.socialLoginCallback(session.access_token, provider, accountType);
