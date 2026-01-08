@@ -34,7 +34,6 @@ class EmailService {
 
         const validation = emailConfig.validateConfig();
         if (!validation.valid) {
-            console.warn('⚠️  Email not configured:', validation.errors.join(', '));
             return null;
         }
 
@@ -43,12 +42,6 @@ class EmailService {
             port: emailConfig.smtp.port,
             secure: emailConfig.smtp.secure,
             auth: emailConfig.smtp.auth
-        });
-
-        console.log('📧 Email transporter initialized:', {
-            host: emailConfig.smtp.host,
-            port: emailConfig.smtp.port,
-            user: emailConfig.smtp.auth.user
         });
 
         return this.transporter;
@@ -77,7 +70,6 @@ class EmailService {
             this.templatesCache.set(templateName, compiledTemplate);
             return compiledTemplate;
         } catch (error) {
-            console.error(`❌ Failed to load email template: ${templateName}`, error.message);
             return null;
         }
     }
@@ -95,15 +87,12 @@ class EmailService {
         const transporter = this.initTransporter();
 
         if (!transporter) {
-            console.log(`📧 [Email would be sent] To: ${to}, Subject: ${subject}`);
-            console.log('📧 Data:', JSON.stringify(data, null, 2));
             return false;
         }
 
         // Load and compile template
         const compiledTemplate = this.loadTemplate(template);
         if (!compiledTemplate) {
-            console.error(`❌ Template not found: ${template}`);
             return false;
         }
 
@@ -125,20 +114,14 @@ class EmailService {
         };
 
         try {
-            console.log(`📧 Sending email to: ${to}`);
-
             // Verify connection
             await transporter.verify();
 
             // Send email
-            const info = await transporter.sendMail(mailOptions);
-            console.log('✅ Email sent successfully:', info.messageId);
+            await transporter.sendMail(mailOptions);
             return true;
         } catch (error) {
-            console.error('❌ Failed to send email:', error.message);
-            if (error.code === 'EAUTH' || error.responseCode === 535) {
-                console.error('🔧 Gmail auth error - Check App Password configuration');
-            }
+            // Silently handle email errors
             return false;
         }
     }

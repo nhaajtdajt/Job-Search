@@ -70,13 +70,13 @@ class ApplicationService {
     const applicant = await UserRepository.findById(userId);
 
     // Create notification for employer (async, don't block response)
-    this.notifyEmployerNewApplication(job, applicant, application).catch(err => {
-      console.error('Failed to create employer notification:', err.message);
+    this.notifyEmployerNewApplication(job, applicant, application).catch(() => {
+      // Silently handle notification errors
     });
 
     // Send email notifications (async, don't block response)
-    this.sendApplicationEmails(userId, job, resume).catch(err => {
-      console.error('Failed to send application emails:', err.message);
+    this.sendApplicationEmails(userId, job, resume).catch(() => {
+      // Silently handle email errors
     });
 
     return application;
@@ -330,13 +330,13 @@ class ApplicationService {
     const updatedApplication = await ApplicationRepository.updateStatus(applicationId, status);
 
     // Send status update email to user (async, don't block response)
-    this.sendStatusUpdateEmail(application.user_id, job, currentStatus, status).catch(err => {
-      console.error('Failed to send status update email:', err.message);
+    this.sendStatusUpdateEmail(application.user_id, job, currentStatus, status).catch(() => {
+      // Silently handle email errors
     });
 
     // Send in-app notification to user (async, don't block response)
-    this.notifyApplicantStatusChange(application.user_id, job, currentStatus, status, applicationId).catch(err => {
-      console.error('Failed to send status change notification:', err.message);
+    this.notifyApplicantStatusChange(application.user_id, job, currentStatus, status, applicationId).catch(() => {
+      // Silently handle notification errors
     });
 
     return updatedApplication;
@@ -388,13 +388,13 @@ class ApplicationService {
         updated++;
 
         // Send status update email (async, don't block)
-        this.sendStatusUpdateEmail(application.user_id, job, application.status, status).catch(err => {
-          console.error(`Failed to send status update email for application ${applicationId}:`, err.message);
+        this.sendStatusUpdateEmail(application.user_id, job, application.status, status).catch(() => {
+          // Silently handle email errors
         });
 
         // Send in-app notification (async, don't block)
-        this.notifyApplicantStatusChange(application.user_id, job, application.status, status, applicationId).catch(err => {
-          console.error(`Failed to send status notification for application ${applicationId}:`, err.message);
+        this.notifyApplicantStatusChange(application.user_id, job, application.status, status, applicationId).catch(() => {
+          // Silently handle notification errors
         });
 
       } catch (error) {
@@ -495,7 +495,6 @@ class ApplicationService {
     const userEmail = await getUserEmailById(userId);
 
     if (!userEmail) {
-      console.warn(`⚠️  Cannot send email: User ${userId} email not found`);
       return;
     }
 
@@ -520,8 +519,6 @@ class ApplicationService {
         applyDate: new Date().toLocaleDateString('vi-VN')
       });
     }
-
-    console.log(`📧 Application emails sent for job ${job.job_id} by user ${userId}`);
   }
 
   /**
@@ -538,7 +535,6 @@ class ApplicationService {
     const userEmail = await getUserEmailById(userId);
 
     if (!userEmail) {
-      console.warn(`⚠️  Cannot send email: User ${userId} email not found`);
       return;
     }
 
@@ -552,8 +548,6 @@ class ApplicationService {
       oldStatus: oldStatus,
       newStatus: newStatus
     });
-
-    console.log(`📧 Status update email sent to user ${userId}: ${oldStatus} -> ${newStatus}`);
   }
 
   /**
@@ -569,7 +563,6 @@ class ApplicationService {
       const employer = await EmployerRepository.findById(job.employer_id);
       
       if (!employer || !employer.user_id) {
-        console.warn(`⚠️  Cannot create notification: Employer ${job.employer_id} has no user_id`);
         return;
       }
 
@@ -588,11 +581,8 @@ class ApplicationService {
           applicant_id: applicant?.user_id
         }
       );
-
-      console.log(`🔔 Notification created for employer ${employer.employer_id} about new application`);
     } catch (error) {
-      console.error('Error creating employer notification:', error.message);
-      // Don't throw, just log - notifications are not critical
+      // Don't throw - notifications are not critical
     }
   }
 
@@ -650,11 +640,8 @@ class ApplicationService {
           new_status: newStatus
         }
       );
-
-      console.log(`🔔 Status change notification sent to user ${userId}: ${oldStatus} -> ${newStatus}`);
     } catch (error) {
-      console.error('Error creating applicant status notification:', error.message);
-      // Don't throw, just log - notifications are not critical
+      // Don't throw - notifications are not critical
     }
   }
 }

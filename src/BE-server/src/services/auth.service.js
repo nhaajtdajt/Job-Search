@@ -538,7 +538,18 @@ class AuthService {
     const email = authUser.email;
     const userMetadata = authUser.user_metadata || {};
     const name = userMetadata.full_name || userMetadata.name || userMetadata.display_name || email?.split('@')[0];
-    const avatarUrl = this.extractAvatarFromMetadata(userMetadata, authUser);
+    let avatarUrl = this.extractAvatarFromMetadata(userMetadata, authUser);
+    
+    // Fallback: If no avatar found for Facebook, try to construct Graph API URL
+    if (provider === 'facebook' && !avatarUrl) {
+      const facebookIdentity = authUser.identities?.find(id => id.provider === 'facebook');
+      if (facebookIdentity?.identity_data?.sub) {
+        // Facebook user ID from identity
+        const fbUserId = facebookIdentity.identity_data.sub;
+        // Construct Graph API URL (works for public profile pictures)
+        avatarUrl = `https://graph.facebook.com/${fbUserId}/picture?type=large`;
+      }
+    }
 
     // Get or create user profile via repository
     let user = await AuthRepository.findUserById(userId);
@@ -555,7 +566,11 @@ class AuthService {
     } else {
       // Update avatar/name if needed
       const updateData = {};
-      if (avatarUrl && !user.avatar_url) updateData.avatar_url = avatarUrl;
+      // Always update avatar if we have a new one from social provider
+      // This ensures avatar stays in sync with social provider
+      if (avatarUrl) {
+        updateData.avatar_url = avatarUrl;
+      }
       if (name && user.name !== name) updateData.name = name;
       if (Object.keys(updateData).length > 0) {
         await AuthRepository.updateUser(userId, updateData);
@@ -571,9 +586,12 @@ class AuthService {
     const secondsSinceCreation = (new Date() - userCreatedAt) / 1000;
     const isExistingUser = secondsSinceCreation > 30;
 
+    // Get provider name for error messages
+    const providerName = provider === 'facebook' ? 'Facebook' : 'Google';
+    
     if (accountType === 'employer') {
       if (isExistingUser && !employer) {
-        throw new BadRequestError('Tài khoản Google này đã được đăng nhập ở người tìm việc không thể sử dụng cho nhà tuyển dụng');
+        throw new BadRequestError(`Tài khoản ${providerName} này đã được đăng nhập ở người tìm việc không thể sử dụng cho nhà tuyển dụng`);
       }
 
       if (!employer) {
@@ -588,7 +606,7 @@ class AuthService {
       }
     } else {
       if (employer) {
-        throw new BadRequestError('Tài khoản Google này đã được đăng nhập ở nhà tuyển dụng không thể sử dụng cho người tìm việc');
+        throw new BadRequestError(`Tài khoản ${providerName} này đã được đăng nhập ở nhà tuyển dụng không thể sử dụng cho người tìm việc`);
       }
     }
 
@@ -620,18 +638,68 @@ class AuthService {
 
   /**
    * Extract avatar URL from metadata
+   * Supports both Google and Facebook metadata formats
    * @private
    */
   static extractAvatarFromMetadata(userMetadata, authUser) {
-    return userMetadata.avatar_url ||
+    // Try identities array FIRST (most reliable for Facebook)
+    if (authUser.identities && authUser.identities.length > 0) {
+      for (const identity of authUser.identities) {
+        if (identity.identity_data) {
+          const identityData = identity.identity_data;
+          // Facebook typically stores avatar in these fields
+          const fromIdentity = identityData.picture?.data?.url || // Facebook Graph API format
+            identityData.picture || // Direct URL
+            identityData.avatar_url ||
+            identityData.photo_url ||
+            identityData.avatar ||
+            identityData.image_url ||
+            identityData.profile_picture; // Alternative Facebook field
+          
+          if (fromIdentity) return fromIdentity;
+        }
+      }
+    }
+
+    // Try user_metadata
+    const fromUserMetadata = userMetadata.avatar_url ||
+      userMetadata.picture?.data?.url || // Facebook Graph API nested format
       userMetadata.picture ||
       userMetadata.photo_url ||
       userMetadata.avatar ||
+      userMetadata.image_url ||
+      userMetadata.profile_picture ||
       authUser.user_metadata?.avatar_url ||
+      authUser.user_metadata?.picture?.data?.url ||
       authUser.user_metadata?.picture ||
-      (authUser.identities?.[0]?.identity_data?.avatar_url) ||
-      (authUser.identities?.[0]?.identity_data?.picture) ||
-      null;
+      authUser.user_metadata?.photo_url ||
+      authUser.user_metadata?.avatar ||
+      authUser.user_metadata?.image_url ||
+      authUser.user_metadata?.profile_picture;
+
+    if (fromUserMetadata) return fromUserMetadata;
+
+    // Try app_metadata
+    if (authUser.app_metadata) {
+      const fromAppMetadata = authUser.app_metadata.avatar_url ||
+        authUser.app_metadata.picture?.data?.url ||
+        authUser.app_metadata.picture ||
+        authUser.app_metadata.image_url;
+      
+      if (fromAppMetadata) return fromAppMetadata;
+    }
+
+    // Facebook Graph API: Try to construct URL from user ID if available
+    if (authUser.identities && authUser.identities.length > 0) {
+      const facebookIdentity = authUser.identities.find(id => id.provider === 'facebook');
+      if (facebookIdentity && facebookIdentity.identity_data?.sub) {
+        // Facebook Graph API: https://graph.facebook.com/{user_id}/picture?type=large
+        const facebookUserId = facebookIdentity.identity_data.sub;
+        return `https://graph.facebook.com/${facebookUserId}/picture?type=large&access_token=${facebookIdentity.identity_data.access_token || ''}`;
+      }
+    }
+
+    return null;
   }
 
   // ============================================

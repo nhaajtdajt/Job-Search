@@ -22,13 +22,6 @@ class CompanyController {
       const { companyId } = req.params;
       // Use employer_id if available, fallback to user_id
       const employerIdOrUserId = req.user.employer_id || req.user.user_id;
-      
-      console.log('[CompanyController.uploadLogo] Request:', {
-        companyId,
-        employer_id: req.user.employer_id,
-        user_id: req.user.user_id,
-        employerIdOrUserId
-      });
 
       const result = await CompanyService.uploadLogo(companyId, employerIdOrUserId, req.file.buffer);
 
@@ -58,13 +51,6 @@ class CompanyController {
       const { companyId } = req.params;
       // Use employer_id if available, fallback to user_id
       const employerIdOrUserId = req.user.employer_id || req.user.user_id;
-      
-      console.log('[CompanyController.uploadBanner] Request:', {
-        companyId,
-        employer_id: req.user.employer_id,
-        user_id: req.user.user_id,
-        employerIdOrUserId
-      });
 
       const result = await CompanyService.uploadBanner(companyId, employerIdOrUserId, req.file.buffer);
 

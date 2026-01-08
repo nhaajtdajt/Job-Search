@@ -87,7 +87,7 @@ export default function EmployerAuthCallback() {
                     error.response?.data?.message || // Backend API error
                     error.response?.data?.error ||   // Alternative error format
                     error.message ||                  // Standard error
-                    'Đăng nhập bằng Google thất bại. Vui lòng thử lại.';
+                    'Đăng nhập bằng tài khoản xã hội thất bại. Vui lòng thử lại.';
 
                 // Clear any partial auth state from Supabase
                 try {

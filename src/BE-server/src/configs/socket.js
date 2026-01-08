@@ -35,7 +35,6 @@ function initializeSocket(httpServer) {
       const token = socket.handshake.auth.token || socket.handshake.query.token;
       
       if (!token) {
-        console.log('[Socket.IO] No token provided, allowing anonymous connection');
         socket.userId = null;
         return next();
       }
@@ -43,10 +42,8 @@ function initializeSocket(httpServer) {
       // Verify JWT token
       const decoded = jwt.verify(token, environment.JWT_SECRET || environment.SUPABASE_JWT_SECRET);
       socket.userId = decoded.sub || decoded.user_id || decoded.id;
-      console.log(`[Socket.IO] Authenticated user: ${socket.userId}`);
       next();
     } catch (error) {
-      console.log('[Socket.IO] Authentication error:', error.message);
       // Allow connection but without userId for public features
       socket.userId = null;
       next();
@@ -55,15 +52,12 @@ function initializeSocket(httpServer) {
 
   // Connection handler
   io.on('connection', (socket) => {
-    console.log(`[Socket.IO] Client connected: ${socket.id}`);
-
     // Register user socket
     if (socket.userId) {
       if (!userSockets.has(socket.userId)) {
         userSockets.set(socket.userId, new Set());
       }
       userSockets.get(socket.userId).add(socket.id);
-      console.log(`[Socket.IO] User ${socket.userId} registered with socket ${socket.id}`);
       
       // Join user-specific room
       socket.join(`user:${socket.userId}`);
@@ -71,13 +65,11 @@ function initializeSocket(httpServer) {
 
     // Handle notification read event from client
     socket.on('notification_read', (data) => {
-      console.log(`[Socket.IO] Notification read:`, data);
+      // Notification read event handled silently
     });
 
     // Handle disconnect
     socket.on('disconnect', (reason) => {
-      console.log(`[Socket.IO] Client disconnected: ${socket.id}, reason: ${reason}`);
-      
       // Remove socket from user's set
       if (socket.userId && userSockets.has(socket.userId)) {
         userSockets.get(socket.userId).delete(socket.id);
@@ -88,7 +80,6 @@ function initializeSocket(httpServer) {
     });
   });
 
-  console.log('[Socket.IO] Server initialized');
   return io;
 }
 
@@ -108,13 +99,11 @@ function getIO() {
  */
 function emitToUser(userId, event, data) {
   if (!io) {
-    console.log('[Socket.IO] Server not initialized');
     return;
   }
 
   // Emit to user-specific room
   io.to(`user:${userId}`).emit(event, data);
-  console.log(`[Socket.IO] Emitted ${event} to user ${userId}`);
 }
 
 /**
@@ -124,12 +113,10 @@ function emitToUser(userId, event, data) {
  */
 function emitToAll(event, data) {
   if (!io) {
-    console.log('[Socket.IO] Server not initialized');
     return;
   }
 
   io.emit(event, data);
-  console.log(`[Socket.IO] Emitted ${event} to all clients`);
 }
 
 /**
