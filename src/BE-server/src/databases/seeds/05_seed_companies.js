@@ -45,7 +45,8 @@ exports.seed = async function (knex) {
       website: 'https://tmasolutions.com',
       address: '186 Nguyễn Thị Minh Khai, Quận 3, TP.HCM',
       description: 'Công ty phần mềm lớn tại Việt Nam với hơn 2,000 nhân viên. Chuyên phát triển phần mềm cho các khách hàng quốc tế, đặc biệt là Bắc Mỹ và Châu Âu.',
-      logo_url: null
+      logo_url: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcR-Wt1XntInhNNtmvDm5BtnSrKbUMUNkD7JqSDdMEXEA9BWDvCtsdUeROChbCgv',
+      banner_url: 'https://lvcfoundation.org.vn/wp-content/uploads/2025/07/TMA-Solution.png'
     },
 
     // E-commerce & Tech Startups
@@ -54,21 +55,24 @@ exports.seed = async function (knex) {
       website: 'https://tiki.vn',
       address: '52 Út Tịch, Phường 4, Quận Tân Bình, TP.HCM',
       description: 'Công ty thương mại điện tử và công nghệ hàng đầu Việt Nam. Nền tảng mua sắm trực tuyến với hàng triệu sản phẩm, dịch vụ giao hàng nhanh và thanh toán tiện lợi.',
-      logo_url: null
+      logo_url: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSqmLxCaenvXz_N4qr3O4ymUvGBoUhtETB0MlpXieaEHvzEDMYpzIjDigqTcLF9',
+      banner_url: 'https://brasol.vn/wp-content/uploads/2022/09/gioi-thieu-ve-tiki.jpg'
     },
     {
       company_name: 'Sendo',
       website: 'https://sendo.vn',
       address: '52 Út Tịch, Phường 4, Quận Tân Bình, TP.HCM',
       description: 'Sàn thương mại điện tử hàng đầu Việt Nam. Kết nối hàng triệu người mua và người bán với các dịch vụ thanh toán, vận chuyển tích hợp.',
-      logo_url: null
+      logo_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAOZVO55BOP0MEtmkaSITNWT4sGRuLZqY-MD2-tn8H6MUo1xShB96p7A4Az3Kc',
+      banner_url: 'https://file.hstatic.net/1000192210/file/cach-dang-ky-ban-hang-tren-sendo-nhu-the-nao_54963625d3bd4b6aa73a3f82623b439b_grande.png'
     },
     {
       company_name: 'Lazada Vietnam',
       website: 'https://lazada.vn',
       address: 'Tầng 19, Tòa nhà Viettel, 285 Cách Mạng Tháng 8, Quận 10, TP.HCM',
       description: 'Nền tảng thương mại điện tử quốc tế tại Việt Nam, thuộc tập đoàn Alibaba. Cung cấp dịch vụ mua sắm trực tuyến với hàng triệu sản phẩm.',
-      logo_url: null
+      logo_url: 'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQxWy30GEafx5ln01LXcWW4NsoZabFDDn0QIw-5ofeswdTwh8a2EzVxLF993Ty6',
+      banner_url: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQrGA0s8EFHAUgYMwJQ00FgH5jd1Fh7ez-0cNxxRnIzDoYPNbXl2NNkXBCu7gja'
     },
     {
       company_name: 'Shopee Vietnam',
@@ -93,14 +97,16 @@ exports.seed = async function (knex) {
       website: 'https://vpbank.com.vn',
       address: '89 Láng Hạ, Đống Đa, Hà Nội',
       description: 'Ngân hàng thương mại cổ phần Việt Nam với định hướng số hóa mạnh mẽ. Phát triển các sản phẩm ngân hàng số, fintech solutions.',
-      logo_url: null
+      logo_url: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTyAof5Dr1p4_DfYRQbOXeKafXZGYbxAytmac7k5Gcz5H3UJe0VZYBukt-lfWgW',
+      banner_url: 'https://icolor.vn/wp-content/uploads/2023/08/banner-vpbank-30nam-min.jpg'
     },
     {
       company_name: 'Techcombank',
       website: 'https://techcombank.com.vn',
       address: '191 Bà Triệu, Hai Bà Trưng, Hà Nội',
       description: 'Ngân hàng thương mại cổ phần với công nghệ hiện đại. Đầu tư mạnh vào digital banking và fintech innovation.',
-      logo_url: null
+      logo_url: 'https://images.seeklogo.com/logo-png/29/1/techcombank-logo-png_seeklogo-291977.png',
+      banner_url: 'https://techcombank.com/content/dam/techcombank/public-site/articles/non-blog/Banner-cashback-ther-VISA-c6315ae326.jpg'
     },
 
     // Gaming & Entertainment
@@ -109,14 +115,16 @@ exports.seed = async function (knex) {
       website: 'https://vng.com.vn',
       address: '182 Lê Đại Hành, Phường 15, Quận 11, TP.HCM',
       description: 'Tập đoàn công nghệ hàng đầu Việt Nam trong lĩnh vực game, giải trí số, và internet services. Sở hữu các sản phẩm như Zalo, Zing MP3, VNG Cloud.',
-      logo_url: null
+      logo_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyk1azGvf1W3nZ3rmOOsekxkwcYcYTL3S9BA&s',
+      banner_url: 'https://connect-assets.prosple.com/cdn/ff/hCVGuq29Azgy4qCLZjwCXBWfEmY9zr0h4lc8dQVVK0g/1579871483/public/styles/scale_and_crop_center_890x320/public/2020-01/banner-vng-corporation-890x320-2020.jpg?itok=k9JF487n'
     },
     {
       company_name: 'Amanotes',
       website: 'https://amanotes.com',
       address: 'Tầng 3, Tòa nhà Viettel, 285 Cách Mạng Tháng 8, Quận 10, TP.HCM',
       description: 'Công ty công nghệ âm nhạc hàng đầu Việt Nam. Phát triển ứng dụng mobile music games với hàng trăm triệu người dùng toàn cầu.',
-      logo_url: null
+      logo_url: 'https://static.wixstatic.com/media/ad6d77_8979914707c34a579a4d16fc42851058~mv2.png/v1/fill/w_925,h_925,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/ad6d77_8979914707c34a579a4d16fc42851058~mv2.png',
+      banner_url: 'https://static.wixstatic.com/media/ad6d77_8979914707c34a579a4d16fc42851058~mv2.png/v1/fill/w_925,h_925,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/ad6d77_8979914707c34a579a4d16fc42851058~mv2.png'
     },
 
     // Software & Services
@@ -125,21 +133,24 @@ exports.seed = async function (knex) {
       website: 'https://cmc.com.vn',
       address: '11 Duy Tân, Cầu Giấy, Hà Nội',
       description: 'Tập đoàn công nghệ thông tin hàng đầu Việt Nam. Cung cấp giải pháp CNTT, phần mềm, và dịch vụ công nghệ cho doanh nghiệp và chính phủ.',
-      logo_url: null
+      logo_url: 'https://cdn.cmc.com.vn/img/posts/Logo%20CMC%20CORP.jpg',
+      banner_url: 'https://cdn.cmc.com.vn/img/posts/Logo%20CMC%20CORP.jpg'
     },
     {
       company_name: 'ELCA Vietnam',
       website: 'https://elca.vn',
       address: 'Tầng 6, Tòa nhà Viettel, 285 Cách Mạng Tháng 8, Quận 10, TP.HCM',
       description: 'Công ty phần mềm Thụy Sĩ tại Việt Nam. Chuyên phát triển phần mềm cho khách hàng châu Âu, đặc biệt là Thụy Sĩ và Pháp.',
-      logo_url: null
+      logo_url: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQOVLCs1zgE-NMT51cmRZ49bUqIG4rGhwL1hxgQqSik0H8pk42KhguiLuYntzhq',
+      banner_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDPJD_XPUpGmcdeXKjY2reeQgTyeKzxlaeMA&s'
     },
     {
       company_name: 'Axon Active Vietnam',
       website: 'https://axonactive.com',
       address: 'Tầng 3, Tòa nhà Viettel, 285 Cách Mạng Tháng 8, Quận 10, TP.HCM',
       description: 'Công ty phần mềm Thụy Sĩ tại Việt Nam. Chuyên phát triển phần mềm và ứng dụng web/mobile cho khách hàng quốc tế.',
-      logo_url: null
+      logo_url: 'https://static.ybox.vn/2023/3/3/1678856794959-Thi%E1%BA%BFt-k%E1%BA%BF-ch%C6%B0a-c%C3%B3-t%C3%AAn-(14).png',
+      banner_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRo3jwNJUTAUQPCSiiQLd_U_sH3RootP4h2UQ&s'
     },
 
     // AI & Data
@@ -148,14 +159,16 @@ exports.seed = async function (knex) {
       website: 'https://fpt.ai',
       address: 'Khu Công Nghệ Cao, Quận 9, TP.HCM',
       description: 'Đơn vị AI của FPT Software. Phát triển các giải pháp AI, machine learning, và natural language processing cho doanh nghiệp.',
-      logo_url: null
+      logo_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxIvBYBKXEHy6K_ETgzDSzC23XGvFAVMFYvQ&s',
+      banner_url: 'https://fptcloud.com/wp-content/uploads/2024/12/image-12.png'
     },
     {
       company_name: 'Got It AI',
       website: 'https://got-it.ai',
       address: 'Tầng 5, Tòa nhà Viettel, 285 Cách Mạng Tháng 8, Quận 10, TP.HCM',
       description: 'Công ty AI và machine learning với trụ sở tại Mỹ và Việt Nam. Phát triển các giải pháp AI cho giáo dục và doanh nghiệp.',
-      logo_url: null
+      logo_url: 'https://media.licdn.com/dms/image/v2/C560BAQHacYr1PfaaLg/company-logo_200_200/company-logo_200_200/0/1653411051105/gicrmai_logo?e=2147483647&v=beta&t=9_-YvUj8WMlu87n8Z0hXqJxiHjQfkejZTPzvpfd4oxM',
+      banner_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXTsPGdzEMB5kdeZElJvp2Mf4jFTbQxvHOEg&s'
     }
   ]);
 

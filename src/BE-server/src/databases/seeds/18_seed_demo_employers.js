@@ -60,6 +60,7 @@ exports.seed = async function (knex) {
             company: 'FPT Software',
             phone: '0901234567',
             gender: 'Male',
+            avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
             industry: 'software' // Outsourcing, Enterprise Software
         },
         {
@@ -70,6 +71,7 @@ exports.seed = async function (knex) {
             company: 'VinGroup',
             phone: '0912345678',
             gender: 'Female',
+            avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=face',
             industry: 'conglomerate' // Real Estate, Auto, Retail
         },
         {
@@ -80,6 +82,7 @@ exports.seed = async function (knex) {
             company: 'Viettel Solutions',
             phone: '0923456789',
             gender: 'Male',
+            avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
             industry: 'telecom' // Telecom, IT Services
         },
         {
@@ -90,6 +93,7 @@ exports.seed = async function (knex) {
             company: 'Shopee Vietnam',
             phone: '0934567890',
             gender: 'Female',
+            avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face',
             industry: 'ecommerce' // E-commerce, Logistics
         },
         {
@@ -100,6 +104,7 @@ exports.seed = async function (knex) {
             company: 'MoMo',
             phone: '0945678901',
             gender: 'Male',
+            avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
             industry: 'fintech' // Fintech, Payment
         }
     ];
@@ -409,14 +414,16 @@ exports.seed = async function (knex) {
                     .update({
                         name: emp.name,
                         phone: emp.phone,
-                        gender: emp.gender
+                        gender: emp.gender,
+                        avatar_url: emp.avatar_url
                     });
             } else {
                 await knex('users').insert({
                     user_id: userId,
                     name: emp.name,
                     phone: emp.phone,
-                    gender: emp.gender
+                    gender: emp.gender,
+                    avatar_url: emp.avatar_url
                 });
             }
 
