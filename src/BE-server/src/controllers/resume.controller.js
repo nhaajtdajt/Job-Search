@@ -84,6 +84,28 @@ class ResumeController {
   }
 
   /**
+   * Get signed URL for viewing CV in browser
+   * GET /api/resumes/:resumeId/view-url
+   */
+  static async getViewUrl(req, res, next) {
+    try {
+      const { resumeId } = req.params;
+      const userId = req.user?.user_id;
+      const employerId = req.user?.employer_id;
+
+      const result = await ResumeService.getViewUrl(resumeId, userId, employerId);
+
+      return ResponseHandler.success(res, {
+        status: HTTP_STATUS.OK,
+        message: 'View URL generated successfully',
+        data: result,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
    * Get all resumes for user
    * GET /api/resumes
    */

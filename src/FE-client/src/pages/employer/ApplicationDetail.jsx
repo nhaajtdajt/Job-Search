@@ -258,8 +258,8 @@ export default function ApplicationDetail() {
 
             {/* Resume Viewer */}
             <ResumeViewer
-              resumeUrl={application.resume?.cv_url || application.cv_url}
-              resumeTitle={application.resume?.title || 'CV ứng viên'}
+              resumeUrl={application.resume?.resume_url || application.resume_url}
+              resumeTitle={application.resume?.resume_title || 'CV ứng viên'}
               isLoading={false}
             />
           </div>

@@ -120,3 +120,24 @@ tài khoản employer có data
 3	demo.employer3@jobsearch.com	Demo@123456	Viettel Solutions
 4	demo.employer4@jobsearch.com	Demo@123456	Shopee Vietnam
 5	demo.employer5@jobsearch.com	Demo@123456	MoMo
+
+---
+
+## 👥 Tài khoản Job Seeker Demo (có CV đính kèm)
+
+Seed file: `src/databases/seeds/19_seed_demo_users.js`
+
+| Email | Password | Họ tên | Vị trí | CV |
+|-------|----------|--------|--------|-----|
+| bryanehlers@gmail.com | Demo@2024 | Bryan Ehlers | Electrical Engineering Student | Overleaf CV |
+| jenniferhoffman@gmail.com | Demo@2024 | Jennifer E. Hoffman | Professor of Physics | NSF Biosketch |
+| kieranhealy@gmail.com | Demo@2024 | Kieran Healy | Associate Professor in Sociology | Academic CV |
+| haraldellingsen@gmail.com | Demo@2024 | Harald Ellingsen | Control Systems Engineer | Engineering CV |
+| nguyenvanhung@gmail.com | Demo@2024 | Nguyễn Văn Hùng | Electrical Engineer | Technical CV |
+
+**Chạy riêng seed demo users:**
+```bash
+npx knex seed:run --specific=19_seed_demo_users.js
+```
+
+> **Lưu ý:** CV được link từ Overleaf. Khi xem từ employer dashboard, sẽ mở trong tab mới (không embed được do Overleaf chặn iframe).
