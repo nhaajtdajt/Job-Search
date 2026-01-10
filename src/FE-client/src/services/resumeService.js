@@ -87,6 +87,16 @@ const resumeService = {
     return response.data;
   },
 
+  /**
+   * Get signed URL for viewing CV in browser
+   * @param {string} resumeId 
+   * @returns {Promise<{signedUrl: string, expiresIn: number, isExternal: boolean}>}
+   */
+  getViewUrl: async (resumeId) => {
+    const response = await apiService.get(`/resumes/${resumeId}/view-url`);
+    return response.data;
+  },
+
   // ==========================================
   // Education
   // ==========================================

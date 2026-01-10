@@ -66,6 +66,13 @@ router.delete(
   ResumeController.deleteCV
 );
 
+// Get signed URL for viewing CV in browser
+router.get(
+  '/:resumeId/view-url',
+  authMiddleware.authenticate,
+  ResumeController.getViewUrl
+);
+
 // ==========================================
 // Education Routes
 // ==========================================

@@ -250,6 +250,53 @@ class ResumeService {
     await ResumeRepository.update(resumeId, { resume_url: null });
   }
 
+  /**
+   * Get signed URL for viewing CV in browser
+   * @param {string} resumeId - Resume ID
+   * @param {string} userId - User ID (optional, for permission check)
+   * @param {number} employerId - Employer ID (optional, for permission check)
+   * @returns {Object} { signedUrl, expiresIn }
+   */
+  static async getViewUrl(resumeId, userId = null, employerId = null) {
+    const resume = await ResumeRepository.findById(resumeId);
+    
+    if (!resume) {
+      throw new NotFoundError('Resume not found');
+    }
+
+    if (!resume.resume_url) {
+      throw new NotFoundError('No CV file found for this resume');
+    }
+
+    // Check permission: user can view their own, or resume is public, or employer has access
+    const canAccess = resume.user_id === userId || resume.is_public === true || employerId;
+    
+    if (!canAccess) {
+      throw new ForbiddenError('Not authorized to view this CV');
+    }
+
+    // Check if resume_url is external (starts with http and not supabase)
+    const isExternalUrl = resume.resume_url.startsWith('http') && 
+                          !resume.resume_url.includes('supabase');
+    
+    if (isExternalUrl) {
+      // External URL - return as-is (e.g., Overleaf links)
+      return {
+        signedUrl: resume.resume_url,
+        expiresIn: null,
+        isExternal: true
+      };
+    }
+
+    // Supabase Storage - generate signed URL
+    const signedUrl = await StorageService.getSignedUrl(resume.resume_url, 3600); // 1 hour
+    return {
+      signedUrl,
+      expiresIn: 3600,
+      isExternal: false
+    };
+  }
+
   // ==========================================
   // Education Operations
   // ==========================================
