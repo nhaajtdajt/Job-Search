@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { notificationService } from '../../services/notificationService';
 import applicationService from '../../services/applicationService';
 import UserSidebar from '../../components/user/UserSidebar';
+import AnimatedSection from '../../components/common/AnimatedSection';
 import { 
   User, 
   Briefcase,
@@ -156,7 +157,7 @@ export default function Overview() {
             </div>
 
             {/* Profile Completion Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <AnimatedSection direction="up" delay={0} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex-1">
                   <p className="text-gray-700 mb-2">
@@ -182,10 +183,10 @@ export default function Overview() {
                   Cập nhật hồ sơ
                 </Link>
               </div>
-            </div>
+            </AnimatedSection>
 
             {/* Activity Chart Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <AnimatedSection direction="up" delay={100} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Hoạt Động Của Bạn</h2>
               
               {/* Interactive Activity Chart */}
@@ -224,10 +225,10 @@ export default function Overview() {
                   <Search className="w-6 h-6 text-gray-400 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
                 </Link>
               </div>
-            </div>
+            </AnimatedSection>
 
             {/* Recent Activity Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <AnimatedSection direction="up" delay={200} className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* Recent Notifications Widget */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -307,10 +308,10 @@ export default function Overview() {
                     )}
                 </div>
               </div>
-            </div>
+            </AnimatedSection>
 
             {/* Attached Resumes Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <AnimatedSection direction="up" delay={300} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">HỒ SƠ ĐÍNH KÈM CỦA BẠN</h2>
               <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-lg">
                 <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -329,7 +330,7 @@ export default function Overview() {
                   Quản lý hồ sơ đính kèm
                 </Link>
               </div>
-            </div>
+            </AnimatedSection>
           </main>
         </div>
       </div>

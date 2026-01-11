@@ -20,6 +20,7 @@ import JobDetail from './pages/public/JobDetail.jsx'
 import Companies from './pages/public/Companies.jsx'
 import CompanyDetail from './pages/public/CompanyDetail.jsx'
 import Skills from './pages/public/Skills.jsx'
+import NotFound from './pages/public/NotFound.jsx'
 
 // Auth Pages
 import JobSeekerLogin from './pages/auth/JobSeekerLogin.jsx'
@@ -31,6 +32,7 @@ import ResetPassword from './pages/auth/ResetPassword.jsx'
 import EmployerLogin from './pages/auth/EmployerLogin.jsx'
 import EmployerRegister from './pages/auth/EmployerRegister.jsx'
 import EmployerAuthCallback from './pages/auth/EmployerAuthCallback.jsx'
+import EmployerForgotPassword from './pages/auth/EmployerForgotPassword.jsx'
 
 // Employer Pages
 import EmployerLanding from './pages/employer/EmployerLanding.jsx'
@@ -47,6 +49,8 @@ import SavedCandidates from './pages/employer/SavedCandidates.jsx'
 import Analytics from './pages/employer/Analytics.jsx'
 import EmployerNotifications from './pages/employer/EmployerNotifications.jsx'
 import EmployerSettings from './pages/employer/EmployerSettings.jsx'
+import EmployerAbout from './pages/employer/EmployerAbout.jsx'
+import EmployerContact from './pages/employer/EmployerContact.jsx'
 
 // User (Job Seeker) Pages
 import Profile from './pages/user/ProfileComplete.jsx'
@@ -128,7 +132,10 @@ const router = createBrowserRouter([
       { index: true, element: <EmployerLanding /> },
       { path: 'login', element: <EmployerLogin /> },
       { path: 'register', element: <EmployerRegister /> },
+      { path: 'forgot-password', element: <EmployerForgotPassword /> },
       { path: 'auth/callback', element: <EmployerAuthCallback /> },
+      { path: 'about', element: <EmployerAbout /> },
+      { path: 'contact', element: <EmployerContact /> },
 
       // Protected employer pages (wrapped individually for flexibility)
       {
@@ -265,6 +272,14 @@ const router = createBrowserRouter([
         ],
       },
     ],
+  },
+
+  // ============================================================
+  // 404 NOT FOUND (catch-all route)
+  // ============================================================
+  {
+    path: '*',
+    element: <NotFound />,
   },
 ])
 

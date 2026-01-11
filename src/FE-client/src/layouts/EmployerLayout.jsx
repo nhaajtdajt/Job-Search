@@ -107,7 +107,7 @@ export default function EmployerLayout() {
   const location = useLocation();
 
   // Allow access to login and register pages without authentication/role check
-  const publicPaths = ['/employer/login', '/employer/register', '/employer'];
+  const publicPaths = ['/employer/login', '/employer/register', '/employer', '/employer/forgot-password', '/employer/about', '/employer/contact'];
   const isPublicPath = publicPaths.includes(location.pathname);
 
   useEffect(() => {

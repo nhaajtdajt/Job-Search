@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import AnimatedSection from "../../components/common/AnimatedSection";
 import {
   Mail,
   Lock,
@@ -111,7 +112,7 @@ export default function JobSeekerLogin() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl w-full flex rounded-2xl shadow-2xl overflow-hidden bg-white">
         {/* Left Side - Branding */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-500 to-indigo-600 p-12 flex-col justify-between text-white">
+        <AnimatedSection direction="left" className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-500 to-indigo-600 p-12 flex-col justify-between text-white">
           <div>
             <Link to="/" className="inline-block">
               <h1 className="text-4xl font-bold mb-2">viec24h</h1>
@@ -164,10 +165,10 @@ export default function JobSeekerLogin() {
               ))}
             </div>
           </div>
-        </div>
+        </AnimatedSection>
 
         {/* Right Side - Login Form */}
-        <div className="w-full lg:w-1/2 p-8 sm:p-12">
+        <AnimatedSection direction="right" className="w-full lg:w-1/2 p-8 sm:p-12">
           <div className="max-w-md mx-auto">
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
@@ -394,7 +395,7 @@ export default function JobSeekerLogin() {
               </div>
             </form>
           </div>
-        </div>
+        </AnimatedSection>
       </div>
     </div>
   );

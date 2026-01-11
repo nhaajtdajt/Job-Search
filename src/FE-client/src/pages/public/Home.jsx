@@ -10,6 +10,7 @@ import SectionTitle from "../../components/common/SectionTitle";
 import Card from "../../components/common/Card.jsx";
 import SimpleJobCard from "../../components/job/SimpleJobCard";
 import EmployerCard from "../../components/employer/EmployerCard";
+import AnimatedSection from "../../components/common/AnimatedSection";
 import vinhome from "../../assets/logocompanies/vinhomes.png";
 import viec24h from "../../assets/logocompanies/logoviec69.png";
 import vinfast from "../../assets/logocompanies/vinfast.jpg";
@@ -533,7 +534,7 @@ export default function Home() {
       </section>
       )}
 
-      <section className="relative z-10 -mt-16 sm:-mt-20 lg:-mt-24">
+      <AnimatedSection direction="up" className="relative z-10 -mt-16 sm:-mt-20 lg:-mt-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl bg-white/95 p-6 shadow-2xl ring-1 ring-white/60 backdrop-blur">
             <SectionTitle title="Việc làm tốt nhất" action="Xem tất cả" actionLink="/jobs" />
@@ -554,9 +555,9 @@ export default function Home() {
             )}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
-      <section className="mt-16">
+      <AnimatedSection direction="up" delay={100} className="mt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionTitle title="Ngành nghề trọng điểm" />
           {/* Horizontal scroll on mobile, grid on larger screens */}
@@ -580,9 +581,9 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
-      <section className="mt-16">
+      <AnimatedSection direction="up" delay={150} className="mt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionTitle title="Việc làm gợi ý" action="Xem tất cả" actionLink="/jobs" />
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -601,9 +602,9 @@ export default function Home() {
             </div>
           )}
         </div>
-      </section>
+      </AnimatedSection>
 
-      <section className="mt-16">
+      <AnimatedSection direction="scale" className="mt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="overflow-hidden rounded-3xl border border-white/60 bg-white/95 shadow-glow">
             <img
@@ -613,9 +614,9 @@ export default function Home() {
             />
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
-      <section className="mt-16">
+      <AnimatedSection direction="up" delay={100} className="mt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionTitle title="Nhà tuyển dụng nổi bật" />
           <div className="mt-6 grid gap-6 md:grid-cols-2">
@@ -624,9 +625,9 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
-      <section className="mt-16 bg-gradient-to-b from-blue-50/50 via-blue-100/50 to-blue-100/50 py-12 backdrop-blur">
+      <AnimatedSection direction="up" className="mt-16 bg-gradient-to-b from-blue-50/50 via-blue-100/50 to-blue-100/50 py-12 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionTitle
             title="Việc làm nổi bật • Tài chính đầu tư"
@@ -639,9 +640,9 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
-      <section className="mt-16">
+      <AnimatedSection direction="up" delay={150} className="mt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2">
             <div className="flex flex-col gap-5 relative overflow-hidden rounded-3xl bg-linear-to-r from-brand-950 via-brand-800 to-brand-600 p-8 text-black shadow-glow">
@@ -691,7 +692,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
     </div>
   );
 }
