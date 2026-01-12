@@ -27,6 +27,7 @@ import { jobService } from '../../services/jobService';
 import { useAuth } from '../../contexts/AuthContext';
 import SaveJobButton from '../../components/jobs/SaveJobButton';
 import { ApplyJobModal } from '../../components/application';
+import AnimatedSection from '../../components/common/AnimatedSection';
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -128,7 +129,7 @@ export default function JobDetail() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <AnimatedSection direction="left" className="lg:col-span-2 space-y-6">
             {/* Job Header Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
               <div className="flex items-start gap-6">
@@ -230,10 +231,10 @@ export default function JobDetail() {
                 <button className="font-semibold underline ml-1 hover:text-amber-900">Báo cáo ngay</button>
               </p>
             </div>
-          </div>
+          </AnimatedSection>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
+          <AnimatedSection direction="right" delay={150} className="lg:col-span-1 space-y-6">
             {/* Action Box */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Ứng tuyển công việc này</h3>
@@ -346,7 +347,7 @@ export default function JobDetail() {
                 Xem thêm việc làm khác
               </Link>
             </div>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
 

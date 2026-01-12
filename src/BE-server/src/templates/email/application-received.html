@@ -4,77 +4,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đã nhận đơn ứng tuyển</title>
+    <title>Đã nhận đơn ứng tuyển - viec24h</title>
 </head>
 
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5;">
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
-        style="background-color: #f5f5f5;">
+        style="background-color: #f0f4f8;">
         <tr>
             <td align="center" style="padding: 40px 20px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600"
-                    style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
 
-                    <!-- Header -->
+                    <!-- Header with Logo -->
                     <tr>
-                        <td
-                            style="padding: 32px 40px 24px; text-align: center; background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); border-radius: 8px 8px 0 0;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 500;">
-                                ✅ Đơn ứng tuyển đã được gửi!
-                            </h1>
+                        <td style="padding: 32px 40px; text-align: center; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 12px 12px 0 0;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+                                            viec24h
+                                        </h1>
+                                        <p style="margin: 4px 0 0; color: rgba(255,255,255,0.8); font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">
+                                            Nền tảng tuyển dụng hàng đầu
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Status Banner -->
+                    <tr>
+                        <td style="padding: 24px 40px; background-color: #ecfdf5; border-bottom: 1px solid #d1fae5;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <div style="display: inline-block; width: 48px; height: 48px; background-color: #10b981; border-radius: 50%; line-height: 48px; text-align: center;">
+                                            <span style="color: #ffffff; font-size: 24px;">&#10003;</span>
+                                        </div>
+                                        <p style="margin: 12px 0 0; color: #065f46; font-size: 18px; font-weight: 600;">
+                                            Đơn ứng tuyển đã được gửi thành công
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
                     <!-- Content -->
                     <tr>
-                        <td style="padding: 40px;">
-                            <p style="margin: 0 0 24px; color: #202124; font-size: 16px;">
+                        <td style="padding: 32px 40px;">
+                            <p style="margin: 0 0 20px; color: #1f2937; font-size: 16px; line-height: 1.5;">
                                 Xin chào <strong>{{userName}}</strong>,
                             </p>
 
-                            <p style="margin: 0 0 24px; color: #5f6368; font-size: 14px; line-height: 22px;">
-                                Chúng tôi đã nhận được đơn ứng tuyển của bạn cho vị trí:
+                            <p style="margin: 0 0 24px; color: #4b5563; font-size: 15px; line-height: 1.6;">
+                                Chúng tôi đã nhận được đơn ứng tuyển của bạn. Dưới đây là thông tin chi tiết:
                             </p>
 
                             <!-- Job Info Box -->
-                            <div
-                                style="padding: 24px; background-color: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 4px; margin-bottom: 24px;">
-                                <p style="margin: 0 0 8px; color: #202124; font-size: 18px; font-weight: 600;">
-                                    {{jobTitle}}
-                                </p>
-                                <p style="margin: 0; color: #5f6368; font-size: 14px;">
-                                    🏢 {{companyName}}
-                                </p>
-                                <p style="margin: 8px 0 0; color: #9e9e9e; font-size: 12px;">
-                                    📅 Ngày ứng tuyển: {{applyDate}}
-                                </p>
-                            </div>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+                                style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <p style="margin: 0 0 4px; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Vị trí ứng tuyển
+                                        </p>
+                                        <p style="margin: 0 0 16px; color: #1e40af; font-size: 18px; font-weight: 600;">
+                                            {{jobTitle}}
+                                        </p>
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="50%" style="padding-right: 10px;">
+                                                    <p style="margin: 0 0 4px; color: #64748b; font-size: 12px; text-transform: uppercase;">Công ty</p>
+                                                    <p style="margin: 0; color: #374151; font-size: 14px; font-weight: 500;">{{companyName}}</p>
+                                                </td>
+                                                <td width="50%">
+                                                    <p style="margin: 0 0 4px; color: #64748b; font-size: 12px; text-transform: uppercase;">Ngày ứng tuyển</p>
+                                                    <p style="margin: 0; color: #374151; font-size: 14px;">{{applyDate}}</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
 
-                            <p style="margin: 0 0 16px; color: #5f6368; font-size: 14px; line-height: 22px;">
-                                <strong>Bước tiếp theo:</strong>
+                            <!-- Next Steps -->
+                            <p style="margin: 0 0 12px; color: #1f2937; font-size: 15px; font-weight: 600;">
+                                Các bước tiếp theo:
                             </p>
-                            <ul
-                                style="margin: 0 0 24px; padding-left: 20px; color: #5f6368; font-size: 14px; line-height: 24px;">
-                                <li>Nhà tuyển dụng sẽ xem xét hồ sơ của bạn</li>
-                                <li>Bạn sẽ nhận được thông báo khi có cập nhật</li>
-                                <li>Có thể theo dõi trạng thái đơn trong mục "Đơn ứng tuyển"</li>
-                            </ul>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 8px 0;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td style="width: 24px; vertical-align: top;">
+                                                    <div style="width: 20px; height: 20px; background-color: #dbeafe; border-radius: 50%; text-align: center; line-height: 20px; color: #1e40af; font-size: 11px; font-weight: 600;">1</div>
+                                                </td>
+                                                <td style="padding-left: 12px; color: #4b5563; font-size: 14px; line-height: 1.5;">
+                                                    Nhà tuyển dụng sẽ xem xét hồ sơ của bạn
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td style="width: 24px; vertical-align: top;">
+                                                    <div style="width: 20px; height: 20px; background-color: #dbeafe; border-radius: 50%; text-align: center; line-height: 20px; color: #1e40af; font-size: 11px; font-weight: 600;">2</div>
+                                                </td>
+                                                <td style="padding-left: 12px; color: #4b5563; font-size: 14px; line-height: 1.5;">
+                                                    Bạn sẽ nhận được thông báo qua email khi có cập nhật
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td style="width: 24px; vertical-align: top;">
+                                                    <div style="width: 20px; height: 20px; background-color: #dbeafe; border-radius: 50%; text-align: center; line-height: 20px; color: #1e40af; font-size: 11px; font-weight: 600;">3</div>
+                                                </td>
+                                                <td style="padding-left: 12px; color: #4b5563; font-size: 14px; line-height: 1.5;">
+                                                    Theo dõi trạng thái đơn trong mục "Việc làm đã ứng tuyển"
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
 
-                            <p style="margin: 0; color: #5f6368; font-size: 14px;">
-                                Chúc bạn may mắn! 🍀
+                            <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.6;">
+                                Chúc bạn may mắn với đơn ứng tuyển này!
                             </p>
+                        </td>
+                    </tr>
+
+                    <!-- CTA Button -->
+                    <tr>
+                        <td style="padding: 0 40px 32px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{dashboardUrl}}"
+                                            style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600;">
+                                            Xem đơn ứng tuyển của tôi
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
                     <!-- Footer -->
                     <tr>
-                        <td
-                            style="padding: 24px 40px; background-color: #f8f9fa; border-top: 1px solid #e8eaed; border-radius: 0 0 8px 8px;">
-                            <p style="margin: 0; color: #9aa0a6; font-size: 12px; text-align: center;">
-                                Email tự động từ Job Search. Vui lòng không trả lời email này.
+                        <td style="padding: 24px 40px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+                            <p style="margin: 0 0 8px; color: #64748b; font-size: 12px; text-align: center;">
+                                Đây là email tự động từ viec24h. Vui lòng không trả lời email này.
                             </p>
-                            <p style="margin: 8px 0 0; color: #9aa0a6; font-size: 11px; text-align: center;">
-                                © {{year}} Job Search. All rights reserved.
+                            <p style="margin: 0 0 8px; color: #64748b; font-size: 12px; text-align: center;">
+                                Nếu cần hỗ trợ, vui lòng liên hệ <a href="mailto:support@viec24h.vn" style="color: #1e40af; text-decoration: none;">support@viec24h.vn</a>
+                            </p>
+                            <p style="margin: 0; color: #94a3b8; font-size: 11px; text-align: center;">
+                                © {{year}} viec24h. All rights reserved.
                             </p>
                         </td>
                     </tr>

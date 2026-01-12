@@ -3,6 +3,7 @@ import CompanyCard from "../../components/job/CompanyCard.jsx";
 import { companyService } from "../../services/companyService";
 import { Loader2, Search } from "lucide-react";
 import { message } from "antd";
+import AnimatedSection from "../../components/common/AnimatedSection";
 
 const INDUSTRIES = [
   "Công nghệ thông tin",
@@ -139,7 +140,7 @@ export default function CompanyPage() {
       </div>
 
       {/* Main Content */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <AnimatedSection direction="up" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white shadow-xl p-6 rounded-xl">
           {/* Header */}
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-3">
@@ -156,17 +157,18 @@ export default function CompanyPage() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {filteredCompanies.length > 0 ? (
-                filteredCompanies.map((c) => (
-                  <CompanyCard 
-                    key={c.company_id} 
-                    id={c.company_id}
-                    name={c.company_name}
-                    logo={c.logo_url} 
-                    image={c.banner_url || "https://via.placeholder.com/800x400"} 
-                    follows={c.follower_count || 0}
-                    industry={c.industry}
-                    jobs={[]} 
-                  />
+                filteredCompanies.map((c, index) => (
+                  <AnimatedSection key={c.company_id} direction="up" delay={index * 50} triggerOnce={true}>
+                    <CompanyCard 
+                      id={c.company_id}
+                      name={c.company_name}
+                      logo={c.logo_url} 
+                      image={c.banner_url || "https://via.placeholder.com/800x400"} 
+                      follows={c.follower_count || 0}
+                      industry={c.industry}
+                      jobs={[]} 
+                    />
+                  </AnimatedSection>
                 ))
               ) : (
                 <div className="col-span-3 text-center py-10">
@@ -185,7 +187,7 @@ export default function CompanyPage() {
             </div>
           )}
         </div>  
-      </section>
+      </AnimatedSection>
     </div>
   );
 }

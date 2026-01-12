@@ -10,9 +10,20 @@ export default function ResumeViewer({
   resumeTitle,
   isLoading = false 
 }) {
-  // Check if URL is a PDF
-  const isPDF = resumeUrl?.toLowerCase()?.endsWith('.pdf') || 
-                resumeUrl?.includes('application/pdf');
+  // Check if URL is external (Overleaf, Google Docs, etc. that block iframe)
+  const isExternalUrl = resumeUrl && (
+    resumeUrl.includes('overleaf.com') ||
+    resumeUrl.includes('docs.google.com') ||
+    resumeUrl.includes('drive.google.com')
+  );
+
+  // Check if URL is a PDF that can be embedded
+  const isEmbeddablePDF = resumeUrl && 
+    !isExternalUrl && (
+      resumeUrl.toLowerCase().endsWith('.pdf') || 
+      resumeUrl.includes('application/pdf') ||
+      resumeUrl.includes('supabase')
+    );
 
   if (isLoading) {
     return (
@@ -52,24 +63,16 @@ export default function ResumeViewer({
             href={resumeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Mở tab mới
-          </a>
-          <a
-            href={resumeUrl}
-            download
             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition"
           >
-            <Download className="w-4 h-4" />
-            Tải xuống
+            <ExternalLink className="w-4 h-4" />
+            Mở CV
           </a>
         </div>
       </div>
 
       {/* PDF Viewer or Preview */}
-      {isPDF ? (
+      {isEmbeddablePDF ? (
         <div className="rounded-lg overflow-hidden border border-gray-200">
           <iframe
             src={`${resumeUrl}#toolbar=0&navpanes=0`}
@@ -78,17 +81,18 @@ export default function ResumeViewer({
           />
         </div>
       ) : (
-        <div className="h-64 flex flex-col items-center justify-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-          <FileText className="w-16 h-16 text-gray-300 mb-3" />
-          <p className="font-medium">Xem trước không khả dụng</p>
-          <p className="text-sm">Vui lòng tải xuống để xem CV</p>
+        <div className="h-64 flex flex-col items-center justify-center text-gray-500 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-dashed border-blue-200">
+          <FileText className="w-16 h-16 text-blue-400 mb-3" />
+          <p className="font-medium text-gray-700">CV đã được đính kèm</p>
+          <p className="text-sm text-gray-500 mb-4">Nhấn nút bên dưới để xem CV</p>
           <a
             href={resumeUrl}
-            download
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition shadow-md"
           >
-            <Download className="w-4 h-4" />
-            Tải CV
+            <ExternalLink className="w-4 h-4" />
+            Xem CV trên tab mới
           </a>
         </div>
       )}

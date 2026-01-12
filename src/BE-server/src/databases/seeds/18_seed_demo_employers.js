@@ -53,7 +53,7 @@ exports.seed = async function (knex) {
     // Demo employer accounts - each with unique characteristics
     const demoEmployers = [
         {
-            email: 'demo.employer1@jobsearch.com',
+            email: 'anhocchamchi3000@gmail.com',
             password: 'Demo@123456',
             name: 'Nguyễn Văn An',
             role: 'HR Manager',

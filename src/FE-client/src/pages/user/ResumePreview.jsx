@@ -16,7 +16,8 @@ import {
   Code,
   Calendar,
   Loader2,
-  Printer
+  Printer,
+  Eye
 } from 'lucide-react';
 import { message } from 'antd';
 import resumeService from '../../services/resumeService';
@@ -57,6 +58,37 @@ function ResumePreview() {
       month: 'short',
       year: 'numeric',
     });
+  };
+
+  const handleViewPDF = async () => {
+    try {
+      const response = await resumeService.getViewUrl(resumeId);
+      if (response.success && response.data?.signedUrl) {
+        window.open(response.data.signedUrl, '_blank');
+      } else {
+        message.error('Không thể lấy URL xem CV');
+      }
+    } catch (error) {
+      console.error('View PDF error:', error);
+      message.error('Không thể xem CV PDF');
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      const blob = await resumeService.downloadResume(resumeId);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${resume.resume_title || 'resume'}_${resumeId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download error:', error);
+      message.error('Không thể tải xuống CV');
+    }
   };
 
   if (loading) {
@@ -101,14 +133,22 @@ function ResumePreview() {
               In CV
             </button>
             {resume.resume_url && (
-              <a
-                href={resume.resume_url}
-                download
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Tải PDF
-              </a>
+              <>
+                <button
+                  onClick={handleViewPDF}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <Eye className="w-4 h-4" />
+                  Xem CV PDF
+                </button>
+                <button
+                  onClick={handleDownloadPDF}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Tải PDF
+                </button>
+              </>
             )}
             <Link
               to={`/user/resumes/${resumeId}/edit`}

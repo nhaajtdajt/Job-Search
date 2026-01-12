@@ -1,4 +1,4 @@
-const rateLimit = require('express-rate-limit');
+const rateLimit = require("express-rate-limit");
 
 /**
  * Rate Limit Middleware
@@ -17,13 +17,14 @@ const globalLimiter = rateLimit({
   legacyHeaders: false, // Disable `X-RateLimit-*` headers
   message: {
     success: false,
-    message: 'Too many requests from this IP, please try again after 15 minutes',
-    retryAfter: 15 * 60 // seconds
+    message:
+      "Too many requests from this IP, please try again after 15 minutes",
+    retryAfter: 15 * 60, // seconds
   },
   skip: (req) => {
     // Skip rate limiting for health checks
-    return req.path === '/health' || req.path === '/';
-  }
+    return req.path === "/health" || req.path === "/";
+  },
 });
 
 /**
@@ -33,13 +34,14 @@ const globalLimiter = rateLimit({
  */
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 requests per window
+  max: 1000, // 10 requests per window
   standardHeaders: true,
   legacyHeaders: false,
   message: {
     success: false,
-    message: 'Too many authentication attempts, please try again after 15 minutes',
-    retryAfter: 15 * 60
+    message:
+      "Too many authentication attempts, please try again after 15 minutes",
+    retryAfter: 15 * 60,
   },
   skipSuccessfulRequests: false, // Count all requests, including successful ones
 });
@@ -56,9 +58,9 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
-    message: 'API rate limit exceeded, please try again after 15 minutes',
-    retryAfter: 15 * 60
-  }
+    message: "API rate limit exceeded, please try again after 15 minutes",
+    retryAfter: 15 * 60,
+  },
 });
 
 /**
@@ -73,9 +75,9 @@ const uploadLimiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
-    message: 'Too many file uploads, please try again after 1 hour',
-    retryAfter: 60 * 60
-  }
+    message: "Too many file uploads, please try again after 1 hour",
+    retryAfter: 60 * 60,
+  },
 });
 
 /**
@@ -90,9 +92,9 @@ const strictLimiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
-    message: 'Too many requests for this operation, please try again later',
-    retryAfter: 15 * 60
-  }
+    message: "Too many requests for this operation, please try again later",
+    retryAfter: 15 * 60,
+  },
 });
 
 module.exports = {
@@ -100,5 +102,5 @@ module.exports = {
   authLimiter,
   apiLimiter,
   uploadLimiter,
-  strictLimiter
+  strictLimiter,
 };
