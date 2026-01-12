@@ -182,7 +182,7 @@ export default function JobForm({ initialData, onSubmit, onSaveDraft, saving }) 
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Mức lương (USD/tháng)
+          Mức lương (VND/tháng)
         </label>
         <div className="flex items-center gap-4">
           <Input

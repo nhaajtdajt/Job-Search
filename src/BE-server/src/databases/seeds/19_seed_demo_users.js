@@ -39,7 +39,7 @@ exports.seed = async function (knex) {
 
     const demoUsers = [
         {
-            email: 'bryanehlers@gmail.com',
+            email: 'nguyenbaoanfrom2005@gmail.com',
             password: 'Demo@2024',
             name: 'Bryan Ehlers',
             gender: 'male',
