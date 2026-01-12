@@ -32,12 +32,19 @@ export default function JobCreate() {
       const jobData = {
         job_title: formData.title,
         job_type: formData.job_type,
+        experience_level: formData.experience_level,
+        industry: formData.industry || null,
         description: formData.description || '',
         requirements: formData.requirements || '',
         benefits: formData.benefits || '',
         salary_min: formData.salary_min ? parseFloat(formData.salary_min) : null,
         salary_max: formData.salary_max ? parseFloat(formData.salary_max) : null,
+        is_salary_visible: formData.is_salary_visible,
+        location: formData.location || null,
+        address: formData.address || null,
+        is_remote: formData.is_remote || false,
         expired_at: formData.deadline || null,
+        status: 'published', // Set to published when submitting
       };
 
       await jobService.createJob(jobData);
@@ -58,13 +65,20 @@ export default function JobCreate() {
       // Prepare job data - map frontend field names to backend expected names
       const jobData = {
         job_title: formData.title,
-        job_type: formData.job_type,
+        job_type: formData.job_type || null,
+        experience_level: formData.experience_level || null,
+        industry: formData.industry || null,
         description: formData.description || '',
         requirements: formData.requirements || '',
         benefits: formData.benefits || '',
         salary_min: formData.salary_min ? parseFloat(formData.salary_min) : null,
         salary_max: formData.salary_max ? parseFloat(formData.salary_max) : null,
+        is_salary_visible: formData.is_salary_visible,
+        location: formData.location || null,
+        address: formData.address || null,
+        is_remote: formData.is_remote || false,
         expired_at: formData.deadline || null,
+        status: 'draft', // Explicitly set as draft
       };
 
       await jobService.createJob(jobData);

@@ -121,7 +121,7 @@ const applicationService = {
    * @returns {Promise<Object>} Created note
    */
   async addNote(applicationId, note) {
-    const response = await api.post(`/applications/${applicationId}/notes`, { note });
+    const response = await api.post(`/applications/${applicationId}/notes`, { notes: note });
     return response.data.data;
   },
 

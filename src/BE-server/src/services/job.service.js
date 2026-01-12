@@ -34,9 +34,31 @@ class JobService {
    * @param {Object} jobData - Job data
    */
   static async createJob(employerId, jobData) {
-    // Validate required fields
-    if (!jobData.job_title || !jobData.job_type) {
-      throw new BadRequestError('Job title and job type are required');
+    // Validate required fields for published jobs (draft can have less validation)
+    const isDraft = jobData.status === 'draft';
+    
+    if (!isDraft) {
+      // Full validation for published jobs
+      if (!jobData.job_title) {
+        throw new BadRequestError('Tiêu đề tin tuyển dụng là bắt buộc');
+      }
+      if (!jobData.job_type) {
+        throw new BadRequestError('Loại hình công việc là bắt buộc');
+      }
+      if (!jobData.experience_level) {
+        throw new BadRequestError('Cấp bậc là bắt buộc');
+      }
+      if (!jobData.description || jobData.description.trim().length < 10) {
+        throw new BadRequestError('Mô tả công việc là bắt buộc (tối thiểu 10 ký tự)');
+      }
+      if (!jobData.requirements || jobData.requirements.trim().length < 10) {
+        throw new BadRequestError('Yêu cầu ứng viên là bắt buộc (tối thiểu 10 ký tự)');
+      }
+    } else {
+      // Minimal validation for draft - at least title required
+      if (!jobData.job_title) {
+        throw new BadRequestError('Tiêu đề tin tuyển dụng là bắt buộc');
+      }
     }
 
     // Auto-calculate expired_at if not provided (default: 30 days from now)
@@ -46,7 +68,7 @@ class JobService {
       jobData.expired_at = expiryDate;
     }
 
-    // Prepare job data
+    // Prepare job data with all fields
     const jobToCreate = {
       employer_id: employerId,
       job_title: jobData.job_title,
@@ -58,7 +80,14 @@ class JobService {
       job_type: jobData.job_type,
       expired_at: jobData.expired_at,
       status: jobData.status || 'draft',
-      views: 0
+      views: 0,
+      // New fields
+      experience_level: jobData.experience_level,
+      location: jobData.location,
+      address: jobData.address,
+      is_remote: jobData.is_remote || false,
+      industry: jobData.industry,
+      is_salary_visible: jobData.is_salary_visible !== undefined ? jobData.is_salary_visible : true
     };
 
     // Create job
@@ -117,7 +146,14 @@ class JobService {
       'salary_max',
       'job_type',
       'expired_at',
-      'status'
+      'status',
+      // New fields
+      'experience_level',
+      'location',
+      'address',
+      'is_remote',
+      'industry',
+      'is_salary_visible'
     ];
 
     const jobUpdateData = {};

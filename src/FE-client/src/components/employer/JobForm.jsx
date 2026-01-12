@@ -64,6 +64,7 @@ const steps = [
 
 export default function JobForm({ initialData, onSubmit, onSaveDraft, saving }) {
   const [currentStep, setCurrentStep] = useState(0);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     // Basic info
     title: initialData?.title || '',
@@ -97,11 +98,74 @@ export default function JobForm({ initialData, onSubmit, onSaveDraft, saving }) 
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: null }));
+    }
+  };
+
+  // Validate a specific step
+  const validateStep = (step) => {
+    const newErrors = {};
+    
+    switch (step) {
+      case 0: // Basic info
+        if (!formData.title.trim()) {
+          newErrors.title = 'Tiêu đề tin tuyển dụng là bắt buộc';
+        }
+        if (!formData.job_type) {
+          newErrors.job_type = 'Loại hình công việc là bắt buộc';
+        }
+        if (!formData.experience_level) {
+          newErrors.experience_level = 'Cấp bậc là bắt buộc';
+        }
+        break;
+      case 1: // Description
+        if (!formData.description.trim() || formData.description.trim().length < 10) {
+          newErrors.description = 'Mô tả công việc là bắt buộc (tối thiểu 10 ký tự)';
+        }
+        break;
+      case 2: // Requirements & Benefits
+        if (!formData.requirements.trim() || formData.requirements.trim().length < 10) {
+          newErrors.requirements = 'Yêu cầu ứng viên là bắt buộc (tối thiểu 10 ký tự)';
+        }
+        break;
+      case 3: // Location & Skills - no required fields
+        break;
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Validate all steps for submission
+  const validateAll = () => {
+    const allErrors = {};
+    
+    // Step 0 errors
+    if (!formData.title.trim()) allErrors.title = 'Tiêu đề tin tuyển dụng là bắt buộc';
+    if (!formData.job_type) allErrors.job_type = 'Loại hình công việc là bắt buộc';
+    if (!formData.experience_level) allErrors.experience_level = 'Cấp bậc là bắt buộc';
+    
+    // Step 1 errors
+    if (!formData.description.trim() || formData.description.trim().length < 10) {
+      allErrors.description = 'Mô tả công việc là bắt buộc (tối thiểu 10 ký tự)';
+    }
+    
+    // Step 2 errors
+    if (!formData.requirements.trim() || formData.requirements.trim().length < 10) {
+      allErrors.requirements = 'Yêu cầu ứng viên là bắt buộc (tối thiểu 10 ký tự)';
+    }
+    
+    setErrors(allErrors);
+    return Object.keys(allErrors).length === 0;
   };
 
   const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+    if (validateStep(currentStep)) {
+      if (currentStep < steps.length - 1) {
+        setCurrentStep(currentStep + 1);
+      }
     }
   };
 
@@ -112,10 +176,18 @@ export default function JobForm({ initialData, onSubmit, onSaveDraft, saving }) 
   };
 
   const handleSubmit = () => {
-    onSubmit(formData);
+    if (validateAll()) {
+      onSubmit(formData);
+    }
   };
 
   const handleSaveDraft = () => {
+    // Draft only requires title
+    if (!formData.title.trim()) {
+      setErrors({ title: 'Tiêu đề là bắt buộc ngay cả khi lưu nháp' });
+      setCurrentStep(0);
+      return;
+    }
     if (onSaveDraft) {
       onSaveDraft(formData);
     }
@@ -133,7 +205,9 @@ export default function JobForm({ initialData, onSubmit, onSaveDraft, saving }) 
           onChange={(e) => handleChange('title', e.target.value)}
           placeholder="VD: Senior Frontend Developer"
           size="large"
+          status={errors.title ? 'error' : ''}
         />
+        {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -148,7 +222,9 @@ export default function JobForm({ initialData, onSubmit, onSaveDraft, saving }) 
             className="w-full"
             size="large"
             options={jobTypeOptions}
+            status={errors.job_type ? 'error' : ''}
           />
+          {errors.job_type && <p className="text-red-500 text-sm mt-1">{errors.job_type}</p>}
         </div>
 
         <div>
@@ -162,7 +238,9 @@ export default function JobForm({ initialData, onSubmit, onSaveDraft, saving }) 
             className="w-full"
             size="large"
             options={experienceLevelOptions}
+            status={errors.experience_level ? 'error' : ''}
           />
+          {errors.experience_level && <p className="text-red-500 text-sm mt-1">{errors.experience_level}</p>}
         </div>
       </div>
 
@@ -241,7 +319,9 @@ export default function JobForm({ initialData, onSubmit, onSaveDraft, saving }) 
           placeholder="Mô tả chi tiết về công việc, trách nhiệm, hoạt động hàng ngày..."
           rows={12}
           className="text-base"
+          status={errors.description ? 'error' : ''}
         />
+        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
         <p className="text-xs text-gray-500 mt-2">
           Tip: Mô tả rõ ràng giúp thu hút ứng viên phù hợp hơn
         </p>
@@ -261,7 +341,9 @@ export default function JobForm({ initialData, onSubmit, onSaveDraft, saving }) 
           onChange={(e) => handleChange('requirements', e.target.value)}
           placeholder="- Tốt nghiệp Đại học chuyên ngành CNTT&#10;- Có ít nhất 3 năm kinh nghiệm&#10;- Thành thạo React, Node.js&#10;- Tiếng Anh giao tiếp tốt"
           rows={8}
+          status={errors.requirements ? 'error' : ''}
         />
+        {errors.requirements && <p className="text-red-500 text-sm mt-1">{errors.requirements}</p>}
       </div>
 
       <div>
