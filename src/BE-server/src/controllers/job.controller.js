@@ -31,7 +31,7 @@ class JobController {
       if (req.query.is_remote) filters.is_remote = req.query.is_remote === 'true';
       if (req.query.salary_min) filters.salary_min = parseInt(req.query.salary_min);
       if (req.query.salary_max) filters.salary_max = parseInt(req.query.salary_max);
-      
+
       // Handle array filters (job_type could be array?)
       // Front-End sends 'job_type' as single or array currently? 
       // Jobs.jsx: params.append('type', type) -> ?type=Part-time&type=Remote... 
@@ -45,16 +45,16 @@ class JobController {
       // Frontend sends 'type' param, but mapped to `job_type` in `params` object in JS, 
       // url params: `type=Full-time&type=Part-time`.
       // Express keys: req.query.type.
-      
+
       // Controller maps:
-      if (req.query.type) filters.job_type = req.query.type; 
+      if (req.query.type) filters.job_type = req.query.type;
       if (req.query.exp) filters.experience_level = req.query.exp;
       if (req.query.posted) filters.posted_within = req.query.posted;
-      
+
       // Skills filter - can be comma-separated string or array
       if (req.query.skills) {
-        filters.skills = Array.isArray(req.query.skills) 
-          ? req.query.skills 
+        filters.skills = Array.isArray(req.query.skills)
+          ? req.query.skills
           : req.query.skills.split(',').map(s => s.trim());
       }
 

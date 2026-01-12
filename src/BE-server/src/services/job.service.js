@@ -36,7 +36,7 @@ class JobService {
   static async createJob(employerId, jobData) {
     // Validate required fields for published jobs (draft can have less validation)
     const isDraft = jobData.status === 'draft';
-    
+
     if (!isDraft) {
       // Full validation for published jobs
       if (!jobData.job_title) {

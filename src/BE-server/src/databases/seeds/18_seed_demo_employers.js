@@ -554,18 +554,28 @@ exports.seed = async function (knex) {
                 const status = applicationStatuses[(i + jobIndex) % applicationStatuses.length];
 
                 try {
-                    await knex('application').insert({
-                        resume_id: resume.resume_id,
-                        user_id: resume.user_id,
-                        job_id: job.job_id,
-                        apply_date: new Date(now.getTime() - Math.random() * 21 * 24 * 60 * 60 * 1000),
-                        status: status,
-                        notes: status === 'pending' ? null : `Ứng viên đang ở trạng thái: ${status}`,
-                        updated_at: now
-                    });
-                    applicationCount++;
+                    // Check if application already exists for this user and job
+                    const existingApplication = await knex('application')
+                        .where({
+                            user_id: resume.user_id,
+                            job_id: job.job_id
+                        })
+                        .first();
+
+                    if (!existingApplication) {
+                        await knex('application').insert({
+                            resume_id: resume.resume_id,
+                            user_id: resume.user_id,
+                            job_id: job.job_id,
+                            apply_date: new Date(now.getTime() - Math.random() * 21 * 24 * 60 * 60 * 1000),
+                            status: status,
+                            notes: status === 'pending' ? null : `Ứng viên đang ở trạng thái: ${status}`,
+                            updated_at: now
+                        });
+                        applicationCount++;
+                    }
                 } catch (error) {
-                    // Skip duplicates
+                    // Skip any other errors
                 }
             }
         }
