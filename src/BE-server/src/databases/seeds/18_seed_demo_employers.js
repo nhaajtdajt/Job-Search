@@ -116,57 +116,57 @@ exports.seed = async function (knex) {
                 title: 'Senior Java Developer (Spring Boot)',
                 description: 'Phát triển hệ thống enterprise với Java Spring Boot cho khách hàng Nhật Bản. Tham gia thiết kế kiến trúc microservices, code review và mentoring junior developers.',
                 requirements: '- 5+ năm kinh nghiệm Java\\n- Thành thạo Spring Boot, Spring Cloud\\n- Kinh nghiệm với Oracle, PostgreSQL\\n- TOEIC 700+ hoặc N3 tiếng Nhật',
-                benefits: '- Lương: $2,500 - $4,000\\n- Onsite Nhật Bản 3-6 tháng\\n- Đào tạo tiếng Nhật miễn phí\\n- Bảo hiểm cao cấp',
-                salary_min: 2500, salary_max: 4000, status: 'published', views: 1234
+                benefits: '- Lương: 60 - 100 triệu VNĐ\\n- Onsite Nhật Bản 3-6 tháng\\n- Đào tạo tiếng Nhật miễn phí\\n- Bảo hiểm cao cấp',
+                salary_min: 60000000, salary_max: 100000000, status: 'published', views: 1234
             },
             {
                 title: 'Full Stack Developer (React + Node.js)',
                 description: 'Phát triển ứng dụng web hiện đại với React và Node.js. Làm việc trong dự án outsourcing cho thị trường Mỹ và châu Âu.',
                 requirements: '- 3+ năm kinh nghiệm React, Node.js\\n- TypeScript, GraphQL\\n- AWS services\\n- Tiếng Anh giao tiếp tốt',
-                benefits: '- Lương: $2,000 - $3,500\\n- Remote 2 ngày/tuần\\n- Conference budget\\n- MacBook Pro',
-                salary_min: 2000, salary_max: 3500, status: 'published', views: 892
+                benefits: '- Lương: 50 - 85 triệu VNĐ\\n- Remote 2 ngày/tuần\\n- Conference budget\\n- MacBook Pro',
+                salary_min: 50000000, salary_max: 85000000, status: 'published', views: 892
             },
             {
                 title: 'DevOps Engineer (AWS)',
                 description: 'Xây dựng và quản lý hạ tầng cloud AWS cho các dự án enterprise. Thiết lập CI/CD pipelines, monitoring và automation.',
                 requirements: '- 4+ năm kinh nghiệm DevOps\\n- AWS Certified (SAA/DevOps)\\n- Docker, Kubernetes, Terraform\\n- Python/Bash scripting',
-                benefits: '- Lương: $2,200 - $3,800\\n- Chứng chỉ AWS được tài trợ\\n- Remote flexible\\n- Thưởng project',
-                salary_min: 2200, salary_max: 3800, status: 'published', views: 567
+                benefits: '- Lương: 55 - 95 triệu VNĐ\\n- Chứng chỉ AWS được tài trợ\\n- Remote flexible\\n- Thưởng project',
+                salary_min: 55000000, salary_max: 95000000, status: 'published', views: 567
             },
             {
                 title: 'Junior .NET Developer',
                 description: 'Cơ hội cho fresher/junior phát triển với .NET Core. Được mentoring bởi senior team và training theo lộ trình.',
                 requirements: '- 0-2 năm kinh nghiệm\\n- C#, .NET Core basic\\n- SQL Server\\n- Tiếng Anh đọc hiểu',
-                benefits: '- Lương: $600 - $1,000\\n- Training 3 tháng paid\\n- Mentor 1-1\\n- Lộ trình thăng tiến rõ ràng',
-                salary_min: 600, salary_max: 1000, status: 'published', views: 2345
+                benefits: '- Lương: 15 - 25 triệu VNĐ\\n- Training 3 tháng paid\\n- Mentor 1-1\\n- Lộ trình thăng tiến rõ ràng',
+                salary_min: 15000000, salary_max: 25000000, status: 'published', views: 2345
             },
             {
                 title: 'Python Developer (AI/ML)',
                 description: 'Phát triển các giải pháp AI/ML cho dự án R&D. Xây dựng models và tích hợp vào production systems.',
                 requirements: '- 3+ năm Python\\n- TensorFlow, PyTorch\\n- NLP hoặc Computer Vision\\n- Research mindset',
-                benefits: '- Lương: $2,500 - $4,500\\n- Làm việc với cutting-edge AI\\n- Conference international\\n- GPU workstation',
-                salary_min: 2500, salary_max: 4500, status: 'draft', views: 0
+                benefits: '- Lương: 60 - 110 triệu VNĐ\\n- Làm việc với cutting-edge AI\\n- Conference international\\n- GPU workstation',
+                salary_min: 60000000, salary_max: 110000000, status: 'draft', views: 0
             },
             {
                 title: 'QA Lead (Automation)',
                 description: 'Lead team QA automation, xây dựng test framework và đảm bảo quality cho các dự án outsourcing.',
                 requirements: '- 5+ năm QA experience\\n- Selenium, Appium, Cypress\\n- CI/CD integration\\n- Team leadership',
-                benefits: '- Lương: $2,000 - $3,200\\n- Lead position\\n- Training budget\\n- Team building quarterly',
-                salary_min: 2000, salary_max: 3200, status: 'published', views: 456
+                benefits: '- Lương: 50 - 80 triệu VNĐ\\n- Lead position\\n- Training budget\\n- Team building quarterly',
+                salary_min: 50000000, salary_max: 80000000, status: 'published', views: 456
             },
             {
                 title: 'Business Analyst (IT)',
                 description: 'Phân tích yêu cầu, viết specifications cho các dự án phần mềm. Cầu nối giữa khách hàng và development team.',
                 requirements: '- 3+ năm BA experience\\n- BPMN, UML\\n- Agile/Scrum\\n- Tiếng Anh/Nhật thành thạo',
-                benefits: '- Lương: $1,500 - $2,800\\n- Đi công tác Nhật Bản\\n- Communication training\\n- Career path to PM',
-                salary_min: 1500, salary_max: 2800, status: 'expired', views: 678
+                benefits: '- Lương: 38 - 70 triệu VNĐ\\n- Đi công tác Nhật Bản\\n- Communication training\\n- Career path to PM',
+                salary_min: 38000000, salary_max: 70000000, status: 'expired', views: 678
             },
             {
                 title: 'Mobile Developer (iOS - Swift)',
                 description: 'Phát triển ứng dụng iOS cho khách hàng global. Làm việc với Swift, SwiftUI và các công nghệ Apple mới nhất.',
                 requirements: '- 3+ năm iOS development\\n- Swift, SwiftUI\\n- Published apps on App Store\\n- Clean code, TDD',
-                benefits: '- Lương: $2,000 - $3,500\\n- MacBook Pro + iPhone\\n- WWDC tickets\\n- Remote OK',
-                salary_min: 2000, salary_max: 3500, status: 'published', views: 789
+                benefits: '- Lương: 50 - 85 triệu VNĐ\\n- MacBook Pro + iPhone\\n- WWDC tickets\\n- Remote OK',
+                salary_min: 50000000, salary_max: 85000000, status: 'published', views: 789
             }
         ],
         conglomerate: [
@@ -174,43 +174,43 @@ exports.seed = async function (knex) {
                 title: 'Automotive Engineer (VinFast)',
                 description: 'Tham gia thiết kế và phát triển xe điện VinFast. Làm việc với đội ngũ kỹ sư quốc tế tại nhà máy Hải Phòng.',
                 requirements: '- 5+ năm kinh nghiệm automotive\\n- CAD/CAM, CATIA\\n- EV technology knowledge\\n- Tiếng Anh tốt',
-                benefits: '- Lương: $3,000 - $5,000\\n- Nhà ở miễn phí tại Hải Phòng\\n- Đào tạo tại Đức\\n- Mua xe VinFast giá ưu đãi',
-                salary_min: 3000, salary_max: 5000, status: 'published', views: 1567
+                benefits: '- Lương: 75 - 125 triệu VNĐ\\n- Nhà ở miễn phí tại Hải Phòng\\n- Đào tạo tại Đức\\n- Mua xe VinFast giá ưu đãi',
+                salary_min: 75000000, salary_max: 125000000, status: 'published', views: 1567
             },
             {
                 title: 'Real Estate Sales Manager',
                 description: 'Quản lý đội ngũ sales bất động sản cao cấp Vinhomes. Target doanh số và phát triển chiến lược bán hàng.',
                 requirements: '- 5+ năm kinh nghiệm sales BĐS\\n- Quản lý team 10+ người\\n- Network khách hàng cao cấp\\n- Presentation skills',
                 benefits: '- Lương cơ bản + hoa hồng cao\\n- Commission không giới hạn\\n- Ô tô công ty\\n- Du lịch nước ngoài',
-                salary_min: 2000, salary_max: 8000, status: 'published', views: 2345
+                salary_min: 50000000, salary_max: 200000000, status: 'published', views: 2345
             },
             {
                 title: 'Software Developer (Smart City)',
                 description: 'Phát triển platform Smart City cho các đô thị Vinhomes. Làm việc với IoT, Big Data và AI.',
                 requirements: '- 3+ năm backend development\\n- Python, Java hoặc Go\\n- IoT protocols (MQTT, CoAP)\\n- Cloud platforms',
-                benefits: '- Lương: $2,000 - $3,500\\n- Làm việc tại Vinhomes Grand Park\\n- Stock options\\n- Shuttle bus',
-                salary_min: 2000, salary_max: 3500, status: 'published', views: 678
+                benefits: '- Lương: 50 - 85 triệu VNĐ\\n- Làm việc tại Vinhomes Grand Park\\n- Stock options\\n- Shuttle bus',
+                salary_min: 50000000, salary_max: 85000000, status: 'published', views: 678
             },
             {
                 title: 'Retail Store Manager (VinMart)',
                 description: 'Quản lý cửa hàng VinMart+. Đảm bảo doanh số, quản lý nhân viên và trải nghiệm khách hàng.',
                 requirements: '- 3+ năm quản lý retail\\n- Kỹ năng leadership\\n- Inventory management\\n- Customer service excellence',
-                benefits: '- Lương: $800 - $1,500\\n- Thưởng KPI hàng tháng\\n- Đào tạo leadership\\n- Career path rõ ràng',
-                salary_min: 800, salary_max: 1500, status: 'published', views: 1234
+                benefits: '- Lương: 20 - 38 triệu VNĐ\\n- Thưởng KPI hàng tháng\\n- Đào tạo leadership\\n- Career path rõ ràng',
+                salary_min: 20000000, salary_max: 38000000, status: 'published', views: 1234
             },
             {
                 title: 'Marketing Manager (Hospitality)',
                 description: 'Phát triển chiến lược marketing cho VinPearl resorts. Quản lý campaigns và brand awareness.',
                 requirements: '- 5+ năm marketing experience\\n- Hospitality/Tourism background\\n- Digital marketing\\n- Event management',
-                benefits: '- Lương: $2,000 - $3,500\\n- Nghỉ dưỡng VinPearl miễn phí\\n- Team building tại resort\\n- Travel opportunities',
-                salary_min: 2000, salary_max: 3500, status: 'draft', views: 0
+                benefits: '- Lương: 50 - 85 triệu VNĐ\\n- Nghỉ dưỡng VinPearl miễn phí\\n- Team building tại resort\\n- Travel opportunities',
+                salary_min: 50000000, salary_max: 85000000, status: 'draft', views: 0
             },
             {
                 title: 'Finance Controller',
                 description: 'Quản lý tài chính cho subsidiaries của VinGroup. Báo cáo, phân tích và strategic planning.',
                 requirements: '- CPA/ACCA certified\\n- 7+ năm kinh nghiệm finance\\n- Big 4 experience preferred\\n- ERP systems (SAP)',
-                benefits: '- Lương: $3,000 - $5,000\\n- Bonus theo performance\\n- Health check-up cao cấp\\n- Executive benefits',
-                salary_min: 3000, salary_max: 5000, status: 'published', views: 543
+                benefits: '- Lương: 75 - 125 triệu VNĐ\\n- Bonus theo performance\\n- Health check-up cao cấp\\n- Executive benefits',
+                salary_min: 75000000, salary_max: 125000000, status: 'published', views: 543
             }
         ],
         telecom: [
@@ -218,43 +218,43 @@ exports.seed = async function (knex) {
                 title: 'Network Engineer (5G)',
                 description: 'Triển khai và tối ưu hóa mạng 5G cho Viettel. Làm việc với vendors quốc tế như Ericsson, Nokia.',
                 requirements: '- 5+ năm network engineering\\n- 4G/5G technologies\\n- Cisco/Huawei certified\\n- Có thể đi công tác',
-                benefits: '- Lương: $2,500 - $4,000\\n- Training at vendor HQ\\n- Phụ cấp công tác\\n- Career in telecom',
-                salary_min: 2500, salary_max: 4000, status: 'published', views: 876
+                benefits: '- Lương: 60 - 100 triệu VNĐ\\n- Training at vendor HQ\\n- Phụ cấp công tác\\n- Career in telecom',
+                salary_min: 60000000, salary_max: 100000000, status: 'published', views: 876
             },
             {
                 title: 'Cloud Solutions Architect',
                 description: 'Thiết kế giải pháp cloud cho khách hàng enterprise. Viettel Cloud platform development.',
                 requirements: '- 5+ năm cloud experience\\n- AWS/Azure/GCP certified\\n- Solution architecture\\n- Pre-sales experience',
-                benefits: '- Lương: $3,000 - $5,000\\n- Certification sponsored\\n- Project bonus\\n- Leadership opportunities',
-                salary_min: 3000, salary_max: 5000, status: 'published', views: 654
+                benefits: '- Lương: 75 - 125 triệu VNĐ\\n- Certification sponsored\\n- Project bonus\\n- Leadership opportunities',
+                salary_min: 75000000, salary_max: 125000000, status: 'published', views: 654
             },
             {
                 title: 'Cybersecurity Analyst',
                 description: 'Bảo vệ hệ thống mạng và dữ liệu của Viettel. Phát hiện và xử lý các mối đe dọa an ninh mạng.',
                 requirements: '- 3+ năm cybersecurity\\n- CISSP, CEH hoặc tương đương\\n- SIEM, IDS/IPS\\n- Incident response',
-                benefits: '- Lương: $2,000 - $3,500\\n- Security training\\n- Conference attendance\\n- Challenging work',
-                salary_min: 2000, salary_max: 3500, status: 'published', views: 567
+                benefits: '- Lương: 50 - 85 triệu VNĐ\\n- Security training\\n- Conference attendance\\n- Challenging work',
+                salary_min: 50000000, salary_max: 85000000, status: 'published', views: 567
             },
             {
                 title: 'Data Engineer (Big Data)',
                 description: 'Xây dựng data platform cho Viettel. Xử lý petabytes dữ liệu từ hệ thống viễn thông.',
                 requirements: '- 4+ năm data engineering\\n- Hadoop, Spark, Kafka\\n- Python, Scala\\n- Real-time processing',
-                benefits: '- Lương: $2,500 - $4,000\\n- Big data training\\n- Research opportunities\\n- Latest technology stack',
-                salary_min: 2500, salary_max: 4000, status: 'published', views: 789
+                benefits: '- Lương: 60 - 100 triệu VNĐ\\n- Big data training\\n- Research opportunities\\n- Latest technology stack',
+                salary_min: 60000000, salary_max: 100000000, status: 'published', views: 789
             },
             {
                 title: 'Project Manager (IT Services)',
                 description: 'Quản lý dự án IT cho khách hàng chính phủ và doanh nghiệp. Delivery on time và trong budget.',
                 requirements: '- PMP certified\\n- 5+ năm PM experience\\n- Government project experience\\n- Stakeholder management',
-                benefits: '- Lương: $2,500 - $4,000\\n- PM training\\n- Project bonus\\n- Leadership team',
-                salary_min: 2500, salary_max: 4000, status: 'expired', views: 432
+                benefits: '- Lương: 60 - 100 triệu VNĐ\\n- PM training\\n- Project bonus\\n- Leadership team',
+                salary_min: 60000000, salary_max: 100000000, status: 'expired', views: 432
             },
             {
                 title: 'Embedded Software Engineer',
                 description: 'Phát triển firmware cho thiết bị IoT và telecom equipment tại Viettel High Tech.',
                 requirements: '- 3+ năm embedded development\\n- C/C++, RTOS\\n- ARM processors\\n- Hardware interfacing',
-                benefits: '- Lương: $1,800 - $3,000\\n- R&D environment\\n- Patent bonus\\n- Technical growth',
-                salary_min: 1800, salary_max: 3000, status: 'published', views: 543
+                benefits: '- Lương: 45 - 75 triệu VNĐ\\n- R&D environment\\n- Patent bonus\\n- Technical growth',
+                salary_min: 45000000, salary_max: 75000000, status: 'published', views: 543
             }
         ],
         ecommerce: [
@@ -262,50 +262,50 @@ exports.seed = async function (knex) {
                 title: 'Backend Engineer (Go/Java)',
                 description: 'Phát triển hệ thống e-commerce xử lý hàng triệu transactions. High-scale distributed systems.',
                 requirements: '- 3+ năm Go hoặc Java\\n- Distributed systems\\n- MySQL, Redis, Kafka\\n- High availability design',
-                benefits: '- Lương: $2,500 - $4,500\\n- Stock options\\n- Remote 3 ngày/tuần\\n- Technical growth',
-                salary_min: 2500, salary_max: 4500, status: 'published', views: 1456
+                benefits: '- Lương: 60 - 110 triệu VNĐ\\n- Stock options\\n- Remote 3 ngày/tuần\\n- Technical growth',
+                salary_min: 60000000, salary_max: 110000000, status: 'published', views: 1456
             },
             {
                 title: 'Product Manager (Seller Platform)',
                 description: 'Phát triển platform cho sellers trên Shopee. User research, roadmap và feature delivery.',
                 requirements: '- 4+ năm PM experience\\n- E-commerce background\\n- Data-driven mindset\\n- Tiếng Anh thành thạo',
-                benefits: '- Lương: $2,500 - $4,000\\n- Stock options\\n- Singapore training\\n- Cross-functional team',
-                salary_min: 2500, salary_max: 4000, status: 'published', views: 987
+                benefits: '- Lương: 60 - 100 triệu VNĐ\\n- Stock options\\n- Singapore training\\n- Cross-functional team',
+                salary_min: 60000000, salary_max: 100000000, status: 'published', views: 987
             },
             {
                 title: 'Data Scientist (Recommendation)',
                 description: 'Xây dựng recommendation engine cho Shopee. ML models để personalize trải nghiệm người dùng.',
                 requirements: '- 3+ năm ML/Data Science\\n- Python, TensorFlow/PyTorch\\n- Recommendation systems\\n- A/B testing',
-                benefits: '- Lương: $3,000 - $5,000\\n- GPU cluster access\\n- Research papers\\n- Conference budget',
-                salary_min: 3000, salary_max: 5000, status: 'published', views: 1234
+                benefits: '- Lương: 75 - 125 triệu VNĐ\\n- GPU cluster access\\n- Research papers\\n- Conference budget',
+                salary_min: 75000000, salary_max: 125000000, status: 'published', views: 1234
             },
             {
                 title: 'UX Designer (Mobile App)',
                 description: 'Thiết kế trải nghiệm người dùng cho Shopee app. User research, prototyping và testing.',
                 requirements: '- 3+ năm UX design\\n- Figma, Sketch\\n- Mobile-first design\\n- User research methods',
-                benefits: '- Lương: $1,500 - $2,800\\n- Design tools provided\\n- UX community\\n- Creative freedom',
-                salary_min: 1500, salary_max: 2800, status: 'published', views: 765
+                benefits: '- Lương: 38 - 70 triệu VNĐ\\n- Design tools provided\\n- UX community\\n- Creative freedom',
+                salary_min: 38000000, salary_max: 70000000, status: 'published', views: 765
             },
             {
                 title: 'Business Development Manager',
                 description: 'Phát triển đối tác và sellers cho Shopee. Partnership deals và market expansion.',
                 requirements: '- 5+ năm BD experience\\n- E-commerce/retail background\\n- Negotiation skills\\n- Network rộng',
-                benefits: '- Lương: $2,000 - $4,000\\n- Commission không giới hạn\\n- Travel budget\\n- Flexible schedule',
-                salary_min: 2000, salary_max: 4000, status: 'published', views: 654
+                benefits: '- Lương: 50 - 100 triệu VNĐ\\n- Commission không giới hạn\\n- Travel budget\\n- Flexible schedule',
+                salary_min: 50000000, salary_max: 100000000, status: 'published', views: 654
             },
             {
                 title: 'Logistics Operations Manager',
                 description: 'Quản lý vận hành logistics cho Shopee Express. Optimize delivery network và costs.',
                 requirements: '- 5+ năm logistics experience\\n- Supply chain management\\n- Data analysis\\n- Team leadership',
-                benefits: '- Lương: $2,000 - $3,500\\n- Operations bonus\\n- Career advancement\\n- Comprehensive training',
-                salary_min: 2000, salary_max: 3500, status: 'draft', views: 0
+                benefits: '- Lương: 50 - 85 triệu VNĐ\\n- Operations bonus\\n- Career advancement\\n- Comprehensive training',
+                salary_min: 50000000, salary_max: 85000000, status: 'draft', views: 0
             },
             {
                 title: 'Content Marketing Specialist',
                 description: 'Tạo content cho campaigns marketing. Social media, blog, video và influencer collaboration.',
                 requirements: '- 2+ năm content marketing\\n- Creative writing\\n- Social media savvy\\n- Video editing basic',
-                benefits: '- Lương: $800 - $1,500\\n- Shopee vouchers\\n- Creative environment\\n- Young dynamic team',
-                salary_min: 800, salary_max: 1500, status: 'published', views: 1876
+                benefits: '- Lương: 20 - 38 triệu VNĐ\\n- Shopee vouchers\\n- Creative environment\\n- Young dynamic team',
+                salary_min: 20000000, salary_max: 38000000, status: 'published', views: 1876
             }
         ],
         fintech: [
@@ -313,57 +313,57 @@ exports.seed = async function (knex) {
                 title: 'Senior Backend Developer (Java)',
                 description: 'Phát triển core payment system cho MoMo. High-throughput, low-latency financial transactions.',
                 requirements: '- 5+ năm Java/Kotlin\\n- Spring Boot, microservices\\n- Financial systems experience\\n- Security best practices',
-                benefits: '- Lương: $3,000 - $5,000\\n- Stock options\\n- Fintech experience\\n- Technical leadership path',
-                salary_min: 3000, salary_max: 5000, status: 'published', views: 1567
+                benefits: '- Lương: 75 - 125 triệu VNĐ\\n- Stock options\\n- Fintech experience\\n- Technical leadership path',
+                salary_min: 75000000, salary_max: 125000000, status: 'published', views: 1567
             },
             {
                 title: 'Mobile Developer (Android)',
                 description: 'Phát triển MoMo app cho Android. Millions of users, payment và lifestyle features.',
                 requirements: '- 3+ năm Android development\\n- Kotlin, Jetpack Compose\\n- Performance optimization\\n- Security implementation',
-                benefits: '- Lương: $2,000 - $3,500\\n- Stock options\\n- Latest Android devices\\n- Impact millions users',
-                salary_min: 2000, salary_max: 3500, status: 'published', views: 1234
+                benefits: '- Lương: 50 - 85 triệu VNĐ\\n- Stock options\\n- Latest Android devices\\n- Impact millions users',
+                salary_min: 50000000, salary_max: 85000000, status: 'published', views: 1234
             },
             {
                 title: 'Risk Analyst (Fraud Prevention)',
                 description: 'Phát hiện và ngăn chặn gian lận trong transactions. Data analysis và rule-based systems.',
                 requirements: '- 3+ năm risk/fraud experience\\n- SQL, Python\\n- Statistical analysis\\n- Fintech/banking background',
-                benefits: '- Lương: $1,800 - $3,000\\n- Critical role\\n- Fraud detection training\\n- Career in risk management',
-                salary_min: 1800, salary_max: 3000, status: 'published', views: 654
+                benefits: '- Lương: 45 - 75 triệu VNĐ\\n- Critical role\\n- Fraud detection training\\n- Career in risk management',
+                salary_min: 45000000, salary_max: 75000000, status: 'published', views: 654
             },
             {
                 title: 'DevOps Engineer (Kubernetes)',
                 description: 'Quản lý infrastructure cho payment platform. Zero-downtime deployment và high availability.',
                 requirements: '- 4+ năm DevOps experience\\n- Kubernetes expert\\n- AWS/GCP\\n- SRE practices',
-                benefits: '- Lương: $2,500 - $4,000\\n- On-call bonus\\n- Cloud certifications\\n- Critical systems experience',
-                salary_min: 2500, salary_max: 4000, status: 'published', views: 543
+                benefits: '- Lương: 60 - 100 triệu VNĐ\\n- On-call bonus\\n- Cloud certifications\\n- Critical systems experience',
+                salary_min: 60000000, salary_max: 100000000, status: 'published', views: 543
             },
             {
                 title: 'QA Engineer (Mobile)',
                 description: 'Test MoMo mobile app. Manual và automation testing cho payment features.',
                 requirements: '- 2+ năm QA mobile\\n- Appium, Espresso\\n- Payment testing experience\\n- Detail-oriented',
-                benefits: '- Lương: $1,000 - $1,800\\n- Test devices provided\\n- QA team growth\\n- Fintech testing skills',
-                salary_min: 1000, salary_max: 1800, status: 'published', views: 876
+                benefits: '- Lương: 25 - 45 triệu VNĐ\\n- Test devices provided\\n- QA team growth\\n- Fintech testing skills',
+                salary_min: 25000000, salary_max: 45000000, status: 'published', views: 876
             },
             {
                 title: 'Product Owner (Lending)',
                 description: 'Phát triển sản phẩm cho vay trên MoMo. Credit scoring, loan management và collection.',
                 requirements: '- 4+ năm product experience\\n- Lending/credit background\\n- Data-driven\\n- Regulatory knowledge',
-                benefits: '- Lương: $2,500 - $4,000\\n- Stock options\\n- Impact on financial inclusion\\n- Fintech innovation',
-                salary_min: 2500, salary_max: 4000, status: 'draft', views: 0
+                benefits: '- Lương: 60 - 100 triệu VNĐ\\n- Stock options\\n- Impact on financial inclusion\\n- Fintech innovation',
+                salary_min: 60000000, salary_max: 100000000, status: 'draft', views: 0
             },
             {
                 title: 'Compliance Officer',
                 description: 'Đảm bảo tuân thủ quy định pháp luật về thanh toán và tài chính. Làm việc với SBV.',
                 requirements: '- 5+ năm compliance experience\\n- Banking/fintech regulation\\n- AML/KYC knowledge\\n- Legal background preferred',
-                benefits: '- Lương: $2,000 - $3,500\\n- Critical role\\n- Regulatory training\\n- Legal team support',
-                salary_min: 2000, salary_max: 3500, status: 'published', views: 432
+                benefits: '- Lương: 50 - 85 triệu VNĐ\\n- Critical role\\n- Regulatory training\\n- Legal team support',
+                salary_min: 50000000, salary_max: 85000000, status: 'published', views: 432
             },
             {
                 title: 'Data Engineer (Real-time)',
                 description: 'Xây dựng real-time data pipeline cho analytics và fraud detection. Kafka, Flink, ClickHouse.',
                 requirements: '- 3+ năm data engineering\\n- Stream processing\\n- Kafka, Flink\\n- Python, Scala',
-                benefits: '- Lương: $2,500 - $4,000\\n- Big data stack\\n- Real-time systems\\n- Learning opportunities',
-                salary_min: 2500, salary_max: 4000, status: 'expired', views: 567
+                benefits: '- Lương: 60 - 100 triệu VNĐ\\n- Big data stack\\n- Real-time systems\\n- Learning opportunities',
+                salary_min: 60000000, salary_max: 100000000, status: 'expired', views: 567
             }
         ]
     };

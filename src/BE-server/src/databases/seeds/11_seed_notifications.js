@@ -157,7 +157,7 @@ exports.seed = async function (knex) {
     {
       notification_id: generateNotifId(),
       user_id: users[9].user_id,
-      note: '🏢 Công ty MoMo vừa đăng tuyển vị trí Senior Backend Developer với mức lương 2500-4000 USD. Phù hợp với kinh nghiệm của bạn.',
+      note: '🏢 Công ty MoMo vừa đăng tuyển vị trí Senior Backend Developer với mức lương 60-100 triệu VNĐ. Phù hợp với kinh nghiệm của bạn.',
       seen: false,
       created_at: threeHoursAgo
     },
@@ -310,7 +310,7 @@ exports.seed = async function (knex) {
   const count = await knex('notification').count('* as count').first().then(r => r.count);
   const unseenCount = notifications.filter(n => !n.seen).length;
   const seenCount = notifications.filter(n => n.seen).length;
-  
+
   console.log(`✅ Created ${notifications.length} notifications (total: ${count})`);
   console.log(`   - Unseen: ${unseenCount}`);
   console.log(`   - Seen: ${seenCount}`);

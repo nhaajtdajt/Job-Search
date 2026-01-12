@@ -55,7 +55,7 @@ exports.seed = async function (knex) {
         location_ids: [findLocationId('Hồ Chí Minh')].filter(Boolean),
         skill_ids: [findSkillId('ReactJS'), findSkillId('Node.js')].filter(Boolean),
         level: 'Senior',
-        salary_min: 2000,
+        salary_min: 50000000,
         work_type: 'Remote'
       }),
       created_at: oneMonthAgo
@@ -80,7 +80,7 @@ exports.seed = async function (knex) {
         job_type: 'full-time',
         skill_ids: [findSkillId('ReactJS'), findSkillId('Vue.js'), findSkillId('TypeScript')].filter(Boolean),
         level: 'Mid-level',
-        salary_min: 1200
+        salary_min: 30000000
       }),
       created_at: oneWeekAgo
     },
@@ -105,7 +105,7 @@ exports.seed = async function (knex) {
         location_ids: [findLocationId('Hà Nội')].filter(Boolean),
         skill_ids: [findSkillId('Node.js'), findSkillId('PostgreSQL')].filter(Boolean),
         level: 'Mid-level',
-        salary_min: 1500
+        salary_min: 38000000
       }),
       created_at: oneMonthAgo
     },
@@ -128,7 +128,7 @@ exports.seed = async function (knex) {
         job_type: 'full-time',
         skill_ids: [findSkillId('React Native')].filter(Boolean),
         level: 'Mid-level',
-        salary_min: 1300
+        salary_min: 32000000
       }),
       created_at: oneWeekAgo
     },
@@ -185,7 +185,7 @@ exports.seed = async function (knex) {
       filter: JSON.stringify({
         job_type: 'full-time',
         level: 'Junior',
-        salary_min: 500
+        salary_min: 12000000
       }),
       created_at: twoWeeksAgo
     },
@@ -198,7 +198,7 @@ exports.seed = async function (knex) {
         job_type: 'full-time',
         skill_ids: [findSkillId('Python'), findSkillId('Machine Learning')].filter(Boolean),
         level: 'Mid-level',
-        salary_min: 1500
+        salary_min: 38000000
       }),
       created_at: oneMonthAgo
     },
@@ -221,7 +221,7 @@ exports.seed = async function (knex) {
         job_type: 'full-time',
         skill_ids: [findSkillId('Figma'), findSkillId('UI/UX Design')].filter(Boolean),
         level: 'Mid-level',
-        salary_min: 800
+        salary_min: 20000000
       }),
       created_at: oneMonthAgo
     },
@@ -257,7 +257,7 @@ exports.seed = async function (knex) {
         job_type: 'full-time',
         skill_ids: [findSkillId('Java'), findSkillId('Spring Boot')].filter(Boolean),
         level: 'Senior',
-        salary_min: 2000
+        salary_min: 50000000
       }),
       created_at: oneMonthAgo
     },
@@ -281,7 +281,7 @@ exports.seed = async function (knex) {
         job_type: 'full-time',
         skill_ids: [findSkillId('Python'), findSkillId('PostgreSQL')].filter(Boolean),
         level: 'Mid-level',
-        salary_min: 1500
+        salary_min: 38000000
       }),
       created_at: oneMonthAgo
     },
@@ -304,7 +304,7 @@ exports.seed = async function (knex) {
         job_type: 'full-time',
         skill_ids: [findSkillId('Selenium')].filter(Boolean),
         level: 'Mid-level',
-        salary_min: 1000
+        salary_min: 25000000
       }),
       created_at: oneMonthAgo
     },
@@ -363,7 +363,7 @@ exports.seed = async function (knex) {
         job_type: 'full-time',
         skill_ids: [findSkillId('Go'), findSkillId('PostgreSQL')].filter(Boolean),
         level: 'Senior',
-        salary_min: 1800
+        salary_min: 45000000
       }),
       created_at: oneMonthAgo
     },
@@ -387,7 +387,7 @@ exports.seed = async function (knex) {
         job_type: 'full-time',
         skill_ids: [findSkillId('ReactJS'), findSkillId('Node.js')].filter(Boolean),
         level: 'Senior',
-        salary_min: 2500
+        salary_min: 60000000
       }),
       created_at: oneWeekAgo
     },
