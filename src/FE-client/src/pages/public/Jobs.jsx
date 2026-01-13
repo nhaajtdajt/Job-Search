@@ -16,9 +16,11 @@ import {
 import { message } from 'antd';
 import { jobService } from '../../services/jobService';
 import savedService from '../../services/savedService';
+import { userService } from '../../services/user.service';
 import { useAuth } from '../../contexts/AuthContext';
 import JobListItem from '../../components/jobs/JobListItem';
 import AdvancedFilters from '../../components/jobs/AdvancedFilters';
+import SearchDropdown from '../../components/jobs/SearchDropdown';
 import { SkeletonJobList } from '../../components/common/SkeletonLoader';
 import { EmptyState } from '../../components/common/EmptyState';
 
@@ -39,6 +41,9 @@ export default function Jobs() {
   const [totalPages, setTotalPages] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState(new Set());
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
+  const [searchRefreshTrigger, setSearchRefreshTrigger] = useState(0);
   
   // Search state
   const [keyword, setKeyword] = useState(searchParams.get('q') || '');
@@ -128,9 +133,40 @@ export default function Jobs() {
     }
   }, [page, keyword, location, sortBy, filters, savedJobIds]);
 
+  // Initial load: only when component mounts with URL params
   useEffect(() => {
-    loadJobs();
-  }, [loadJobs]);
+    // Load on initial mount if there are search params, otherwise load all jobs
+    if (!hasInitialLoad) {
+      const hasSearchParams = searchParams.get('q') || searchParams.get('location') || 
+                              searchParams.getAll('type').length > 0 || 
+                              searchParams.get('remote') === 'true';
+      setHasInitialLoad(true);
+      // Load jobs (with or without params)
+      loadJobs();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Load jobs when filters change (but not when keyword/location changes - only on submit)
+  useEffect(() => {
+    if (hasInitialLoad) {
+      // Only reload if filters changed (not keyword/location)
+      const timer = setTimeout(() => {
+        loadJobs();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    filters.job_types?.join(',') || '', 
+    filters.experience_levels?.join(',') || '', 
+    filters.salary_range, 
+    filters.posted_within, 
+    filters.is_remote, 
+    filters.skills?.join(',') || '', 
+    sortBy, 
+    page
+  ]);
 
   // Update URL params
   useEffect(() => {
@@ -139,36 +175,290 @@ export default function Jobs() {
     if (location) params.set('location', location);
     if (sortBy !== 'newest') params.set('sort', sortBy);
     if (filters.is_remote) params.set('remote', 'true');
-    filters.job_types.forEach(type => params.append('type', type));
-    filters.experience_levels.forEach(exp => params.append('exp', exp));
+    if (filters.job_types && Array.isArray(filters.job_types)) {
+      filters.job_types.forEach(type => params.append('type', type));
+    }
+    if (filters.experience_levels && Array.isArray(filters.experience_levels)) {
+      filters.experience_levels.forEach(exp => params.append('exp', exp));
+    }
     if (filters.salary_range) params.set('salary', filters.salary_range);
     if (filters.posted_within) params.set('posted', filters.posted_within);
     
     setSearchParams(params, { replace: true });
   }, [keyword, location, sortBy, filters, setSearchParams]);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     setPage(1);
+    setHasInitialLoad(true);
+    setIsSearchDropdownOpen(false);
+    
+    // Load jobs first
     loadJobs();
+    
+    // Auto-save search if user is authenticated and has keyword or location
+    // Only save if there's a meaningful search (keyword or location)
+    if (user && (keyword.trim() || location.trim())) {
+      // Save search in background (don't block UI)
+      (async () => {
+        try {
+          // Create search name from keyword or location
+          let searchName = keyword.trim() || location.trim();
+          if (keyword.trim() && location.trim()) {
+            searchName = `${keyword.trim()} - ${location.trim()}`;
+          }
+          
+          // Build filter object - only include non-empty values
+          const filterData = {};
+          
+          if (keyword.trim()) {
+            filterData.keyword = keyword.trim();
+          }
+          if (location.trim()) {
+            filterData.location = location.trim();
+          }
+          if (filters.job_types && filters.job_types.length > 0) {
+            filterData.job_type = filters.job_types[0];
+          }
+          if (filters.experience_levels && filters.experience_levels.length > 0) {
+            filterData.experience_level = filters.experience_levels[0];
+          }
+          if (filters.is_remote) {
+            filterData.is_remote = true;
+          }
+          if (filters.posted_within) {
+            filterData.posted_within = filters.posted_within;
+          }
+          if (filters.skills && filters.skills.length > 0) {
+            filterData.skills = filters.skills;
+          }
+          
+          // Handle salary range
+          if (filters.salary_range) {
+            const [min, max] = filters.salary_range.split('-');
+            if (min) filterData.salary_min = parseInt(min) * 1000000;
+            if (max && max !== '+') filterData.salary_max = parseInt(max) * 1000000;
+          }
+          
+          // Check if similar search already exists (only check keyword and location)
+          try {
+            const existingSearchesResponse = await savedService.getSavedSearches();
+            
+            // Handle different response formats
+            let searches = [];
+            if (Array.isArray(existingSearchesResponse)) {
+              searches = existingSearchesResponse;
+            } else if (existingSearchesResponse?.data) {
+              if (Array.isArray(existingSearchesResponse.data)) {
+                searches = existingSearchesResponse.data;
+              } else if (existingSearchesResponse.data?.data && Array.isArray(existingSearchesResponse.data.data)) {
+                searches = existingSearchesResponse.data.data;
+              }
+            }
+            
+            // Check for duplicate (same keyword and location)
+            const isDuplicate = searches.some(search => {
+              let searchFilter = search.filter;
+              if (typeof searchFilter === 'string') {
+                try {
+                  searchFilter = JSON.parse(searchFilter);
+                } catch (e) {
+                  return false;
+                }
+              }
+              
+              const existingKeyword = searchFilter?.keyword || '';
+              const existingLocation = searchFilter?.location || '';
+              const newKeyword = filterData.keyword || '';
+              const newLocation = filterData.location || '';
+              
+              return existingKeyword === newKeyword && existingLocation === newLocation;
+            });
+            
+            // Only save if not duplicate
+            if (!isDuplicate) {
+              const saveResult = await userService.saveSearch({
+                name: searchName,
+                filter: filterData
+              });
+              console.log('Search saved successfully:', saveResult); // Debug log
+              // Trigger refresh of saved searches dropdown
+              setSearchRefreshTrigger(prev => prev + 1);
+            } else {
+              console.log('Search already exists, skipping save'); // Debug log
+            }
+          } catch (saveError) {
+            console.warn('Failed to auto-save search:', saveError);
+          }
+        } catch (error) {
+          // Silently fail - don't break search functionality
+          console.warn('Failed to auto-save search:', error);
+        }
+      })();
+    }
+  };
+
+  const handleSelectSavedSearch = async (savedSearch) => {
+    // Parse filter if it's a JSON string
+    let searchData = savedSearch;
+    if (savedSearch.filter) {
+      if (typeof savedSearch.filter === 'string') {
+        try {
+          const parsed = JSON.parse(savedSearch.filter);
+          searchData = { ...savedSearch, ...parsed };
+        } catch (e) {
+          console.warn('Failed to parse filter:', e);
+        }
+      } else if (typeof savedSearch.filter === 'object') {
+        // Filter is already an object
+        searchData = { ...savedSearch, ...savedSearch.filter };
+      }
+    }
+
+    // Extract search parameters
+    const searchKeyword = searchData.keyword || '';
+    const searchLocation = searchData.location || '';
+    
+    console.log('Selected saved search:', {
+      savedSearch,
+      searchData,
+      keyword: searchKeyword,
+      location: searchLocation
+    });
+    
+    // Apply saved search data to state
+    setKeyword(searchKeyword);
+    setLocation(searchLocation);
+    
+    // Apply filters from saved search
+    const newFilters = {
+      job_types: searchData.job_type ? [searchData.job_type] : [],
+      experience_levels: searchData.experience_level ? [searchData.experience_level] : [],
+      salary_range: searchData.salary_min || searchData.salary_max 
+        ? `${searchData.salary_min ? searchData.salary_min / 1000000 : ''}-${searchData.salary_max ? searchData.salary_max / 1000000 : '+'}`
+        : '',
+      is_remote: searchData.is_remote || false,
+      posted_within: searchData.posted_within || '',
+      skills: searchData.skills || [],
+    };
+    
+    setFilters(newFilters);
+    setPage(1);
+    setHasInitialLoad(true);
+    
+    // Load jobs immediately with the saved search parameters
+    // Don't wait for state update - use the values directly
+    try {
+      setLoading(true);
+      const params = {
+        page: 1,
+        limit: 10,
+        search: searchKeyword || undefined,
+        location: searchLocation || undefined,
+        sort: sortBy,
+        type: newFilters.job_types.length > 0 ? newFilters.job_types : undefined,
+        exp: newFilters.experience_levels.length > 0 ? newFilters.experience_levels : undefined,
+        posted: newFilters.posted_within || undefined,
+        is_remote: newFilters.is_remote || undefined,
+        skills: newFilters.skills && newFilters.skills.length > 0 ? newFilters.skills.join(',') : undefined,
+      };
+
+      // Handle salary range
+      if (newFilters.salary_range) {
+        const [min, max] = newFilters.salary_range.split('-');
+        if (min) params.salary_min = parseInt(min) * 1000000;
+        if (max && max !== '+') params.salary_max = parseInt(max) * 1000000;
+      }
+
+      const response = await jobService.getJobs(params);
+      // Handle different response formats
+      let jobsData = response?.data || response || [];
+      jobsData = Array.isArray(jobsData) ? jobsData : [];
+      
+      // Mark saved jobs and sort: saved jobs first
+      const processedJobs = jobsData.map(job => ({
+        ...job,
+        is_saved: savedJobIds.has(job.job_id)
+      }));
+      
+      // Sort: saved jobs first, then by original order
+      processedJobs.sort((a, b) => {
+        if (a.is_saved && !b.is_saved) return -1;
+        if (!a.is_saved && b.is_saved) return 1;
+        return 0;
+      });
+      
+      setJobs(processedJobs);
+      setTotalJobs(response?.pagination?.total || response?.total || jobsData.length || 0);
+      setTotalPages(response?.pagination?.totalPages || Math.ceil((response?.total || jobsData.length) / 10) || 1);
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+      message.error('Không thể tải danh sách việc làm');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters);
     setPage(1);
+    setHasInitialLoad(true);
   };
 
-  const handleClearSearch = () => {
+  const handleClearSearch = async () => {
+    // Clear all search criteria
     setKeyword('');
     setLocation('');
+    setSortBy('newest');
     setFilters({
       job_types: [],
       experience_levels: [],
       salary_range: '',
       is_remote: false,
       posted_within: '',
+      skills: [],
     });
     setPage(1);
+    setHasInitialLoad(true);
+    
+    // Clear URL params
+    setSearchParams({}, { replace: true });
+    
+    // Load all jobs without any filters
+    try {
+      setLoading(true);
+      const params = {
+        page: 1,
+        limit: 10,
+        sort: 'newest'
+      };
+
+      const response = await jobService.getJobs(params);
+      let jobsData = response?.data || response || [];
+      jobsData = Array.isArray(jobsData) ? jobsData : [];
+      
+      // Mark saved jobs
+      const processedJobs = jobsData.map(job => ({
+        ...job,
+        is_saved: savedJobIds.has(job.job_id)
+      }));
+      
+      // Sort: saved jobs first
+      processedJobs.sort((a, b) => {
+        if (a.is_saved && !b.is_saved) return -1;
+        if (!a.is_saved && b.is_saved) return 1;
+        return 0;
+      });
+      
+      setJobs(processedJobs);
+      setTotalJobs(response?.pagination?.total || response?.total || jobsData.length || 0);
+      setTotalPages(response?.pagination?.totalPages || Math.ceil((response?.total || jobsData.length) / 10) || 1);
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+      message.error('Không thể tải danh sách việc làm');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const activeFiltersCount = 
@@ -181,7 +471,7 @@ export default function Jobs() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Search Header - Premium glassmorphism design */}
-      <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 py-6 sticky top-0 z-20 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 py-6 sticky top-0 z-20 overflow-visible">
         {/* Animated background decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-20 -right-20 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
@@ -201,23 +491,43 @@ export default function Jobs() {
           {/* Search Bar - Glassmorphism container */}
           <form 
             onSubmit={handleSearch} 
-            className="relative bg-white/10 backdrop-blur-xl rounded-2xl p-2 md:p-3 border border-white/20 shadow-2xl animate-fadeInUp stagger-1"
+            className="relative bg-white/10 backdrop-blur-xl rounded-2xl p-2 md:p-3 border border-white/20 shadow-2xl animate-fadeInUp stagger-1 z-30"
           >
             <div className="flex flex-col md:flex-row gap-2 md:gap-3">
               {/* Keyword input */}
-              <div className="flex-1 relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-blue-500" />
+              <div className="flex-1 relative group z-30">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-blue-500 z-10" />
                 <input
                   type="text"
                   value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
+                  onChange={(e) => {
+                    setKeyword(e.target.value);
+                    // Auto-open dropdown when typing if user is logged in
+                    if (user && e.target.value.trim()) {
+                      setIsSearchDropdownOpen(true);
+                    }
+                  }}
+                  onFocus={() => {
+                    if (user) {
+                      setIsSearchDropdownOpen(true);
+                    }
+                  }}
                   placeholder="Chức danh, kỹ năng, công ty..."
                   className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/95 border-2 border-transparent 
-                    text-gray-900 placeholder-gray-400
+                    text-gray-900 placeholder-gray-400 relative z-10
                     transition-all duration-300 ease-out
                     focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 focus:bg-white
                     hover:bg-white hover:shadow-md"
                 />
+                <div className="absolute top-full left-0 right-0 z-[100]">
+                  <SearchDropdown
+                    isOpen={isSearchDropdownOpen}
+                    onClose={() => setIsSearchDropdownOpen(false)}
+                    onSelectSearch={handleSelectSavedSearch}
+                    keyword={keyword}
+                    refreshTrigger={searchRefreshTrigger}
+                  />
+                </div>
               </div>
               
               {/* Location input */}
