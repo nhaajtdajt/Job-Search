@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { 
   MapPin, 
-  DollarSign, 
   Clock, 
   Building2,
   Briefcase,
@@ -98,7 +97,7 @@ function JobListItem({
                 {job.location || 'Chưa xác định'}
               </span>
               <span className="flex items-center gap-1">
-                <DollarSign className="w-3 h-3" />
+                <span className="text-xs font-medium text-green-600">VND</span>
                 {formatSalary(job.salary_min, job.salary_max)}
               </span>
             </div>
@@ -156,7 +155,7 @@ function JobListItem({
               <span>{job.location || 'Chưa xác định'}</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <DollarSign className="w-4 h-4 text-green-500" aria-hidden="true" />
+              <span className="text-xs font-semibold text-green-600">VND</span>
               <span className="font-medium text-green-600">
                 {formatSalary(job.salary_min, job.salary_max)}
               </span>

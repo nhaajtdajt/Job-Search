@@ -12,10 +12,10 @@ import {
   Settings,
   Calendar,
   MapPin,
-  DollarSign,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
-import { message } from 'antd';
+import { message, Modal } from 'antd';
 
 export default function MyJobs() {
   const { user: authUser, isAuthenticated } = useAuth();
@@ -88,6 +88,32 @@ export default function MyJobs() {
     }
   };
 
+  const handleWithdrawApplication = async (applicationId, jobTitle) => {
+    Modal.confirm({
+      title: 'Xác nhận rút đơn ứng tuyển',
+      content: `Bạn có chắc chắn muốn rút đơn ứng tuyển cho vị trí "${jobTitle}"? Hành động này không thể hoàn tác.`,
+      okText: 'Rút đơn',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          setLoading(true);
+          await applicationService.deleteApplication(applicationId);
+          message.success('Đã rút đơn ứng tuyển thành công');
+          // Reload applications
+          const appsData = await applicationService.getUserApplications(1, 50);
+          setApplications(appsData.data || []);
+        } catch (error) {
+          console.error('Error withdrawing application:', error);
+          const errorMessage = error.response?.data?.message || error.message || 'Không thể rút đơn ứng tuyển. Vui lòng thử lại.';
+          message.error(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -149,33 +175,53 @@ export default function MyJobs() {
 
     return (
       <div className="space-y-4">
-        {applications.map((app) => (
-            <Link
+        {applications.map((app) => {
+          const canWithdraw = ['pending', 'reviewing'].includes(app.status?.toLowerCase());
+          const jobTitle = app.job?.job_title || 'N/A';
+          
+          return (
+            <div
               key={app.application_id}
-              to={`/jobs/${app.job_id}`}
-              className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 cursor-pointer card-smooth"
+              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 card-smooth"
             >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900">{app.job?.job_title || 'N/A'}</h3>
-                  {getStatusBadge(app.status)}
-                </div>
-                {app.job?.job_type && (
-                  <p className="text-sm text-gray-600 mb-2">
-                    {app.job.job_type}
-                  </p>
-                )}
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>Ứng tuyển: {formatDate(app.apply_date)}</span>
+              <div className="flex items-start justify-between">
+                <Link
+                  to={`/jobs/${app.job_id}`}
+                  className="flex-1 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900">{jobTitle}</h3>
+                    {getStatusBadge(app.status)}
                   </div>
-                </div>
+                  {app.job?.job_type && (
+                    <p className="text-sm text-gray-600 mb-2">
+                      {app.job.job_type}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>Ứng tuyển: {formatDate(app.apply_date)}</span>
+                    </div>
+                  </div>
+                </Link>
+                {canWithdraw && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleWithdrawApplication(app.application_id, jobTitle);
+                    }}
+                    className="ml-4 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-200 flex items-center gap-2"
+                    title="Rút đơn ứng tuyển"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Rút đơn</span>
+                  </button>
+                )}
               </div>
             </div>
-          </Link>
-        ))}
+          );
+        })}
       </div>
     );
   };
@@ -228,7 +274,7 @@ export default function MyJobs() {
                   )}
                   {(job.salary_min || job.salary_max) && (
                     <div className="flex items-center gap-1 text-sm text-orange-600 mb-2">
-                      <DollarSign className="w-4 h-4" />
+                      <span className="text-xs font-semibold">VND</span>
                       <span>{formatSalary(job.salary_min, job.salary_max)}</span>
                     </div>
                   )}
@@ -302,7 +348,7 @@ export default function MyJobs() {
               )}
               {(job.salary_min || job.salary_max) && (
                 <div className="flex items-center gap-1 text-sm text-orange-600 mb-2">
-                  <DollarSign className="w-4 h-4" />
+                  <span className="text-xs font-semibold">VND</span>
                   <span>{formatSalary(job.salary_min, job.salary_max)}</span>
                 </div>
               )}

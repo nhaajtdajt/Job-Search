@@ -7,7 +7,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Building2, 
   MapPin, 
-  DollarSign, 
   Clock, 
   Briefcase, 
   Users, 
@@ -153,7 +152,7 @@ export default function JobDetail() {
 
                   <div className="flex flex-wrap gap-4 mt-4">
                     <div className="flex items-center text-gray-600">
-                      <DollarSign className="w-5 h-5 text-green-600 mr-2" />
+                      <span className="text-sm font-semibold text-green-600 mr-2">VND</span>
                       <span className="font-semibold text-green-700">
                         {formatSalary(job.salary_min, job.salary_max)}
                       </span>
